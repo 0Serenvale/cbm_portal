@@ -1025,8 +1025,8 @@ class StockPicking(models.Model):
 
         # --- Config ---
         # Master enable/disable toggle (set via Settings > Clinic Portal > Accountability)
-        cron_enabled = ICP.get_param('clinic_staff_portal.accountability_cron_enabled', 'True').lower()
-        if cron_enabled != 'true':
+        cron_enabled = ICP.get_param('clinic_staff_portal.accountability_cron_enabled', 'True')
+        if cron_enabled not in ('True', '1', 'true'):
             _logger.info("[ACCOUNTABILITY CRON] Disabled via settings. Skipping.")
             return
 
