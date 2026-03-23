@@ -1999,11 +1999,9 @@ class CBMKioskController(http.Controller):
                 import traceback
                 _logger.error("CBM: Failed to validate return picking %s: %s\n%s",
                              return_picking.name, str(e), traceback.format_exc())
-                return {
-                    'success': False,
-                    'error': _('Le retour de stock a échoué et nécessite une intervention manuelle. Référence : %s') % return_picking.name,
-                    'requires_manual_intervention': True,
-                }
+                # Do NOT fail the whole submission — consumption half may still complete.
+                # Surface a warning to the user so admin is notified.
+                # return_validated stays False so SO lines are not updated for the return.
 
             # Update SO lines if return was validated
             if return_validated:
@@ -2099,6 +2097,10 @@ class CBMKioskController(http.Controller):
         if skipped_products:
             response['skipped_products'] = skipped_products
             response['warning'] = _('Some products were skipped due to insufficient stock')
+
+        # Warn if return picking was created but validation failed
+        if return_picking and not return_validated:
+            response['return_warning'] = _('Le retour %s n\'a pas pu être validé automatiquement. Un administrateur doit le traiter manuellement.') % return_picking.name
 
         return response
 
