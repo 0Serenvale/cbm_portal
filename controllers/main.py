@@ -1721,6 +1721,7 @@ class CBMKioskController(http.Controller):
                 available_lines.append(line)
             else:
                 # Insufficient stock - create discrepancy alert and SKIP this product
+                source_location_name = request.env['stock.location'].sudo().browse(source_location_id).name
                 _logger.warning("Stock insufficient: %s needs %.2f but only %.2f at %s - SKIPPING",
                                 product.name, line['qty'], available, source_location_name)
                 
@@ -1752,6 +1753,7 @@ class CBMKioskController(http.Controller):
                 
                 skipped_products.append({
                     'product': product.name,
+                    'product_id': product.id,
                     'needed': line['qty'],
                     'available': available,
                     'alert': alert.name,
@@ -1997,7 +1999,11 @@ class CBMKioskController(http.Controller):
                 import traceback
                 _logger.error("CBM: Failed to validate return picking %s: %s\n%s",
                              return_picking.name, str(e), traceback.format_exc())
-                # Don't fail the whole submission — admin can process manually
+                return {
+                    'success': False,
+                    'error': _('Le retour de stock a échoué et nécessite une intervention manuelle. Référence : %s') % return_picking.name,
+                    'requires_manual_intervention': True,
+                }
 
             # Update SO lines if return was validated
             if return_validated:
@@ -2582,12 +2588,18 @@ class CBMKioskController(http.Controller):
 
         # --- Post-submit: Update prescription line qty_applied ---
         if result.get('success'):
+            # Build set of product_ids that were skipped due to insufficient stock
+            skipped_product_ids = {s['product_id'] for s in result.get('skipped_products', []) if 'product_id' in s}
             for line_data in all_lines:
                 pline_id = line_data.get('_prescription_line_id')
-                if pline_id:
-                    pline = PrescriptionLine.browse(pline_id)
-                    if pline.exists():
-                        pline.mark_applied(line_data['qty'])
+                if not pline_id:
+                    continue
+                # If product was skipped entirely, do not mark as applied
+                if line_data['product_id'] in skipped_product_ids:
+                    continue
+                pline = PrescriptionLine.browse(pline_id)
+                if pline.exists():
+                    pline.mark_applied(line_data['qty'])
 
         return result
 
