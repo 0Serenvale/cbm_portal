@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Stock Discrepancy Alert Views -->
+    
+    <!-- Tree View -->
+    <record id="view_stock_discrepancy_tree" model="ir.ui.view">
+        <field name="name">clinic.stock.discrepancy.tree</field>
+        <field name="model">clinic.stock.discrepancy</field>
+        <field name="arch" type="xml">
+            <tree string="Stock Discrepancy Alerts"
+                  decoration-danger="state == 'pending'"
+                  decoration-warning="state in ('nurse_error', 'inventory_issue')"
+                  decoration-success="state == 'resolved'">
+                <field name="name"/>
+                <field name="create_date" string="Date"/>
+                <field name="patient_id"/>
+                <field name="user_id" string="Nurse"/>
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <field name="attempted_qty"/>
+                <field name="system_qty"/>
+                <field name="state" widget="badge"
+                       decoration-danger="state == 'pending'"
+                       decoration-warning="state in ('nurse_error', 'inventory_issue')"
+                       decoration-success="state == 'resolved'"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Form View -->
+    <record id="view_stock_discrepancy_form" model="ir.ui.view">
+        <field name="name">clinic.stock.discrepancy.form</field>
+        <field name="model">clinic.stock.discrepancy</field>
+        <field name="arch" type="xml">
+            <form string="Stock Discrepancy Alert">
+                <header>
+                    <button name="action_mark_nurse_error" 
+                            string="Mark as Nurse Error" 
+                            type="object"
+                            class="btn-warning"
+                            attrs="{'invisible': [('state', '!=', 'pending')]}"/>
+                    <button name="action_mark_inventory_issue" 
+                            string="Mark as Inventory Issue" 
+                            type="object"
+                            class="btn-warning"
+                            attrs="{'invisible': [('state', '!=', 'pending')]}"/>
+                    <button name="action_resolve" 
+                            string="Resolve" 
+                            type="object"
+                            class="btn-success"
+                            attrs="{'invisible': [('state', 'in', ['pending', 'resolved'])]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,nurse_error,inventory_issue,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Incident Details">
+                            <field name="create_date" string="Date/Time"/>
+                            <field name="user_id" string="Nurse"/>
+                            <field name="patient_id"/>
+                            <field name="picking_type_id"/>
+                        </group>
+                        <group string="Stock Details">
+                            <field name="product_id"/>
+                            <field name="location_id"/>
+                            <field name="attempted_qty"/>
+                            <field name="system_qty"/>
+                        </group>
+                    </group>
+                    <group string="Resolution" attrs="{'invisible': [('state', '=', 'pending')]}">
+                        <group>
+                            <field name="resolved_by"/>
+                            <field name="resolved_date"/>
+                        </group>
+                        <group>
+                            <field name="resolution_notes" placeholder="Explain what was found..."/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Search View -->
+    <record id="view_stock_discrepancy_search" model="ir.ui.view">
+        <field name="name">clinic.stock.discrepancy.search</field>
+        <field name="model">clinic.stock.discrepancy</field>
+        <field name="arch" type="xml">
+            <search string="Search Stock Discrepancy Alerts">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="user_id"/>
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="nurse_error" string="Nurse Error" domain="[('state', '=', 'nurse_error')]"/>
+                <filter name="inventory_issue" string="Inventory Issue" domain="[('state', '=', 'inventory_issue')]"/>
+                <filter name="resolved" string="Resolved" domain="[('state', '=', 'resolved')]"/>
+                <separator/>
+                <filter name="today" string="Today" domain="[('create_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="by_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="by_location" string="Location" context="{'group_by': 'location_id'}"/>
+                    <filter name="by_user" string="Nurse" context="{'group_by': 'user_id'}"/>
+                    <filter name="by_product" string="Product" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Action -->
+    <record id="action_stock_discrepancy" model="ir.actions.act_window">
+        <field name="name">Stock Discrepancy Alerts</field>
+        <field name="res_model">clinic.stock.discrepancy</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_stock_discrepancy_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No stock discrepancy alerts!
+            </p>
+            <p>
+                Alerts are created when a nurse tries to consume a product
+                that shows 0 stock in the system.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Menu under Inventory Configuration -->
+    <menuitem id="menu_stock_discrepancy"
+              name="Stock Discrepancy Alerts"
+              parent="stock.menu_stock_warehouse_mgmt"
+              action="action_stock_discrepancy"
+              sequence="100"/>
+    
+    <!-- Sequence -->
+    <record id="seq_stock_discrepancy" model="ir.sequence">
+        <field name="name">Stock Discrepancy Alert</field>
+        <field name="code">clinic.stock.discrepancy</field>
+        <field name="prefix">DISC-</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

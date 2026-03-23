@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Simplified "Ghost Form" for Portal Stock Requests -->
+    <record id="view_picking_form_portal" model="ir.ui.view">
+        <field name="name">stock.picking.form.portal</field>
+        <field name="model">stock.picking</field>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <form string="Stock Request" class="o_portal_picking_form">
+                <!-- Fields needed for domain validation -->
+                <field name="company_id" invisible="1"/>
+                <field name="state" invisible="1"/>
+                <field name="portal_behavior" invisible="1"/>
+                
+                <!-- Header with SUBMIT button -->
+                <header>
+                    <button name="action_portal_submit"
+                            string="SUBMIT REQUEST"
+                            type="object"
+                            class="btn-primary btn-lg oe_highlight"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_portal_submit"
+                            string="SUBMIT REQUEST"
+                            type="object"
+                            class="btn-secondary"
+                            attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,assigned,done"/>
+                </header>
+
+                <sheet>
+                    <!-- Hidden auto-filled fields -->
+                    <field name="picking_type_id" invisible="1"/>
+                    <field name="location_id" invisible="1"/>
+                    <field name="location_dest_id" invisible="1"/>
+                    <field name="is_portal_request" invisible="1"/>
+                    <field name="portal_requester_id" invisible="1"/>
+
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" class="oe_inline"/>
+                        </h1>
+                    </div>
+
+                    <!-- Patient field (only for billable/consumption behaviors) -->
+                    <group attrs="{'invisible': [('portal_behavior', 'not in', ['billable', 'surgery'])]}">
+                        <group>
+                            <field name="partner_id"
+                                   string="Patient"
+                                   options="{'no_create': True}"
+                                   attrs="{'required': [('portal_behavior', 'in', ['billable', 'surgery'])]}"
+                                   placeholder="Select patient for billing..."/>
+                        </group>
+                    </group>
+
+                    <!-- Destination (only for internal behavior - user chooses) -->
+                    <group attrs="{'invisible': [('portal_behavior', '!=', 'internal')]}">
+                        <group>
+                            <field name="location_dest_id"
+                                   string="Transfer To"
+                                   options="{'no_create': True}"
+                                   attrs="{'required': [('portal_behavior', '=', 'internal')]}"/>
+                        </group>
+                    </group>
+
+                    <!-- Products -->
+                    <notebook>
+                        <page string="Products" name="products">
+                            <field name="move_ids_without_package" 
+                                   context="{'default_location_id': location_id, 'default_location_dest_id': location_dest_id}">
+                                <tree editable="bottom" 
+                                      decoration-muted="product_uom_qty == 0"
+                                      decoration-warning="hoarding_status == 'warning'"
+                                      decoration-danger="hoarding_status == 'blocked'">
+                                    <field name="state" invisible="1"/>
+                                    <field name="company_id" invisible="1"/>
+                                    <field name="product_uom_category_id" invisible="1"/>
+                                    <field name="location_id" invisible="1"/>
+                                    <field name="location_dest_id" invisible="1"/>
+                                    <field name="product_id"
+                                           string="Product"
+                                           required="1"
+                                           options="{'no_create': True}"
+                                           context="{'display_default_code': False}"/>
+                                    <field name="product_uom_qty" 
+                                           string="Quantity" 
+                                           required="1"
+                                           attrs="{'readonly': [('hoarding_status', '=', 'blocked')]}"/>
+                                    <field name="product_uom" string="Unit" groups="uom.group_uom"/>
+                                    <field name="ward_qty_trusted" 
+                                           string="In Stock" 
+                                           readonly="1"
+                                           help="Current quantity at your location. Consider using existing stock before ordering more."
+                                           attrs="{'column_invisible': [('parent.portal_behavior', 'not in', ['request'])]}"/>
+                                    <field name="hoarding_status" 
+                                           string="Note" 
+                                           widget="badge"
+                                           help="Warning = Stock exists at your location. Blocked = Cannot request more."
+                                           decoration-warning="hoarding_status == 'warning'"
+                                           decoration-danger="hoarding_status == 'blocked'"
+                                           attrs="{'column_invisible': [('parent.portal_behavior', 'not in', ['request'])]}"/>
+                                    <!-- Hidden required fields -->
+                                    <field name="name" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Extend standard picking form to show portal fields -->
+    <record id="view_picking_form_portal_fields" model="ir.ui.view">
+        <field name="name">stock.picking.form.portal.fields</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- partner_id (Contact) field - keep visible (Odoo default behavior) -->
+            <!-- Only modify the label for billable pickings -->
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Patient</attribute>
+            </xpath>
+
+            <!-- Add portal fields (invisible) -->
+            <xpath expr="//sheet" position="before">
+                <field name="is_portal_request" invisible="1"/>
+                <field name="portal_behavior" invisible="1"/>
+                <field name="portal_requester_id" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

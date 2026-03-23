@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_consumption_ledger_tree" model="ir.ui.view">
+        <field name="name">clinic.consumption.ledger.tree</field>
+        <field name="model">clinic.consumption.ledger</field>
+        <field name="arch" type="xml">
+            <tree string="Consumption Ledger" default_order="create_date desc">
+                <field name="create_date" string="Date"/>
+                <field name="sale_order_id"/>
+                <field name="partner_id" string="Patient"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="qty_consumed"/>
+                <field name="qty_returned"/>
+                <field name="qty_available" string="Remaining"/>
+                <field name="picking_id"/>
+                <field name="state"
+                       decoration-success="state == 'active'"
+                       decoration-muted="state == 'archived'"
+                       decoration-info="state == 'fully_returned'"
+                       widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_consumption_ledger_form" model="ir.ui.view">
+        <field name="name">clinic.consumption.ledger.form</field>
+        <field name="model">clinic.consumption.ledger</field>
+        <field name="arch" type="xml">
+            <form string="Consumption Ledger Entry">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="active,fully_returned,archived"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Patient &amp; Order">
+                            <field name="partner_id"/>
+                            <field name="sale_order_id"/>
+                            <field name="location_id"/>
+                        </group>
+                        <group string="Product">
+                            <field name="product_id"/>
+                            <field name="lot_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Quantities">
+                            <field name="qty_consumed"/>
+                            <field name="qty_returned"/>
+                            <field name="qty_available"/>
+                        </group>
+                        <group string="Stock Movement">
+                            <field name="picking_id"/>
+                            <field name="move_line_id"/>
+                            <field name="return_picking_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_consumption_ledger_search" model="ir.ui.view">
+        <field name="name">clinic.consumption.ledger.search</field>
+        <field name="model">clinic.consumption.ledger</field>
+        <field name="arch" type="xml">
+            <search string="Search Consumption Ledger">
+                <field name="partner_id" string="Patient"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="sale_order_id"/>
+                <field name="picking_id"/>
+                <separator/>
+                <filter name="active" string="Active" domain="[('state', '=', 'active')]"/>
+                <filter name="fully_returned" string="Fully Returned" domain="[('state', '=', 'fully_returned')]"/>
+                <filter name="archived" string="Archived" domain="[('state', '=', 'archived')]"/>
+                <separator/>
+                <filter name="has_lot" string="With Lot" domain="[('lot_id', '!=', False)]"/>
+                <filter name="no_lot" string="Without Lot" domain="[('lot_id', '=', False)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_patient" string="Patient" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_so" string="Sale Order" context="{'group_by': 'sale_order_id'}"/>
+                    <filter name="group_lot" string="Lot" context="{'group_by': 'lot_id'}"/>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_consumption_ledger" model="ir.actions.act_window">
+        <field name="name">Consumption Ledger</field>
+        <field name="res_model">clinic.consumption.ledger</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_consumption_ledger_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No consumption ledger entries yet
+            </p>
+            <p>
+                Ledger entries are created automatically when patients consume medication through the portal.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu under Inventory > Operations (admin access) -->
+    <menuitem id="menu_consumption_ledger"
+              name="Consumption Ledger"
+              parent="stock.menu_stock_warehouse_mgmt"
+              action="action_consumption_ledger"
+              sequence="101"
+              groups="clinic_staff_portal.group_clinic_portal_manager"/>
+</odoo>

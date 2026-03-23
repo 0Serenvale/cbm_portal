@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="clinic_document_view_tree" model="ir.ui.view">
+        <field name="name">clinic.document.tree</field>
+        <field name="model">clinic.document</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="resource_type"/>
+                <field name="version"/>
+                <field name="requires_acknowledgement"/>
+                <field name="deadline"/>
+                <field name="acknowledged_count" string="Signed"/>
+                <field name="pending_count" string="Pending"
+                       decoration-danger="pending_count > 0"/>
+                <field name="overdue_count" string="Overdue"
+                       decoration-danger="overdue_count > 0"/>
+                <field name="target_user_ids" widget="many2many_tags"/>
+                <field name="location_ids" widget="many2many_tags"/>
+                <field name="write_date"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="clinic_document_view_form" model="ir.ui.view">
+        <field name="name">clinic.document.form</field>
+        <field name="model">clinic.document</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object"
+                                class="oe_stat_button" icon="fa-archive"
+                                attrs="{'invisible': [('active', '=', True)]}">
+                            <field name="active" widget="boolean_button"
+                                   options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Document name..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="category"/>
+                            <field name="resource_type"/>
+                            <field name="description"/>
+                            <field name="requires_acknowledgement"/>
+                        </group>
+                        <group>
+                            <field name="target_user_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   placeholder="All users if empty..."/>
+                            <field name="location_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   placeholder="All locations if empty..."/>
+                            <field name="notify_users"/>
+                        </group>
+                    </group>
+                    <!-- Deadline & Lock Settings -->
+                    <group attrs="{'invisible': [('requires_acknowledgement', '=', False)]}">
+                        <group>
+                            <field name="deadline"/>
+                            <field name="lock_on_overdue"/>
+                        </group>
+                        <group>
+                            <field name="overdue_count" string="Overdue Users"
+                                   attrs="{'invisible': [('deadline', '=', False)]}"/>
+                        </group>
+                    </group>
+                    <!-- Stamp & Signature (optional) -->
+                    <group string="Stamp &amp; Signature" attrs="{'invisible': [('requires_acknowledgement', '=', False)]}">
+                        <group>
+                            <field name="stamp_image" widget="image" class="oe_avatar"/>
+                            <field name="signatory_name" placeholder="e.g. Dr. Ahmed BENMOUSSA"/>
+                        </group>
+                        <group>
+                            <field name="signature_image" widget="image" class="oe_avatar"/>
+                            <field name="signatory_title" placeholder="e.g. Directeur Général"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group attrs="{'invisible': [('resource_type', '!=', 'pdf')]}">
+                            <field name="file_data" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                        </group>
+                        <group attrs="{'invisible': [('resource_type', '=', 'pdf')]}">
+                            <field name="url" placeholder="https://..."/>
+                        </group>
+                    </group>
+                    <notebook attrs="{'invisible': [('requires_acknowledgement', '=', False)]}">
+                        <page string="Acknowledgements" name="acknowledgements">
+                            <field name="acknowledgement_ids" readonly="1">
+                                <tree>
+                                    <field name="user_id"/>
+                                    <field name="document_version"/>
+                                    <field name="acknowledged_date"/>
+                                    <field name="typed_name"/>
+                                    <field name="ip_address"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="clinic_document_view_search" model="ir.ui.view">
+        <field name="name">clinic.document.search</field>
+        <field name="model">clinic.document</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="location_ids"/>
+                <field name="target_user_ids"/>
+                <filter string="PDF" name="filter_pdf" domain="[('resource_type', '=', 'pdf')]"/>
+                <filter string="Video" name="filter_video" domain="[('resource_type', '=', 'video')]"/>
+                <filter string="Link" name="filter_link" domain="[('resource_type', '=', 'link')]"/>
+                <separator/>
+                <filter string="Requires Acknowledgement" name="filter_ack" domain="[('requires_acknowledgement', '=', True)]"/>
+                <filter string="Has Deadline" name="filter_deadline" domain="[('deadline', '!=', False)]"/>
+                <filter string="Overdue" name="filter_overdue"
+                        domain="[('deadline', '&lt;', context_today().strftime('%Y-%m-%d')), ('requires_acknowledgement', '=', True)]"/>
+                <filter string="Archived" name="filter_archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Category" name="groupby_category" context="{'group_by': 'category'}"/>
+                    <filter string="Type" name="groupby_type" context="{'group_by': 'resource_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="clinic_document_action" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">clinic.document</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="clinic_document_view_search"/>
+        <field name="context">{'search_default_groupby_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first clinic document
+            </p>
+            <p>
+                Upload procedures, guides, and training materials for clinic staff.
+            </p>
+        </field>
+    </record>
+
+    <!-- ===== Acknowledgement Views (Compliance Dashboard) ===== -->
+
+    <!-- Acknowledgement Tree View -->
+    <record id="clinic_document_ack_view_tree" model="ir.ui.view">
+        <field name="name">clinic.document.acknowledgement.tree</field>
+        <field name="model">clinic.document.acknowledgement</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="document_id"/>
+                <field name="user_id"/>
+                <field name="document_version"/>
+                <field name="acknowledged_date"/>
+                <field name="typed_name"/>
+                <field name="ip_address"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Acknowledgement Search View -->
+    <record id="clinic_document_ack_view_search" model="ir.ui.view">
+        <field name="name">clinic.document.acknowledgement.search</field>
+        <field name="model">clinic.document.acknowledgement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="document_id"/>
+                <field name="user_id"/>
+                <field name="typed_name"/>
+                <group expand="0" string="Group By">
+                    <filter string="Document" name="groupby_document" context="{'group_by': 'document_id'}"/>
+                    <filter string="User" name="groupby_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Version" name="groupby_version" context="{'group_by': 'document_version'}"/>
+                    <filter string="Date" name="groupby_date" context="{'group_by': 'acknowledged_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acknowledgement Pivot View -->
+    <record id="clinic_document_ack_view_pivot" model="ir.ui.view">
+        <field name="name">clinic.document.acknowledgement.pivot</field>
+        <field name="model">clinic.document.acknowledgement</field>
+        <field name="arch" type="xml">
+            <pivot string="Document Compliance">
+                <field name="document_id" type="row"/>
+                <field name="user_id" type="col"/>
+                <field name="acknowledged_date" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Acknowledgement Action (Compliance Dashboard) -->
+    <record id="clinic_document_ack_action" model="ir.actions.act_window">
+        <field name="name">Compliance Dashboard</field>
+        <field name="res_model">clinic.document.acknowledgement</field>
+        <field name="view_mode">tree,pivot</field>
+        <field name="search_view_id" ref="clinic_document_ack_view_search"/>
+        <field name="context">{'search_default_groupby_document': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No acknowledgements recorded yet
+            </p>
+            <p>
+                Acknowledgement records appear here when users sign documents.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu under Tile Manager app for admin access -->
+    <menuitem id="clinic_document_menu"
+              name="Documents"
+              parent="clinic_staff_portal.menu_tile_manager"
+              action="clinic_document_action"
+              sequence="10"/>
+
+    <menuitem id="clinic_document_compliance_menu"
+              name="Compliance Dashboard"
+              parent="clinic_staff_portal.menu_tile_manager"
+              action="clinic_document_ack_action"
+              sequence="11"/>
+</odoo>

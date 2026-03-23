@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Cashier Session Tree View -->
+    <record id="view_cashier_session_tree" model="ir.ui.view">
+        <field name="name">cashier.session.tree</field>
+        <field name="model">cashier.session</field>
+        <field name="arch" type="xml">
+            <tree string="Sessions Caisse" create="false" edit="false" delete="false">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="open_datetime"/>
+                <field name="close_datetime"/>
+                <field name="state" widget="badge" decoration-success="state == 'closed'" decoration-info="state == 'open'"/>
+                <field name="payment_count"/>
+                <field name="total_cash"/>
+                <field name="total_card"/>
+                <field name="total_cheque"/>
+                <field name="total_all" sum="Total"/>
+                <field name="difference"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Cashier Session Form View (Read-Only) -->
+    <record id="view_cashier_session_form" model="ir.ui.view">
+        <field name="name">cashier.session.form</field>
+        <field name="model">cashier.session</field>
+        <field name="arch" type="xml">
+            <form string="Session Caisse" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_force_close" type="object"
+                            string="Fermer la Session" class="oe_highlight btn-danger"
+                            icon="fa-lock"
+                            attrs="{'invisible': [('state', '=', 'closed')]}"
+                            groups="clinic_staff_portal.group_clinic_portal_manager"/>
+                    <button name="action_view_invoices" type="object"
+                            string="Voir Factures" class="oe_highlight"
+                            icon="fa-file-text-o"/>
+                    <button name="action_print_invoices" type="object"
+                            string="Imprimer PDF" class="btn-secondary"
+                            icon="fa-print"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoices" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="invoice_count" widget="statinfo" string="Factures"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations">
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="open_datetime"/>
+                            <field name="close_datetime"/>
+                        </group>
+                        <group string="Totaux">
+                            <field name="payment_count"/>
+                            <field name="total_cash"/>
+                            <field name="total_card"/>
+                            <field name="total_cheque"/>
+                            <field name="total_all"/>
+                        </group>
+                    </group>
+                    <group string="Réconciliation Espèces">
+                        <group>
+                            <field name="counted_cash"/>
+                            <field name="difference" decoration-danger="difference &lt; 0" decoration-success="difference == 0"/>
+                        </group>
+                        <group>
+                            <field name="notes"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Factures de la Session" name="invoices">
+                            <field name="invoice_ids" nolabel="1">
+                                <tree string="Factures" create="false" delete="false" edit="false">
+                                    <field name="name"/>
+                                    <field name="partner_id" string="Patient/Client"/>
+                                    <field name="invoice_date"/>
+                                    <field name="amount_total" sum="Total"/>
+                                    <field name="payment_state" widget="badge" 
+                                           decoration-success="payment_state == 'paid'"
+                                           decoration-warning="payment_state == 'partial'"
+                                           decoration-danger="payment_state in ('not_paid', 'reversed')"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Cashier Session Search View -->
+    <record id="view_cashier_session_search" model="ir.ui.view">
+        <field name="name">cashier.session.search</field>
+        <field name="model">cashier.session</field>
+        <field name="arch" type="xml">
+            <search string="Sessions Caisse">
+                <field name="name"/>
+                <field name="user_id"/>
+                <filter string="Ouvertes" name="open" domain="[('state', '=', 'open')]"/>
+                <filter string="Fermées" name="closed" domain="[('state', '=', 'closed')]"/>
+                <separator/>
+                <filter string="Aujourd'hui" name="today" domain="[('open_datetime', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <filter string="Cette Semaine" name="week" domain="[('open_datetime', '&gt;=', (datetime.date.today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Caissier" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Statut" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'open_datetime:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_cashier_session" model="ir.actions.act_window">
+        <field name="name">Sessions Caisse</field>
+        <field name="res_model">cashier.session</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_cashier_session_search"/>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune session caisse
+            </p>
+            <p>
+                Les sessions sont créées automatiquement lorsqu'un caissier ouvre une session dans le portail CBM.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu under Accounting -->
+    <menuitem id="menu_cashier_session"
+              name="Sessions Caisse"
+              parent="account.menu_finance_receivables"
+              action="action_cashier_session"
+              sequence="60"/>
+
+</odoo>

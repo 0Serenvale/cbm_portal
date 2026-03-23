@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit stock.picking.type form view to add CBM Portal settings -->
+    <record id="view_picking_type_form_portal" model="ir.ui.view">
+        <field name="name">stock.picking.type.form.portal</field>
+        <field name="model">stock.picking.type</field>
+        <field name="inherit_id" ref="stock.view_picking_type_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='locations']" position="after">
+                <group name="cbm_portal" string="CBM Portal Settings">
+                    <field name="portal_visible"/>
+                    <field name="portal_category" 
+                           attrs="{'invisible': [('portal_visible', '=', False)]}"/>
+                    <field name="portal_requires_patient"
+                           attrs="{'invisible': [('portal_visible', '=', False)]}"/>
+                    <field name="portal_requires_department"
+                           attrs="{'invisible': [('portal_visible', '=', False)]}"/>
+                    <field name="portal_icon" 
+                           attrs="{'invisible': [('portal_visible', '=', False)]}"
+                           placeholder="fa-cube"/>
+                    <separator string="Enforcement Thresholds"/>
+                    <field name="pending_warn_threshold" 
+                           attrs="{'invisible': [('portal_visible', '=', False)]}"/>
+                    <field name="pending_block_threshold" 
+                           attrs="{'invisible': [('portal_visible', '=', False)]}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

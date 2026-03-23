@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+    Hide Standard Inventory Menu from Portal Users
+    
+    This ensures portal users only see the Clinic Portal app,
+    not the complex Inventory application.
+    
+    This is persistent across module upgrades.
+    -->
+    
+    <record id="stock.menu_stock_root" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('stock.group_stock_user'))]"/>
+    </record>
+</odoo>

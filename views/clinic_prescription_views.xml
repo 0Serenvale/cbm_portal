@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Prescription Line Tree -->
+    <record id="view_clinic_prescription_line_tree" model="ir.ui.view">
+        <field name="name">clinic.prescription.line.tree</field>
+        <field name="model">clinic.prescription.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="product_id"/>
+                <field name="provider_name"/>
+                <field name="qty_prescribed"/>
+                <field name="qty_applied"/>
+                <field name="state" decoration-danger="state == 'cancelled'" decoration-success="state == 'done'"/>
+                <field name="stop_reason" optional="show"/>
+                <field name="external_order_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Prescription Form -->
+    <record id="view_clinic_prescription_form" model="ir.ui.view">
+        <field name="name">clinic.prescription.form</field>
+        <field name="model">clinic.prescription</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="provider_name"/>
+                        </group>
+                        <group>
+                            <field name="visit_uuid"/>
+                            <field name="encounter_uuid"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Lines">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="provider_name"/>
+                                    <field name="qty_prescribed"/>
+                                    <field name="qty_applied"/>
+                                    <field name="state"/>
+                                    <field name="stop_reason"/>
+                                    <field name="external_order_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Prescription Tree -->
+    <record id="view_clinic_prescription_tree" model="ir.ui.view">
+        <field name="name">clinic.prescription.tree</field>
+        <field name="model">clinic.prescription</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="partner_id"/>
+                <field name="provider_name"/>
+                <field name="visit_uuid"/>
+                <field name="state"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Search -->
+    <record id="view_clinic_prescription_search" model="ir.ui.view">
+        <field name="name">clinic.prescription.search</field>
+        <field name="model">clinic.prescription</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="provider_name"/>
+                <field name="visit_uuid"/>
+                <filter name="active" string="Active" domain="[('state', '=', 'active')]"/>
+                <filter name="completed" string="Completed" domain="[('state', '=', 'completed')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_patient" string="Patient" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_provider" string="Provider" context="{'group_by': 'provider_name'}"/>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_clinic_prescription" model="ir.actions.act_window">
+        <field name="name">Prescriptions</field>
+        <field name="res_model">clinic.prescription</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_clinic_prescription_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+    </record>
+
+    <!-- Menu (under CBM Portal settings or similar) -->
+    <menuitem id="menu_clinic_prescription"
+              name="Prescriptions"
+              parent="clinic_staff_portal.menu_tile_manager"
+              action="action_clinic_prescription"
+              sequence="25"/>
+
+</odoo>

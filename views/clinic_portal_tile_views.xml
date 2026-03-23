@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tile Form View (for configuration) -->
+    <record id="view_clinic_portal_tile_form" model="ir.ui.view">
+        <field name="name">clinic.portal.tile.form</field>
+        <field name="model">clinic.portal.tile</field>
+        <field name="arch" type="xml">
+            <form string="Portal Tile">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Request Meds"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Tile Type">
+                            <field name="type"/>
+                            <field name="stock_behavior" 
+                                   attrs="{'invisible': [('type', '!=', 'stock')]}"/>
+                        </group>
+                        <group string="Appearance">
+                            <field name="icon"/>
+                            <field name="color" widget="color"/>
+                            <field name="icon_color" widget="color"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                            <field name="description" placeholder="Tooltip shown on hover"/>
+                        </group>
+                    </group>
+
+                    <!-- Stock Configuration -->
+                    <group string="Stock Configuration" 
+                           attrs="{'invisible': [('type', '!=', 'stock')]}">
+                        <group>
+                            <field name="picking_type_id" 
+                                   attrs="{'required': [('type', '=', 'stock')]}"/>
+                            <field name="source_location_id"
+                                   attrs="{'invisible': [('stock_behavior', 'not in', ['request'])]}"/>
+                            <field name="dest_location_id"
+                                   attrs="{'invisible': [('stock_behavior', 'not in', ['return', 'billable'])]}"/>
+                                <field name="consumption_source"
+                                   attrs="{'invisible': [('stock_behavior', 'not in', ['billable', 'surgery', 'internal'])]}"/>
+                        </group>
+                        <group/>
+                    </group>
+                    
+                    <!-- Behavior Guide - full width -->
+                    <div class="alert alert-info" role="alert"
+                         attrs="{'invisible': [('type', '!=', 'stock')]}">
+                        <strong>Behavior Guide:</strong>
+                        <ul class="mb-0">
+                            <li><b>Request:</b> Pull FROM warehouse TO user's location</li>
+                            <li><b>Billable:</b> Use stock FROM user's location TO patient (creates quotation)</li>
+                            <li><b>Internal:</b> Non-billable consumption (no patient)</li>
+                            <li><b>Return:</b> Push FROM user's location TO warehouse</li>
+                        </ul>
+                    </div>
+
+                    <!-- Action Configuration -->
+                    <group string="Action Configuration"
+                           attrs="{'invisible': [('type', '!=', 'action')]}">
+                        <field name="action_id"
+                               attrs="{'required': [('type', '=', 'action')]}"/>
+                    </group>
+
+                    <!-- Client Action Configuration (Discuss, etc.) -->
+                    <group string="Client Action Configuration"
+                           attrs="{'invisible': [('type', '!=', 'client_action')]}">
+                        <field name="client_action_tag"
+                               attrs="{'required': [('type', '=', 'client_action')]}"
+                               placeholder="e.g., mail.action_discuss"/>
+                    </group>
+
+                    <!-- Folder Parent (for non-folder tiles to be placed inside folders) -->
+                    <group string="Folder Hierarchy" 
+                           attrs="{'invisible': [('type', '=', 'folder')]}">
+                        <field name="parent_id" 
+                               options="{'no_create': True}"
+                               domain="[('type', '=', 'folder')]"
+                               help="Put this tile inside a folder"/>
+                    </group>
+                    
+                    <group string="Sub-Tiles" 
+                           attrs="{'invisible': [('type', '!=', 'folder')]}">
+                        <field name="child_ids" nolabel="1" colspan="2">
+                            <tree>
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="type"/>
+                                <field name="stock_behavior"/>
+                            </tree>
+                        </field>
+                    </group>
+
+                    <!-- Visibility -->
+                    <group string="Visibility Settings">
+                        <group>
+                            <field name="limit_location_ids" widget="many2many_tags"
+                                   placeholder="Leave empty for all locations"/>
+                        </group>
+                        <group>
+                            <field name="group_ids" widget="many2many_tags"
+                                   placeholder="Leave empty for all groups"/>
+                        </group>
+                        <div class="alert alert-warning" role="alert" colspan="2">
+                            <strong>Visibility Rules:</strong>
+                            <ul class="mb-0">
+                                <li><b>Limit to Locations:</b> Only users with access to these locations will see this tile</li>
+                                <li><b>Visible to Groups:</b> Only users in these groups will see this tile</li>
+                                <li>Leave both empty = visible to everyone</li>
+                            </ul>
+                        </div>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tile Tree View (for configuration) -->
+    <record id="view_clinic_portal_tile_tree" model="ir.ui.view">
+        <field name="name">clinic.portal.tile.tree</field>
+        <field name="model">clinic.portal.tile</field>
+        <field name="arch" type="xml">
+            <tree string="Portal Tiles">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="stock_behavior"/>
+                <field name="picking_type_id"/>
+                <field name="limit_location_ids" widget="many2many_tags"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action for Tile Configuration -->
+    <record id="action_clinic_portal_tile_config" model="ir.actions.act_window">
+        <field name="name">Configure Portal Tiles</field>
+        <field name="res_model">clinic.portal.tile</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first portal tile
+            </p>
+            <p>
+                Tiles appear on the Clinic Portal dashboard. Choose a <b>Type</b> and <b>Behavior</b>:
+                <ul>
+                    <li><b>Stock</b> tiles: Request, Consume, Transfer, Return</li>
+                    <li><b>Action</b> tiles: Link to maintenance, lunch, etc.</li>
+                </ul>
+                Use <b>Limit to Locations</b> to show tiles only to specific staff.
+            </p>
+        </field>
+    </record>
+
+    <!-- Tile Manager - Admin only (not portal managers) -->
+    <menuitem id="menu_tile_manager"
+              name="Tile Manager"
+              action="action_clinic_portal_tile_config"
+              web_icon="clinic_staff_portal,static/description/icon.png"
+              sequence="100"
+              groups="base.group_system"/>
+</odoo>

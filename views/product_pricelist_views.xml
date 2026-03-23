@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inherit product.pricelist form view to add convention fields -->
+    <record id="view_product_pricelist_form_convention" model="ir.ui.view">
+        <field name="name">product.pricelist.form.convention</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='pricelist_settings']" position="after">
+                <group string="Convention Settings" name="convention_settings">
+                    <group>
+                        <field name="convention_coverage_pct" 
+                               widget="percentage"
+                               help="0 = No convention. 70 = 70% covered by payer."/>
+                        <field name="payer_partner_id" 
+                               attrs="{'invisible': [('convention_coverage_pct', '=', 0)]}"
+                               options="{'no_create': True}"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

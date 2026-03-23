@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Drug registration fields on product template form -->
+    <record id="product_template_form_drug_sync_fields" model="ir.ui.view">
+        <field name="name">product.template.form.drug.sync</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Smart button: Register Drug (visible when is_drug=True and not yet registered) -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="is_drug" invisible="1"/>
+                <field name="is_synced_to_openmrs" invisible="1"/>
+                <button name="action_open_drug_sync_wizard"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-medkit"
+                        string="Register Drug"
+                        attrs="{'invisible': ['|', ('is_drug', '=', False), ('is_synced_to_openmrs', '=', True)]}"
+                        groups="base.group_system"/>
+            </xpath>
+            <!-- Readonly drug registration fields after categ_id -->
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="openmrs_concept_uuid" string="Active Ingredient (DCI)"
+                       readonly="1"
+                       attrs="{'invisible': [('is_drug', '=', False)]}"/>
+                <field name="dosage_form_id" readonly="1"
+                       attrs="{'invisible': [('is_drug', '=', False)]}"/>
+                <field name="strength" readonly="1"
+                       attrs="{'invisible': [('is_drug', '=', False)]}"/>
+            </xpath>
+            <!-- Drug reference in lots group (admin only) -->
+            <xpath expr="//group[@name='group_lots_and_weight']" position="inside">
+                <field name="uuid" string="Drug Reference" readonly="1"
+                       groups="base.group_system"
+                       attrs="{'invisible': [('is_drug', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

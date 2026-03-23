@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Session Invoice List Report Template -->
+    <template id="report_cashier_session_invoices">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="session">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <h2>Rapport de Session Caisse</h2>
+                            <h4 t-field="session.name"/>
+                        </div>
+                        
+                        <!-- Session Info -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td><strong>Caissier:</strong></td>
+                                        <td><span t-field="session.user_id"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Ouverture:</strong></td>
+                                        <td><span t-field="session.open_datetime" t-options="{'format': 'dd/MM/yyyy HH:mm'}"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Fermeture:</strong></td>
+                                        <td><span t-field="session.close_datetime" t-options="{'format': 'dd/MM/yyyy HH:mm'}"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td><strong>Total Espèces:</strong></td>
+                                        <td><span t-field="session.total_cash" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total Carte:</strong></td>
+                                        <td><span t-field="session.total_card" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total Chèque:</strong></td>
+                                        <td><span t-field="session.total_cheque" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td><strong>TOTAL:</strong></td>
+                                        <td><strong t-field="session.total_all" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Invoice List -->
+                        <h5 class="mb-3">Liste des Factures (<t t-esc="len(session.invoice_ids)"/>)</h5>
+                        
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 5%;">#</th>
+                                    <th style="width: 20%;">N° Facture</th>
+                                    <th style="width: 35%;">Patient / Client</th>
+                                    <th style="width: 15%;">Date</th>
+                                    <th style="width: 15%;" class="text-end">Montant</th>
+                                    <th style="width: 10%;">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="row_num" t-value="0"/>
+                                <t t-set="total" t-value="0"/>
+                                <t t-foreach="session.invoice_ids" t-as="inv">
+                                    <t t-set="row_num" t-value="row_num + 1"/>
+                                    <t t-set="total" t-value="total + inv.amount_total"/>
+                                    <tr>
+                                        <td t-esc="row_num"/>
+                                        <td><span t-field="inv.name"/></td>
+                                        <td>
+                                            <span t-field="inv.partner_id"/>
+                                            <t t-if="inv.partner_id.ref">
+                                                <small class="text-muted"> (<t t-esc="inv.partner_id.ref"/>)</small>
+                                            </t>
+                                        </td>
+                                        <td><span t-field="inv.invoice_date" t-options="{'format': 'dd/MM/yyyy'}"/></td>
+                                        <td class="text-end"><span t-field="inv.amount_total" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                        <td>
+                                            <t t-if="inv.payment_state == 'paid'">
+                                                <span class="badge bg-success">Payé</span>
+                                            </t>
+                                            <t t-elif="inv.payment_state == 'partial'">
+                                                <span class="badge bg-warning">Partiel</span>
+                                            </t>
+                                            <t t-elif="inv.payment_state == 'reversed'">
+                                                <span class="badge bg-secondary">Annulé</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="badge bg-danger">Impayé</span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>TOTAL</strong></td>
+                                    <td class="text-end"><strong t-esc="total" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                    <td/>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                        <!-- Cash Reconciliation -->
+                        <div class="mt-4" t-if="session.state == 'closed'">
+                            <h5>Réconciliation</h5>
+                            <table class="table table-sm table-bordered" style="width: 50%;">
+                                <tr>
+                                    <td>Espèces Comptées:</td>
+                                    <td class="text-end"><span t-field="session.counted_cash" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Espèces Attendues:</td>
+                                    <td class="text-end"><span t-field="session.total_cash" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                </tr>
+                                <tr t-att-class="'table-danger' if session.difference &lt; 0 else ('table-success' if session.difference == 0 else '')">
+                                    <td><strong>Différence:</strong></td>
+                                    <td class="text-end"><strong t-field="session.difference" t-options="{'widget': 'monetary', 'display_currency': session.currency_id}"/></td>
+                                </tr>
+                            </table>
+                            <t t-if="session.notes">
+                                <p><strong>Notes:</strong> <span t-field="session.notes"/></p>
+                            </t>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="mt-5 text-muted small">
+                            <p>Imprimé le <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y %H:%M')"/> par <t t-esc="user.name"/></p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Action -->
+    <record id="action_report_cashier_session_invoices" model="ir.actions.report">
+        <field name="name">Rapport Session - Factures</field>
+        <field name="model">cashier.session</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic_staff_portal.report_cashier_session_invoices</field>
+        <field name="report_file">clinic_staff_portal.report_cashier_session_invoices</field>
+        <field name="print_report_name">'Session_%s_Factures' % object.name</field>
+        <field name="binding_model_id" ref="model_cashier_session"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

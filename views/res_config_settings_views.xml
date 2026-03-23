@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Settings View for Clinic Portal -->
+    <record id="res_config_settings_view_form_clinic_portal" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.clinic.portal</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Clinic Portal" 
+                     string="Clinic Portal" data-key="clinic_staff_portal">
+                    <h2>Clinic Portal Configuration</h2>
+                    
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_pharmacy_location_id"/>
+                                <div class="text-muted">
+                                    Source for medication requests and pharmacy consumption.
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_pharmacy_location_id" 
+                                           class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_magasin_location_id"/>
+                                <div class="text-muted">
+                                    Source for supplies/magasin consumption.
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_magasin_location_id" 
+                                           class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_patient_location_id"/>
+                                <div class="text-muted">
+                                    Destination for all consumption (Patient/Customer).
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_patient_location_id" 
+                                           class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CBM Portal Settings Section -->
+                    <h2 class="mt32">CBM Portal Settings</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_lot_selection_mode"/>
+                                <div class="text-muted">
+                                    How to handle lot selection for lot-tracked products in product search.
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_lot_selection_mode" widget="radio"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_stock_alert_visibility"/>
+                                <div class="text-muted">
+                                    Who can see stock discrepancy alerts in the portal dashboard.
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_stock_alert_visibility" widget="radio"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pending Enforcement Settings Section -->
+                    <h2 class="mt32">Pending Enforcement</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="clinic_pending_enforcement_enabled"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_pending_enforcement_enabled"/>
+                                <div class="text-muted">
+                                    Show visual warnings on sidebar chips when pending items exceed thresholds.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('clinic_pending_enforcement_enabled', '=', False)]}">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_pending_transfer_warn_threshold"/>
+                                <div class="text-muted">
+                                    Show warning (yellow) when pending transfers exceed this count.
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_pending_transfer_warn_threshold" class="o_light_label"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('clinic_pending_enforcement_enabled', '=', False)]}">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_pending_transfer_block_threshold"/>
+                                <div class="text-muted">
+                                    Block access (red) when pending transfers exceed this. 0 = disabled.
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_pending_transfer_block_threshold" class="o_light_label"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('clinic_pending_enforcement_enabled', '=', False)]}">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_pending_po_warn_days"/>
+                                <div class="text-muted">
+                                    Show warning for purchase orders older than this (days).
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_pending_po_warn_days" class="o_light_label"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('clinic_pending_enforcement_enabled', '=', False)]}">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_pending_po_block_days"/>
+                                <div class="text-muted">
+                                    Block access for POs older than this (days). 0 = disabled.
+                                </div>
+                                <div class="content-group">
+                                    <field name="clinic_pending_po_block_days" class="o_light_label"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Accountability Settings Section -->
+                    <h2 class="mt32">Accountability</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="clinic_accountability_cron_enabled"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="clinic_accountability_cron_enabled"/>
+                                <div class="text-muted">
+                                    Envoie quotidiennement des avertissements aux responsables d'emplacements avec des transferts en retard (&#8805;8 jours) et escalade à la DRH (&#8805;10 jours).
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="accountability_start_date"/>
+                                <div class="text-muted">
+                                    "Day Zero" for the portal. Enforcement only counts data from this date forward.
+                                </div>
+                                <div class="content-group">
+                                    <field name="accountability_start_date" class="o_light_label"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Personnel Section -->
+                    <h2 class="mt32">Key Personnel</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="admin_user_ids"/>
+                                <div class="text-muted">
+                                    Full portal access: can see ALL pending work across all users in the sidebar.
+                                </div>
+                                <div class="content-group">
+                                    <field name="admin_user_ids" widget="many2many_tags"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="drh_user_id"/>
+                                <div class="text-muted">
+                                    Receives escalation notifications from executives.
+                                </div>
+                                <div class="content-group">
+                                    <field name="drh_user_id" class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="executive_user_ids"/>
+                                <div class="text-muted">
+                                    Can view financial dashboard and send DRH notifications.
+                                </div>
+                                <div class="content-group">
+                                    <field name="executive_user_ids" widget="many2many_tags"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Director Stamp & Signature Section -->
+                    <h2 class="mt32">Director Stamp &amp; Signature</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="director_name"/>
+                                <div class="text-muted">
+                                    Full name of the director, printed on compliance report PDFs.
+                                </div>
+                                <div class="content-group">
+                                    <field name="director_name" class="o_light_label"
+                                           placeholder="Dr. Mohamed Ali"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="director_title"/>
+                                <div class="text-muted">
+                                    Title/function shown below the signature.
+                                </div>
+                                <div class="content-group">
+                                    <field name="director_title" class="o_light_label"
+                                           placeholder="Directeur"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="director_signature"/>
+                                <div class="text-muted">
+                                    PNG image of the director's signature (transparent background recommended).
+                                </div>
+                                <div class="content-group">
+                                    <field name="director_signature" widget="image"
+                                           class="oe_avatar" options="{'size': [200, 100]}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="director_stamp"/>
+                                <div class="text-muted">
+                                    PNG image of the official stamp (transparent background recommended).
+                                </div>
+                                <div class="content-group">
+                                    <field name="director_stamp" widget="image"
+                                           class="oe_avatar" options="{'size': [200, 200]}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cashier Module Settings Section -->
+                    <h2 class="mt32">Cashier Module</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="cashier_cash_journal_id"/>
+                                <div class="text-muted">
+                                    Journal for cash payments at the cashier tile.
+                                </div>
+                                <div class="content-group">
+                                    <field name="cashier_cash_journal_id" class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="cashier_card_journal_id"/>
+                                <div class="text-muted">
+                                    Journal for card payments at the cashier tile.
+                                </div>
+                                <div class="content-group">
+                                    <field name="cashier_card_journal_id" class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="cashier_cheque_journal_id"/>
+                                <div class="text-muted">
+                                    Journal for cheque payments at the cashier tile.
+                                </div>
+                                <div class="content-group">
+                                    <field name="cashier_cheque_journal_id" class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="cashier_convention_journal_id"/>
+                                <div class="text-muted">
+                                    Journal for convention/insurance receivables (CNAS, CASNOS, etc.).
+                                </div>
+                                <div class="content-group">
+                                    <field name="cashier_convention_journal_id" class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="cashier_loss_account_id"/>
+                                <div class="text-muted">
+                                    Account for writing off refund differences (partial close mode).
+                                </div>
+                                <div class="content-group">
+                                    <field name="cashier_loss_account_id" class="o_light_label"
+                                           options="{'no_create': True}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Sync Convention Partners</span>
+                                <div class="text-muted">
+                                    Create partners for convention pricelists that don't have a payer partner set.
+                                </div>
+                                <div class="content-group mt8">
+                                    <button name="action_sync_convention_partners" type="object"
+                                            string="Sync Convention Partners"
+                                            class="btn-secondary" icon="fa-refresh"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Sync Convention Products</span>
+                                <div class="text-muted">
+                                    Fix invoice_policy on CONV_* products so discount lines appear in patient invoices.
+                                </div>
+                                <div class="content-group mt8">
+                                    <button name="action_sync_convention_products" type="object"
+                                            string="Sync Convention Products"
+                                            class="btn-secondary" icon="fa-refresh"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

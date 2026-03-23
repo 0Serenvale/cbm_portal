@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Location Form with Approval + Anti-Hoarding Settings -->
+    <record id="view_location_form_inherit_clinic_portal" model="ir.ui.view">
+        <field name="name">stock.location.form.clinic.portal</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <!-- Location Approval Settings -->
+                <group string="Transfer Approval" 
+                       attrs="{'invisible': [('usage', '!=', 'internal')]}">
+                    <group>
+                        <field name="require_approval"/>
+                        <field name="responsible_user_ids" widget="many2many_tags"
+                               attrs="{'required': [('require_approval', '=', True)]}"
+                               help="Users responsible for this location. If 'Require Approval' is checked, these users can approve transfers AND their own transfers are auto-approved."/>
+                    </group>
+                    <group/>
+                </group>
+                
+                <!-- Anti-Hoarding Settings -->
+                <group string="Anti-Hoarding Policy"
+                       attrs="{'invisible': [('usage', '!=', 'internal')]}">
+                    <group>
+                        <field name="replenishment_policy"/>
+                        <field name="consumption_start_date"
+                               attrs="{'invisible': [('replenishment_policy', '=', 'none')],
+                                       'required': [('replenishment_policy', '!=', 'none')]}"/>
+                    </group>
+                    <group/>
+                </group>
+
+                <!-- Quick Pick Configuration -->
+                <group string="Quick Pick (Kiosque CBM)"
+                       attrs="{'invisible': [('usage', '!=', 'internal')]}">
+                    <group>
+                        <field name="enable_quick_pick"/>
+                        <field name="quick_pick_count" readonly="1"
+                               attrs="{'invisible': [('enable_quick_pick', '=', False)]}"/>
+                    </group>
+                    <group/>
+                    <field name="quick_pick_product_ids"
+                           widget="many2many_tags"
+                           attrs="{'invisible': [('enable_quick_pick', '=', False)]}"
+                           options="{'no_create': True, 'no_create_edit': True}"
+                           domain="[('type', '=', 'product')]"
+                           placeholder="Sélectionner les produits fréquemment consommés (max 15)..."/>
+                    <div class="alert alert-info" role="alert"
+                         attrs="{'invisible': [('enable_quick_pick', '=', False)]}">
+                        <strong>Conseil:</strong> Sélectionnez 5-15 produits les plus utilisés pour cet emplacement.
+                        Ces produits seront affichés comme boutons rapides dans le kiosque CBM pour les consommations patient.
+                    </div>
+                </group>
+            </xpath>
+
+            <!-- Note: default_product_template_id field view extension is in serenvale_purchase_portal module -->
+        </field>
+    </record>
+</odoo>

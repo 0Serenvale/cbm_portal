@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="clinic_staff_portal.DocumentsViewer" owl="1">
+        <!-- Documents Screen -->
+        <div t-if="props.currentState === 'documents'" class="cbm_page cbm_documents_page">
+            <div class="cbm_page_header">
+                <button class="cbm_back_btn" t-on-click="goHome" title="Retour à l'accueil">
+                    <span class="cbm_icon_arrow_left"/> Retour
+                </button>
+                <div class="cbm_page_title">
+                    <span class="cbm_icon_document me-2"/>
+                    Documents &amp; Procédures
+                </div>
+            </div>
+
+            <div class="cbm_page_body">
+                <!-- Loading State -->
+                <div t-if="state.documentsLoading" class="cbm_loading_center">
+                    <span class="spinner-border spinner-border-sm me-2"/>Chargement...
+                </div>
+
+                <!-- Empty State -->
+                <div t-elif="state.documents.total_count === 0" class="cbm_empty_state">
+                    <span class="cbm_icon_document cbm_icon_4x"/>
+                    <h4>Aucun document</h4>
+                    <p>Aucun document disponible pour votre service.</p>
+                </div>
+
+                <!-- Documents List by Category -->
+                <div t-else="" class="cbm_documents_list">
+                    <t t-foreach="state.documents.categories" t-as="category" t-key="category.key">
+                        <div class="cbm_documents_category">
+                            <h3 class="cbm_category_title" t-esc="category.label"/>
+                            <div class="cbm_documents_grid">
+                                <t t-foreach="category.documents" t-as="doc" t-key="doc.id">
+                                    <div class="cbm_document_card" t-on-click="() => this.openDocument(doc)">
+                                        <div class="cbm_document_icon">
+                                            <span t-if="doc.resource_type === 'pdf'" class="cbm_icon_file_pdf"/>
+                                            <span t-elif="doc.resource_type === 'video'" class="cbm_icon_video"/>
+                                            <span t-else="" class="cbm_icon_link"/>
+                                        </div>
+                                        <div class="cbm_document_info">
+                                            <span class="cbm_document_name" t-esc="doc.name"/>
+                                            <span t-if="doc.description" class="cbm_document_desc" t-esc="doc.description"/>
+                                            <span class="cbm_document_meta">
+                                                <span class="cbm_document_type" t-esc="doc.resource_type.toUpperCase()"/>
+                                                <span t-if="doc.write_date" class="cbm_document_date" t-esc="doc.write_date"/>
+                                                <span t-if="doc.is_acknowledged" class="cbm_document_acknowledged">
+                                                    <span class="cbm_icon_check"/> Lu
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <span class="cbm_icon_chevron_right cbm_document_chevron"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+
+        <!-- PDF Viewer - Fullscreen -->
+        <div t-if="state.pdfViewerOpen" class="cbm_pdf_modal">
+            <div class="cbm_pdf_header">
+                <span class="cbm_pdf_title" t-esc="state.pdfViewerDoc?.name || 'Document'"/>
+                <div class="cbm_pdf_header_actions">
+                    <!-- Close button (hidden when compliance locked + unsigned) -->
+                    <button t-if="!(state.isComplianceLocked and state.pdfViewerDoc?.requires_acknowledgement and !state.pdfViewerDoc?.is_acknowledged)"
+                            class="cbm_btn_icon" t-on-click="closePdfViewer" title="Fermer">
+                        <span class="cbm_icon_x"/>
+                    </button>
+                </div>
+            </div>
+            <div class="cbm_pdf_content">
+                <iframe t-att-src="state.pdfViewerDoc?.url" class="cbm_pdf_iframe"/>
+            </div>
+            <!-- Type-to-confirm acknowledgement bar -->
+            <t t-if="state.pdfViewerDoc?.requires_acknowledgement and !state.pdfViewerDoc?.is_acknowledged">
+                <div class="cbm_ack_bar">
+                    <div class="cbm_ack_bar_inner">
+                        <t t-if="state.isComplianceLocked">
+                            <span class="cbm_ack_lock_badge">
+                                <span class="cbm_icon_lock"/> DOCUMENT EN RETARD - Acc&#232;s bloqu&#233;
+                            </span>
+                        </t>
+                        <div class="cbm_ack_prompt">
+                            <label class="cbm_ack_label">
+                                Tapez votre nom complet pour confirmer :
+                                <strong t-esc="state.ackExpectedName"/>
+                            </label>
+                            <div class="cbm_ack_input_row">
+                                <input type="text"
+                                       class="cbm_ack_input"
+                                       t-att-placeholder="state.ackExpectedName"
+                                       t-att-value="state.ackTypedName"
+                                       t-on-input="onAckNameInput"
+                                       t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.acknowledgeDocument(state.pdfViewerDoc)"/>
+                                <button class="cbm_btn cbm_btn_acknowledge"
+                                        t-on-click="() => this.acknowledgeDocument(state.pdfViewerDoc)">
+                                    <span class="cbm_icon_check"/> Confirmer
+                                </button>
+                            </div>
+                            <span t-if="state.ackError" class="cbm_ack_error" t-esc="state.ackError"/>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+
+        <!-- Compliance Lock Overlay (blocks home screen when locked) -->
+        <div t-if="state.isComplianceLocked and !state.pdfViewerOpen and props.currentState === 'home'" class="cbm_compliance_lock_overlay">
+            <div class="cbm_compliance_lock_card">
+                <span class="cbm_icon_lock cbm_icon_4x"/>
+                <h3>Acc&#232;s Bloqu&#233;</h3>
+                <p>Vous avez des documents en retard qui n&#233;cessitent votre signature.</p>
+                <p>Veuillez signer tous les documents en attente pour retrouver l'acc&#232;s au portail.</p>
+                <button class="cbm_btn cbm_btn_primary" t-on-click="checkPendingAcknowledgements">
+                    Voir les documents
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

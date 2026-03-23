@@ -1,0 +1,175 @@
+/* CBM Portal Theme Override for web_responsive Apps Menu */
+/* Matches the flat enterprise design from cbm_kiosk.scss */
+
+/* Import CBM design tokens */
+:root {
+    --cbm-wr-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, sans-serif;
+    --cbm-wr-card-bg: #ffffff;
+    --cbm-wr-card-border: 0.1rem solid #dee2e6;
+    --cbm-wr-card-radius: 0.8rem;
+    --cbm-wr-card-shadow-hover: 0 0.4rem 1rem rgba(0, 0, 0, 0.1);
+    --cbm-wr-text-color: #212529;
+    --cbm-wr-text-muted: #6c757d;
+    --cbm-wr-icon-size: 5.6rem;
+    --cbm-wr-bg-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    /* Add near :root variables */
+  --cbm-frosted-bg: rgba(255, 255, 255, 0.85);
+  --cbm-frosted-border: rgba(0, 0, 0, 0.06);
+  --cbm-ring: 0 0 0 3px rgba(51, 65, 85, 0.18); /* matches your focus vibe */
+}
+
+/* Override the web_responsive apps menu dropdown */
+.o_navbar_apps_menu .dropdown-menu-custom {
+    /* Replace purple gradient with CBM light gray background */
+    background: var(--cbm-wr-bg-gradient) !important;
+    background-color: #f8f9fa !important;
+    
+    /* Grid layout matching CBM tiles - full width, not constrained */
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr)) !important;
+    gap: 1.6rem;
+    padding: 2.4rem;
+    width: 100%;
+    max-width: none;
+    justify-content: center;
+    align-content: flex-start;
+    
+    /* Remove the background image overlay */
+    background-image: none !important;
+    
+    /* Search container styling */
+    .search-container {
+        grid-column: 1 / -1;  /* Span full width */
+        margin: 0 0 1.6rem 0;
+        
+        .search-input {
+            background: var(--cbm-wr-card-bg);
+            border: var(--cbm-wr-card-border);
+            border-radius: var(--cbm-wr-card-radius);
+            box-shadow: none;
+            text-shadow: none;
+            
+            .search-icon {
+                color: var(--cbm-wr-text-muted);
+            }
+            
+            .form-control {
+                color: var(--cbm-wr-text-color);
+                
+                &::placeholder {
+                    color: var(--cbm-wr-text-muted);
+                    opacity: 1;
+                }
+            }
+        }
+        
+        .search-results {
+            background: var(--cbm-wr-card-bg);
+            border: var(--cbm-wr-card-border);
+            border-radius: var(--cbm-wr-card-radius);
+            margin-top: 0.8rem;
+        }
+        
+        .search-result {
+            color: var(--cbm-wr-text-color);
+            
+            &.highlight,
+            &:hover {
+                background: #f1f3f5;
+            }
+        }
+    }
+    
+    /* Hide apps during search */
+    .has-results ~ .o_app {
+        display: none !important;
+    }
+    
+    /* App tile card styling - CBM flat enterprise design */
+    .o_app {
+        /* Card container */
+        background: var(--cbm-wr-card-bg);
+        border: var(--cbm-wr-card-border);
+        border-radius: var(--cbm-wr-card-radius);
+        padding: 1.6rem 2rem;
+        
+        /* Horizontal layout like CBM tiles */
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 1.6rem;
+        
+        /* Override width percentages */
+        width: auto !important;
+        height: auto !important;
+        
+        /* Text styling */
+        color: var(--cbm-wr-text-color) !important;
+        text-shadow: none !important;
+        font-family: var(--cbm-wr-font-family);
+        
+        /* Hover effect */
+        transition: box-shadow 0.2s ease;
+        
+        &:hover {
+            box-shadow: var(--cbm-wr-card-shadow-hover);
+            background: var(--cbm-wr-card-bg) !important;
+        }
+        
+        &:focus {
+            background: var(--cbm-wr-card-bg) !important;
+            box-shadow: 0 0 0 0.3rem rgba(113, 75, 103, 0.15);
+        }
+        
+        /* Icon styling - colored circle background */
+        .o-app-icon,
+        img.o-app-icon {
+            width: var(--cbm-wr-icon-size);
+            height: var(--cbm-wr-icon-size);
+            max-width: var(--cbm-wr-icon-size);
+            border-radius: var(--cbm-wr-card-radius);
+            padding: 1rem;
+            margin-bottom: 0;
+            flex-shrink: 0;
+            object-fit: contain;
+            
+            /* Default background - will be overridden by app_icon_colors.scss */
+            background: #e8f4fd;
+            
+            /* Remove hover transforms */
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        &:hover img.o-app-icon,
+        &:hover .o-app-icon {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* App name styling */
+        > div {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--cbm-wr-text-color);
+            flex: 1;
+            text-align: left;
+        }
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .o_navbar_apps_menu .dropdown-menu-custom {
+        grid-template-columns: 1fr !important;
+        padding: 1.6rem;
+        gap: 1.2rem;
+        
+        .o_app {
+            padding: 1.6rem;
+        }
+    }
+}
+
+/* NOTE: Navbar styling is NOT overridden - keeps original Odoo colors */
+

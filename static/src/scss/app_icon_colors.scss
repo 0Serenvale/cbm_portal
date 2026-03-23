@@ -1,0 +1,45 @@
+/* App Icon Color Coding - Match module types */
+
+/* CBM Portal - Blue */
+.o_home_menu .o_app[data-menu-xmlid*="cbm_kiosk"] .o_app_icon,
+.o_home_menu .o_app[data-menu-xmlid*="clinic_staff_portal"] .o_app_icon {
+    background: #e3f2fd !important;
+    color: #007bff !important;
+}
+
+/* Inventory/Stock - Orange */
+.o_home_menu .o_app[data-menu-xmlid*="stock"] .o_app_icon {
+    background: #fff3e0 !important;
+    color: #fd7e14 !important;
+}
+
+/* Sales - Green */
+.o_home_menu .o_app[data-menu-xmlid*="sale"] .o_app_icon {
+    background: #e8f5e9 !important;
+    color: #28a745 !important;
+}
+
+/* Purchase - Purple */
+.o_home_menu .o_app[data-menu-xmlid*="purchase"] .o_app_icon {
+    background: #ede7f6 !important;
+    color: #6f42c1 !important;
+}
+
+/* Accounting - Teal */
+.o_home_menu .o_app[data-menu-xmlid*="account"] .o_app_icon {
+    background: #e0f2f1 !important;
+    color: #20c997 !important;
+}
+
+/* Maintenance - Red */
+.o_home_menu .o_app[data-menu-xmlid*="maintenance"] .o_app_icon {
+    background: #ffebee !important;
+    color: #dc3545 !important;
+}
+
+/* Settings - Gray */
+.o_home_menu .o_app[data-menu-xmlid*="settings"] .o_app_icon,
+.o_home_menu .o_app[data-menu-xmlid*="base.menu_administration"] .o_app_icon {
+    background: #f8f9fa !important;
+    color: #6c757d !important;
+}

@@ -1,0 +1,2098 @@
+/* ==========================================================================
+   CBM CASHIER WORKSTATION STYLES
+   Isolated styling - does NOT affect Odoo global typography
+   Uses rem values for consistent scaling
+   ========================================================================== */
+
+/* Dark Theme CSS Variables for Cashier */
+.cbm_cashier_workstation {
+    /* Inherit font-size from Odoo default typography */
+    /* Premium dark palette - 4-level elevation system */
+    --cashier-header: #0d0d0d;           /* Level 0: Header (darkest) */
+    --cashier-bg: #141414;               /* Level 1: Page background */
+    --cashier-card: #1c1c1c;             /* Level 2: Cards and panels */
+    --cashier-card-elevated: #262626;    /* Level 3: Elevated elements */
+    --cashier-card-hover: #2d2d2d;       /* Level 4: Hover states */
+    
+    /* Borders - more visible for better separation */
+    --cashier-border: #3a3a3a;
+    --cashier-border-subtle: rgba(255, 255, 255, 0.08);
+    --cashier-border-strong: #4a4a4a;
+    
+    /* Text hierarchy - increased contrast */
+    --cashier-text: #f5f5f5;
+    --cashier-text-muted: #a3a3a3;
+    --cashier-text-hint: #737373;
+    
+    /* Accent (blue-purple) */
+    --cashier-accent: #6366f1;
+    --cashier-accent-glow: rgba(99, 102, 241, 0.18);
+    --cashier-accent-border: rgba(99, 102, 241, 0.35);
+    
+    /* Status colors - slightly brighter for visibility */
+    --cashier-success: #4ade80;
+    --cashier-success-bg: rgba(34, 197, 94, 0.15);
+    --cashier-warning: #fbbf24;
+    --cashier-warning-bg: rgba(245, 158, 11, 0.15);
+    --cashier-danger: #f87171;
+    --cashier-danger-bg: rgba(239, 68, 68, 0.15);
+    
+    /* Shadow hierarchy - depth perception */
+    --shadow-sm: 0 0.06rem 0.19rem rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 0.75rem 2.5rem rgba(0, 0, 0, 0.35);
+    
+    /* Fluid Spacing Grid - rem based */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 0.75rem;
+    --space-base: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+    
+    /* ==========================================================================
+       PROFESSIONAL FLUID TYPOGRAPHY - Compact Scale
+       Reduced sizes for dense, professional UI
+       ========================================================================== */
+    
+    /* Base: 0.75rem (standard body size) */
+    --font-base: 0.75rem;
+
+    /* Headings - Page titles and major sections */
+    --font-h1: 1.25rem;
+    --font-h2: 1.125rem;
+    --font-h3: 1rem;
+    --font-h4: 0.9375rem;
+
+    /* Body text - Matches Odoo 16 standard */
+    --font-body: 0.9375rem;
+    --font-body-sm: 0.875rem;
+    --font-body-xs: 0.8125rem;
+
+    /* Monospace text - Numbers, IDs, codes */
+    --font-mono-lg: 1.125rem;
+    --font-mono-base: 0.9375rem;
+    --font-mono-sm: 0.875rem;
+
+    /* UI Elements - Buttons, badges, labels */
+    --font-button: 0.875rem;
+    --font-badge: 0.8125rem;
+    --font-label: 0.8125rem;
+
+    /* Display - Hero titles ONLY */
+    --font-display: clamp(1.25rem, 2.5vw + 0.5rem, 1.75rem);
+    --font-display-lg: clamp(1.5rem, 3vw + 0.5rem, 2.25rem);
+    
+    /* Letter-spacing - fluid */
+    --ls-tight: -0.03em;
+    --ls-normal: 0;
+    --ls-wide: 0.03em;
+    --ls-wider: 0.05em;
+    --ls-widest: 0.1em;
+    
+    /* Border radius - rem based */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.38rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.62rem;
+    --radius-2xl: 0.75rem;
+    
+    /* Typography */
+    --cashier-font-mono: 'Geist Mono', 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+    --cashier-font-sans: 'Geist Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    /* Body base styles - uses rem for consistent scaling */
+    line-height: 1.5;
+
+    /* Reset for proper sizing */
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Apply dark background */
+    background: var(--cashier-bg) !important;
+    font-family: var(--cashier-font-sans);
+    
+    /* Base Layout - Full screen flexbox */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    
+    /* Focus-visible for accessibility */
+    *:focus-visible {
+        outline: 0 !important;
+        
+        outline-offset: 0;
+    }
+    
+    /* Remove default focus outlines, use focus-visible instead */
+    *:focus:not(:focus-visible) {
+        outline: none;
+    }
+}
+
+/* Light Theme CSS Variables Override */
+.cbm_cashier_workstation.cbm-light-mode {
+    /* Clean light palette - 4-level elevation system (inverted from dark) */
+    --cashier-header: #ffffff;           /* Level 0: Header (lightest) */
+    --cashier-bg: #f1f5f9;               /* Level 1: Page background */
+    --cashier-card: #ffffff;             /* Level 2: Cards and panels */
+    --cashier-card-elevated: #f8fafc;    /* Level 3: Elevated elements */
+    --cashier-card-hover: #f1f5f9;       /* Level 4: Hover states */
+    
+    /* Borders - more visible for better separation */
+    --cashier-border: #cbd5e1;
+    --cashier-border-subtle: rgba(0, 0, 0, 0.08);
+    --cashier-border-strong: #94a3b8;
+    
+    /* Text hierarchy - proper contrast for light bg */
+    --cashier-text: #0f172a;
+    --cashier-text-muted: #475569;
+    --cashier-text-hint: #64748b;
+    
+    /* Accent - slightly darker for light bg */
+    --cashier-accent: #4f46e5;
+    --cashier-accent-glow: rgba(79, 70, 229, 0.15);
+    --cashier-accent-border: rgba(79, 70, 229, 0.3);
+    
+    /* Status colors - darker for visibility on light bg */
+    --cashier-success: #16a34a;
+    --cashier-success-bg: rgba(22, 163, 74, 0.12);
+    --cashier-warning: #d97706;
+    --cashier-warning-bg: rgba(217, 119, 6, 0.12);
+    --cashier-danger: #dc2626;
+    --cashier-danger-bg: rgba(220, 38, 38, 0.12);
+}
+
+/* Light mode header adjustment */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_header {
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom-color: var(--cashier-border);
+}
+
+/* Light mode workspace panel */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_workspace_panel {
+    background: var(--cashier-card);
+    border-color: var(--cashier-border);
+}
+
+/* Light mode patient info card */
+.cbm_cashier_workstation.cbm-light-mode .cbm_workspace_patient {
+    background: var(--cashier-card-elevated) !important;
+    border-color: var(--cashier-border) !important;
+}
+
+/* Light mode product lines table */
+.cbm_cashier_workstation.cbm-light-mode .cbm_lines_table {
+    background: var(--cashier-card) !important;
+    border-color: var(--cashier-border) !important;
+    
+    th {
+        background: var(--cashier-card-elevated);
+        border-bottom-color: var(--cashier-border);
+    }
+    
+    td {
+        border-bottom-color: var(--cashier-border-subtle);
+    }
+}
+
+/* Light mode amount card */
+.cbm_cashier_workstation.cbm-light-mode .cbm_amount_card {
+    background: var(--cashier-card-elevated);
+    border-color: var(--cashier-border);
+}
+
+/* Light mode totals section */
+.cbm_cashier_workstation.cbm-light-mode .cbm_workspace_totals {
+    background: var(--cashier-accent-glow) !important;
+    border-color: var(--cashier-accent-border) !important;
+}
+
+/* Light mode info cards */
+.cbm_cashier_workstation.cbm-light-mode .cbm_info_card {
+    background: var(--cashier-card-elevated);
+    border-color: var(--cashier-border);
+}
+
+/* Light mode workspace lines wrapper */
+.cbm_cashier_workstation.cbm-light-mode .cbm_workspace_lines {
+    background: var(--cashier-card) !important;
+    border-color: var(--cashier-border) !important;
+}
+
+/* Light mode method buttons */
+.cbm_cashier_workstation.cbm-light-mode .cbm_method_btn {
+    background: var(--cashier-card);
+    border-color: var(--cashier-border);
+    color: var(--cashier-text);
+    
+    &:hover {
+        background: var(--cashier-card-elevated);
+    }
+    
+    &.active {
+        background: var(--cashier-accent-glow);
+        border-color: var(--cashier-accent);
+        color: var(--cashier-accent);
+    }
+}
+
+/* Light mode session summary */
+.cbm_cashier_workstation.cbm-light-mode .cbm_session_breakdown {
+    background: var(--cashier-card);
+    border-color: var(--cashier-border);
+}
+
+/* Light mode scrollbar */
+.cbm_cashier_workstation.cbm-light-mode {
+    ::-webkit-scrollbar-track {
+        background: var(--cashier-card);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--cashier-border);
+        border-color: var(--cashier-card);
+    }
+}
+
+/* Light mode - Main table header */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_table {
+    thead {
+        background: var(--cashier-card-elevated);
+    }
+
+    th {
+        color: var(--cashier-text-hint);
+        border-bottom-color: var(--cashier-border);
+    }
+
+    td {
+        color: var(--cashier-text);
+        border-bottom-color: var(--cashier-border-subtle);
+    }
+
+    tbody tr:hover {
+        background: var(--cashier-card-hover);
+    }
+}
+
+/* Light mode - Table wrapper */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_table_wrapper {
+    background: var(--cashier-card);
+    border-color: var(--cashier-border);
+}
+
+/* Light mode - List header (filter tabs) */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_list_header {
+    background: var(--cashier-card);
+    border-bottom-color: var(--cashier-border);
+}
+
+/* Light mode - Pills/tabs hover */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_pills button:hover {
+    background: var(--cashier-card-hover);
+}
+
+/* Light mode - Payment amount input and all inputs */
+.cbm_cashier_workstation.cbm-light-mode .cbm_pay_amount_field {
+    input, .cbm_input_amount {
+        background: var(--cashier-card) !important;
+        border-color: var(--cashier-border) !important;
+        color: var(--cashier-text) !important;
+
+        &::placeholder {
+            color: var(--cashier-text-hint);
+        }
+
+        &:focus {
+            border-color: var(--cashier-accent);
+        }
+    }
+}
+
+/* Light mode - Quick action buttons */
+.cbm_cashier_workstation.cbm-light-mode .quick-action-zone button {
+    background: var(--cashier-card-elevated);
+    color: var(--cashier-text-muted);
+
+    &:hover {
+        background: var(--cashier-accent-glow);
+        color: var(--cashier-accent);
+    }
+}
+
+/* Light mode - All form inputs and form controls */
+.cbm_cashier_workstation.cbm-light-mode {
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select,
+    .form-control,
+    .form-select {
+        background: var(--cashier-card) !important;
+        border-color: var(--cashier-border) !important;
+        color: var(--cashier-text) !important;
+
+        &::placeholder {
+            color: var(--cashier-text-hint) !important;
+        }
+
+        &:focus {
+            background: var(--cashier-card) !important;
+            border-color: var(--cashier-accent) !important;
+        }
+
+        &:disabled,
+        &[readonly] {
+            background: var(--cashier-card) !important;
+            color: var(--cashier-text) !important;
+            opacity: 1;
+            cursor: not-allowed;
+        }
+    }
+}
+
+/* Light mode - Ensure table header stays light */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_table thead,
+.cbm_cashier_workstation.cbm-light-mode .cbm_lines_table thead {
+    background: var(--cashier-card-elevated) !important;
+}
+
+/* Light mode - Table row hover should be light */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_table tbody tr:hover,
+.cbm_cashier_workstation.cbm-light-mode .cbm_lines_table tbody tr:hover {
+    background: var(--cashier-card-hover) !important;
+}
+
+/* Theme Toggle Button */
+.cbm_cashier_workstation .cbm_theme_toggle {
+    background: var(--cashier-card-elevated);
+    border: 0.06rem solid var(--cashier-border);
+    color: var(--cashier-text-muted);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.62rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    .cbm_icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    &:hover {
+        background: var(--cashier-accent-glow);
+        border-color: var(--cashier-accent);
+        color: var(--cashier-accent);
+    }
+}
+
+/* Pulsing animation for session dot */
+@keyframes pulse-dot {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.15);
+    }
+}
+
+/* Header - sticky with blur, darkest layer */
+.cbm_cashier_workstation .cbm_cashier_header {
+    background: var(--cashier-header);
+    backdrop-filter: blur(0.75rem);
+    -webkit-backdrop-filter: blur(0.75rem);
+    border-bottom: 0.06rem solid var(--cashier-border-strong);
+    padding: var(--space-base) var(--space-lg);
+    margin-bottom: 0 !important;  /* No gap after header */
+
+    @media (max-width: 768px) {
+        padding: var(--space-sm) var(--space-base);
+    }
+}
+
+.cbm_cashier_workstation .cbm_header_title {
+    color: var(--cashier-text);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    margin: 0;
+}
+
+/* Title group with greeting */
+.cbm_cashier_workstation .cbm_header_title_group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.cbm_cashier_workstation .cbm_header_subtitle {
+    color: var(--cashier-text-hint);
+    font-size: 0.8125rem;
+}
+
+/* Greeting - Large welcome text like dashboard */
+.cbm_cashier_workstation .cbm_header_greeting {
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: var(--cashier-text-muted);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+/* Light mode greeting */
+.cbm_cashier_workstation.cbm-light-mode .cbm_header_greeting {
+    color: #6b7280;
+}
+
+/* Back button dark theme override */
+.cbm_cashier_workstation .cbm_back_btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--cashier-text-muted);
+    border: 0.06rem solid var(--cashier-border);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--cashier-text);
+        border-color: var(--cashier-border-subtle);
+    }
+}
+
+/* Search wrapper and input - Cashier specific */
+.cbm_cashier_workstation .cbm_search_wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: transparent;                      /* Transparent wrapper */
+    border: none;                                 /* No border on wrapper */
+    border-radius: 0.5rem;
+}
+
+.cbm_cashier_workstation .cbm_search_icon {
+    position: absolute;
+    left: 0.875rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--cashier-text-hint);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Search input dark theme - Default (dark mode) */
+.cbm_cashier_workstation .cbm_search_input {
+    width: 100%;
+    background: var(--cashier-card) !important;   /* Dark background */
+    border: 0.0625rem solid var(--cashier-border) !important;
+    color: var(--cashier-text) !important;        /* Ensure text is light in dark mode */
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;        /* Increased padding for larger field */
+    font-size: 14px  ;                /* Larger text */
+    font-weight: 500;
+
+    &::placeholder {
+        color: var(--cashier-text-hint) !important;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: var(--cashier-accent) !important;
+        box-shadow: 0 0 0 0.1875rem var(--cashier-accent-glow);
+        background: var(--cashier-card-elevated) !important;
+        color: var(--cashier-text) !important;
+    }
+
+    /* Remove browser default styles */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Light mode overrides */
+.cbm_cashier_workstation.cbm-light-mode .cbm_search_wrapper {
+    background: transparent;
+}
+
+.cbm_cashier_workstation.cbm-light-mode .cbm_search_input {
+    background: #ffffff !important;               /* White for light mode */
+    border: 0.0625rem solid #e0e0e0 !important;
+    color: #1a1a1a !important;                    /* Dark text for light mode */
+
+    &::placeholder {
+        color: #999999 !important;
+    }
+
+    &:focus {
+        background: #ffffff !important;
+        border-color: var(--cashier-accent) !important;
+        box-shadow: 0 0 0 0.1875rem rgba(99, 102, 241, 0.1);
+        color: #1a1a1a !important;
+    }
+}
+
+/* Session widget - dark with pulsing dot */
+.cbm_cashier_workstation .cbm_session_widget {
+    background: var(--cashier-success-bg);
+    border: 0.06rem solid rgba(34, 197, 94, 0.2);
+    color: var(--cashier-success);
+    border-radius: 0.5rem;
+    
+    &.open .cbm_session_dot {
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+    
+    &.closed {
+        background: var(--cashier-card);
+        border-color: var(--cashier-border);
+        color: var(--cashier-text-muted);
+    }
+}
+
+/* Filter Tabs - underline style attached to header */
+.cbm_cashier_workstation .cbm_cashier_list_header {
+    display: flex;
+    align-items: center;
+    background: var(--cashier-card);
+    border-bottom: 0.06rem solid var(--cashier-border);
+    margin-top: 0 !important;  /* No gap between header and filter bar */
+    padding-top: 0;
+}
+
+.cbm_cashier_workstation .cbm_cashier_pills {
+    display: flex;
+    gap: 0;
+    padding: 0 var(--space-lg);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    button {
+        background: transparent;
+        border: none;
+        border-bottom: 0.12rem solid transparent;
+        border-radius: 0;
+        color: var(--cashier-text-muted);
+        padding: var(--space-md) var(--space-lg);
+        font-weight: 500;
+        white-space: nowrap;
+        flex-shrink: 0;
+        
+        &:hover {
+            color: var(--cashier-text);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        &.active {
+            color: var(--cashier-accent);
+            border-bottom-color: var(--cashier-accent);
+            background: var(--cashier-accent-glow);
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 0 var(--space-md);
+
+        button {
+            padding: var(--space-md) var(--space-base);
+        }
+    }
+}
+
+.cbm_cashier_workstation .cbm_cashier_today_badge {
+    display: flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--cashier-accent-glow);
+    color: var(--cashier-accent);
+    border-radius: 1.25rem;
+    font-size: var(--font-body);
+    font-weight: 600;
+    border: 0.06rem solid var(--cashier-accent-border);
+    margin-left: auto;
+    margin-right: 1.5rem;
+    animation: fadeInBadge 0.3s ease-out;
+    
+    .cbm_icon {
+        width: 0.88rem;
+        height: 0.88rem;
+    }
+}
+
+@keyframes fadeInBadge {
+    from { opacity: 0; transform: translateX(0.625rem); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* List Panel - shrinks when workspace opens */
+.cbm_cashier_workstation .cbm_cashier_list_panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    background: var(--cashier-bg);
+    border-right: 0.0625rem solid var(--cashier-border);
+    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* When workspace is open, make room for it */
+    &.shrunk {
+        margin-right: clamp(26.25rem, 55vw, 45rem);
+    }
+
+    /* Mobile: workspace overlays, no margin needed */
+    @media (max-width: 767px) {
+        &.shrunk {
+            margin-right: 0;
+        }
+    }
+}
+
+/* Table wrapper - with margin and rounded corners */
+.cbm_cashier_workstation .cbm_cashier_table_wrapper {
+    margin: 1rem;
+    background: var(--cashier-card);
+    border: 0.0625rem solid var(--cashier-border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+
+    @media (max-width: 768px) {
+        margin: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    @media (max-width: 639px) {
+        margin: 0.5rem;
+        border-radius: 0.375rem;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+}
+
+/* ==========================================================================
+   TABLE - Fluid sizing, single mobile breakpoint
+   ========================================================================== */
+.cbm_cashier_workstation .cbm_cashier_table {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+
+    thead {
+        background: var(--cashier-card-elevated);
+        display: table;
+        width: 100%;
+        table-layout: auto;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    tbody {
+        display: block;
+        overflow-y: auto;
+        overflow-x: auto;
+        flex: 1;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    thead tr, tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: auto;
+    }
+
+    th {
+        color: var(--cashier-text-hint);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 0.0625rem solid var(--cashier-border);
+        padding: clamp(0.5rem, 1vw, 0.75rem) clamp(0.5rem, 1.5vw, 1rem);
+        white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--cashier-text);
+        }
+
+        &:nth-child(1) { width: 18%; min-width: 6.25rem; }
+        &:nth-child(2) { width: 25%; min-width: 7.5rem; }
+        &.col-status { width: 20%; min-width: 6rem; }
+        &.col-date { width: 13%; min-width: 4.375rem; }
+        &.col-amount { width: 15%; min-width: 5.625rem; }
+        &.cbm_col_actions { width: 15%; min-width: 4.375rem; cursor: default; }
+
+        &.sortable {
+            position: relative;
+            padding-right: 1.5rem;
+
+            &::after {
+                content: '';
+                position: absolute;
+                right: 0.5rem;
+                top: 50%;
+                transform: translateY(-50%);
+                border-left: 0.25rem solid transparent;
+                border-right: 0.25rem solid transparent;
+                border-top: 0.3125rem solid var(--cashier-text-hint);
+                opacity: 0.3;
+            }
+
+            &.sort-asc::after {
+                border-top-color: var(--cashier-accent);
+                opacity: 1;
+            }
+
+            &.sort-desc::after {
+                border-top: none;
+                border-bottom: 0.3125rem solid var(--cashier-accent);
+                opacity: 1;
+            }
+        }
+    }
+
+    td {
+        color: var(--cashier-text);
+        font-weight: 500;
+        border-bottom: 0.0625rem solid var(--cashier-border-subtle);
+        padding: clamp(0.5rem, 1.2vw, 0.875rem) clamp(0.5rem, 1.5vw, 1rem);
+        vertical-align: middle;
+
+        &:nth-child(1) { width: 18%; min-width: 6.25rem; }
+        &:nth-child(2) { width: 20%; min-width: 7.5rem; }
+        &.col-status {width: 20%; min-width: 6rem; }
+        &.col-date { width: 13%; min-width: 4.375rem; white-space: nowrap; }
+        &.col-amount { width: 15%; min-width: 5.625rem; white-space: nowrap; }
+        &.quick-action-zone { width: auto; min-width: 4.375rem; }
+    }
+
+    tbody tr {
+        border-left: 0.1875rem solid transparent;
+        transition: background 0.15s ease, border-color 0.15s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-left-color: var(--cashier-text-hint);
+        }
+
+        &.selected {
+            background: var(--cashier-accent-glow);
+            border-left-color: var(--cashier-accent);
+            box-shadow: 0 0.0625rem 0 var(--cashier-accent-border), 0 -0.0625rem 0 var(--cashier-accent-border);
+            position: relative;
+            z-index: 1;
+        }
+    }
+
+    @media (max-width: 39.9375rem) {
+        display: block;
+
+        thead { display: none; }
+
+        tbody {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        tbody tr {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto auto auto;
+            gap: 0.25rem 0.5rem;
+            padding: 0.75rem;
+            background: var(--cashier-card-elevated);
+            border: 0.0625rem solid var(--cashier-border);
+            border-radius: 0.5rem;
+            border-left: 0.1875rem solid var(--cashier-accent);
+        }
+
+        tbody tr:hover {
+            background: var(--cashier-card-hover);
+        }
+
+        td {
+            display: flex;
+            align-items: center;
+            padding: 0;
+            border: none;
+            width: auto !important;
+            min-width: unset !important;
+
+            &:nth-child(1) { grid-column: 1; grid-row: 1; font-weight: 600; }
+            &:nth-child(2) { grid-column: 1 / -1; grid-row: 2; color: var(--cashier-text-muted); }
+            &.col-status { grid-column: 2; grid-row: 1; justify-content: flex-end; }
+            &.col-date { display: none; }
+            &.col-amount { grid-column: 1; grid-row: 3; font-weight: 600; }
+            &.quick-action-zone { grid-column: 2; grid-row: 3; justify-content: flex-end; }
+        }
+    }
+}
+
+/* Document IDs - monospace font */
+.cbm_cashier_workstation .cbm_cashier_table td:first-child {
+    font-family: var(--cashier-font-mono);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Mobile: allow wrap */
+    @media (max-width: 639px) {
+        white-space: normal;
+    }
+}
+
+/* Status badges with icons */
+.cbm_cashier_workstation .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.31rem 0.75rem;
+    border-radius: 1.12rem;
+    font-weight: 600;
+    letter-spacing: var(--ls-wide);
+    
+    .cbm_icon {
+        width: 0.88rem;
+        height: 0.88rem;
+    }
+    
+    &.status-blue {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+    }
+    
+    &.status-orange {
+        background: var(--cashier-warning-bg);
+        color: var(--cashier-warning);
+    }
+    
+    &.status-green {
+        background: var(--cashier-success-bg);
+        color: var(--cashier-success);
+    }
+    
+    &.status-red {
+        background: var(--cashier-danger-bg);
+        color: var(--cashier-danger);
+    }
+}
+
+/* Quick actions - hide until hover */
+.cbm_cashier_workstation .quick-action-zone {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    border-bottom: none !important;
+    display: flex;
+    gap: 0.375rem;
+    align-items: center;
+    justify-content: flex-end !important;
+
+    button {
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: var(--cashier-text-muted) !important;
+        border: none !important;
+        width: 3rem !important;
+        height: 3rem !important;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+        padding: 0;
+
+        &:hover {
+            background: var(--cashier-accent-glow) !important;
+            color: var(--cashier-warning) !important;
+            transform: scale(1.1);
+        }
+
+        svg {
+            width: 1.5rem !important;
+            height: 1.5rem !important;
+            pointer-events: none;
+        }
+    }
+}
+
+.cbm_cashier_workstation .cbm_cashier_table tbody tr:hover .quick-action-zone {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ==========================================================================
+   WORKSPACE PANEL - Fluid "Book" Layout
+   Two pages side by side, no gap. Workspace gets comfortable reading width.
+   clamp(min, preferred, max) scales smoothly without breakpoints.
+   ========================================================================== */
+.cbm_cashier_workstation .cbm_cashier_workspace_panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: calc(100% - 3rem);
+    /* Fluid width: min 26.25rem, prefer 55vw, max 45rem */
+    width: clamp(26.25rem, 55vw, 45rem);
+    flex-shrink: 0;
+    background: var(--cashier-card);
+    border-left: 0.0625rem solid var(--cashier-border);
+    margin: 0;
+    overflow: hidden;  /* Children handle scroll */
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Open state - slide in */
+    &.open {
+        transform: translateX(0);
+    }
+
+    /* Mobile: full-screen overlay when viewport < 768px */
+    @media (max-width: 47.9375rem) {
+        position: fixed;
+        width: 100%;
+        height: 100dvh;
+        top: 0;
+        left: 0;
+        border-left: none;
+        z-index: 200;
+    }
+}
+
+/* ==========================================================================
+   WORKSPACE CONTENT - Compact Flex Layout
+   Tight spacing, scrollable, elements organized with minimal gap
+   ========================================================================== */
+.cbm_cashier_workstation .cbm_workspace_content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem;
+    gap: 0.75rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Workspace header - integrated with content */
+.cbm_cashier_workstation .cbm_workspace_header {
+    margin: -0.75rem -0.75rem 0;
+    padding: 0.75rem;
+    border-bottom: .0625rem solid var(--cashier-border);
+    flex-shrink: 0;
+    background: var(--cashier-card);
+
+    .cbm_workspace_label {
+        color: var(--cashier-text-hint);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+}
+
+.cbm_cashier_workstation .cbm_workspace_title_group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    h3 {
+        color: var(--cashier-text);
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .cbm_workspace_doc_number {
+        color: var(--cashier-text-hint);
+        font-weight: 500;
+        font-family: var(--cashier-font-mono);
+    }
+}
+
+/* Close button */
+.cbm_cashier_workstation .cbm_workspace_close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cashier-card-elevated);
+    color: var(--cashier-text-muted);
+    border: 0.0625rem solid var(--cashier-border);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    z-index: 11;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: var(--cashier-danger-bg);
+        color: var(--cashier-danger);
+        border-color: var(--cashier-danger);
+    }
+}
+
+/* Info Cards - nested with depth */
+.cbm_cashier_workstation .cbm_info_card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 0.06rem solid var(--cashier-border-subtle);
+    border-radius: 0.62rem;
+    padding: var(--space-base);
+    margin-bottom: var(--space-md);
+    
+    .cbm_info_label {
+        font-size: var(--font-body-sm);
+        color: var(--cashier-text-hint);
+        text-transform: uppercase;
+        letter-spacing: var(--ls-wider);
+        margin-bottom: 0.38rem;
+    }
+    
+    .cbm_info_value {
+        font-size: var(--font-h3);
+        font-weight: 600;
+        color: var(--cashier-text);
+    }
+}
+
+/* Amount Card - elevated dark theme */
+.cbm_cashier_workstation .cbm_amount_card {
+    background: var(--cashier-card-elevated);
+    border: 0.06rem solid var(--cashier-border);
+    border-radius: 0.62rem;
+    padding: 1.25rem;
+    margin-bottom: var(--space-base);
+    box-shadow: var(--shadow-sm);
+    
+    .cbm_info_label {
+        font-size: var(--font-body-sm);
+        color: var(--cashier-accent);
+        text-transform: uppercase;
+        letter-spacing: var(--ls-wider);
+        margin-bottom: var(--space-sm);
+    }
+    
+    .cbm_amount_value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--cashier-text);
+    }
+}
+
+/* Grid layout for status/date cards */
+.cbm_cashier_workstation .cbm_info_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+/* Payment method buttons */
+.cbm_cashier_workstation .cbm_method_btn {
+    background: var(--cashier-card-elevated);
+    border: 0.0625rem solid var(--cashier-border);
+    color: var(--cashier-text-muted);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--cashier-text-hint);
+    }
+
+    &.active {
+        background: var(--cashier-accent-glow);
+        border-color: var(--cashier-accent);
+        color: var(--cashier-accent);
+    }
+}
+
+
+
+/* Session summary - dark theme */
+.cbm_cashier_workstation .cbm_session_summary {
+    h3 {
+        color: var(--cashier-text);
+    }
+}
+
+.cbm_cashier_workstation .cbm_session_breakdown {
+    background: var(--cashier-card-elevated);
+    border-color: var(--cashier-border);
+}
+
+.cbm_cashier_workstation .cbm_session_row {
+    border-bottom-color: var(--cashier-border-subtle);
+    
+    &.total {
+        background: rgba(255, 255, 255, 0.03);
+    }
+}
+
+.cbm_cashier_workstation .cbm_session_label {
+    color: var(--cashier-text-muted);
+}
+
+.cbm_cashier_workstation .cbm_session_value {
+    color: var(--cashier-text);
+    font-weight: 600;
+}
+
+/* Success overlay - dark theme */
+.cbm_cashier_workstation .cbm_success_overlay {
+    background: var(--cashier-card);
+}
+
+.cbm_cashier_workstation .success-checkmark {
+    background: var(--cashier-success-bg);
+    color: var(--cashier-success);
+    border: 0.12rem solid rgba(34, 197, 94, 0.3);
+}
+
+.cbm_cashier_workstation .success-change {
+    color: var(--cashier-text);
+}
+
+.cbm_cashier_workstation .print-again-btn {
+    background: var(--cashier-card-elevated);
+    border: 0.06rem solid var(--cashier-border);
+    color: var(--cashier-text-muted);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.38rem;
+    font-size: var(--font-body);
+    cursor: pointer;
+    
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--cashier-text);
+    }
+}
+
+/* Loading spinner dark theme */
+.cbm_cashier_workstation .spinner-border {
+    color: var(--cashier-accent);
+}
+
+/* Workspace lines table - scrollable */
+.cbm_cashier_workstation .cbm_lines_table {
+    width: 100%;
+    background: transparent;
+    border-collapse: collapse;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+
+    thead {
+        flex-shrink: 0;
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    tbody {
+        flex: 1;
+        overflow-y: auto;
+        display: block;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    thead tr, tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    th {
+        background: var(--cashier-card);
+        color: var(--cashier-text-hint);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 0.5rem 0.75rem;
+        border-bottom: .0625rem solid var(--cashier-border);
+        text-align: left;
+        white-space: nowrap;
+
+        &:nth-child(1) { width: 50%; }  /* Produit */
+        &:nth-child(2) { width: 12%; }  /* Qté */
+        &:nth-child(3) { width: 19%; }  /* Prix */
+        &:nth-child(4) { width: 19%; }  /* Total */
+    }
+
+    td {
+        color: var(--cashier-text);
+        padding: 0.5rem 0.75rem;
+        border-bottom: .0625rem solid var(--cashier-border-subtle);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &:nth-child(1) { width: 50%; }
+        &:nth-child(2) { width: 12%; }
+        &:nth-child(3) { width: 19%; }
+        &:nth-child(4) { width: 19%; font-weight: 600; }
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+    /* Mobile: simplified list */
+    @media (max-width: 639px) {
+        thead { display: none; }
+        tbody { display: flex; flex-direction: column; }
+
+        tr {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.25rem 0.5rem;
+            padding: 0.5rem 0.75rem;
+        border-bottom: 0.0625rem solid var(--cashier-border-subtle);
+            &:last-child { border-bottom: none; }
+        }
+
+        td {
+            padding: 0;
+            border: none;
+            width: auto !important;
+            &:first-child { grid-column: 1 / -1; font-weight: 500; }
+            &:nth-child(2), &:nth-child(3) { display: none; }
+            &:last-child { grid-column: 1 / -1; text-align: right; font-weight: 600; }
+        }
+    }
+}
+
+/* Custom Scrollbar - Dark Theme */
+.cbm_cashier_workstation {
+    /* Webkit browsers (Chrome, Safari, Edge) */
+    ::-webkit-scrollbar {
+        width: 0.62rem;
+        height: 0.62rem;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--cashier-card);
+        border-radius: 0.31rem;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--cashier-border);
+        border-radius: 0.31rem;
+        border: 0.12rem solid var(--cashier-card);
+        
+        &:hover {
+            background: var(--cashier-text-hint);
+        }
+    }
+    
+    ::-webkit-scrollbar-corner {
+        background: var(--cashier-card);
+    }
+    
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--cashier-border) var(--cashier-card);
+    
+    /* Apply to all scrollable children */
+    .cbm_cashier_table_wrapper,
+    .cbm_cashier_workspace_panel,
+    .cbm_workspace_content {
+        scrollbar-width: thin;
+        scrollbar-color: var(--cashier-border) var(--cashier-card);
+    }
+}
+
+/* ============================================
+   WORKSPACE CONTENT - Dark Theme Overrides
+   ============================================ */
+
+/* Patient Info Card */
+.cbm_cashier_workstation .cbm_workspace_patient {
+    background: var(--cashier-card-elevated);
+    border: 0.0625rem solid var(--cashier-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-shrink: 0;
+
+    .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+        flex: 1;
+
+        .cbm_icon {
+            flex-shrink: 0;
+            color: var(--cashier-text-muted);
+        }
+
+        > div { min-width: 0; }
+    }
+
+    span, .patient-name, p {
+        color: var(--cashier-text) !important;
+        font-weight: 600;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .cbm_patient_ref {
+        color: var(--cashier-text-muted) !important;
+        margin-left: 0.5rem;
+    }
+
+    .convention-badge {
+        background: var(--cashier-success-bg);
+        color: var(--cashier-success);
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+}
+
+/* Product Lines Wrapper */
+.cbm_cashier_workstation .cbm_workspace_lines {
+    background: var(--cashier-card-elevated);
+    border: 0.0625rem solid var(--cashier-border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    flex: 1;
+    min-height: 6.25rem;
+    max-height: 50vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Totals Section - with color variants */
+.cbm_cashier_workstation .cbm_workspace_totals {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    flex-shrink: 0;
+
+    /* Default - blue (devis) */
+    background: rgba(99, 102, 241, 0.12);
+    border: 0.0625rem solid rgba(99, 102, 241, 0.25);
+
+    &.status-orange {
+        background: var(--cashier-warning-bg);
+        border-color: rgba(245, 158, 11, 0.25);
+        .total-row.final span:first-child { color: var(--cashier-warning) !important; }
+    }
+
+    &.status-green {
+        background: var(--cashier-success-bg);
+        border-color: rgba(34, 197, 94, 0.25);
+        .total-row.final span:first-child { color: var(--cashier-success) !important; }
+    }
+
+    &.status-red {
+        background: var(--cashier-danger-bg);
+        border-color: rgba(239, 68, 68, 0.25);
+        .total-row.final span:first-child { color: var(--cashier-danger) !important; }
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.25rem 0;
+        border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.06);
+        color: var(--cashier-text);
+
+        &:last-child { border-bottom: none; }
+
+        label, span:first-child {
+            color: var(--cashier-text-muted) !important;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .amount, span:last-child, strong {
+            color: var(--cashier-text) !important;
+            font-weight: 700;
+        }
+
+        &.final {
+            padding-top: 0.5rem;
+            margin-top: 0.25rem;
+            span:first-child { color: var(--cashier-accent) !important; font-weight: 600; }
+        }
+
+        &.convention {
+            background: rgba(34, 197, 94, 0.12) !important;
+            border: 0.0625rem solid rgba(34, 197, 94, 0.2);
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem -0.5rem;
+            span:first-child, span:last-child { color: var(--cashier-success) !important; }
+        }
+    }
+}
+
+/* Convention Toggle */
+.cbm_cashier_workstation .cbm_convention_toggle {
+    padding: 0.5rem;
+    background: var(--cashier-card-elevated);
+    border-radius: 0.5rem;
+    border: 0.0625rem solid var(--cashier-border);
+    flex-shrink: 0;
+}
+
+.cbm_cashier_workstation .cbm_toggle_buttons {
+    display: flex;
+    gap: 0;
+    background: var(--cashier-card);
+    border-radius: 0.375rem;
+    padding: 0.25rem;
+}
+
+.cbm_cashier_workstation .cbm_toggle_btn {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--cashier-text-hint);
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+        background: var(--cashier-card-elevated);
+        color: var(--cashier-text);
+        box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.2);
+    }
+
+    &.cbm_toggle_convention.active {
+        background: var(--cashier-accent);
+        color: white;
+    }
+}
+
+.cbm_cashier_workstation .cbm_convention_selector {
+    .cbm_select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 0.06rem solid var(--cashier-border);
+        border-radius: 0.5rem;
+        font-weight: 500;
+        background: var(--cashier-card);
+        color: var(--cashier-text);
+        cursor: pointer;
+
+        &:focus {
+            outline: none;
+            border-color: var(--cashier-accent);
+            box-shadow: 0 0 0 0.19rem var(--cashier-accent-glow);
+        }
+
+        option {
+            background: var(--cashier-card);
+            color: var(--cashier-text);
+            padding: 0.62rem;
+        }
+    }
+}
+
+/* Convention Indicator in Table Rows */
+.cbm_cashier_workstation .cbm_convention_indicator {
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.5rem;
+    color: var(--cashier-accent);
+    vertical-align: middle;
+    display: inline-block;
+    opacity: 0.9;
+    cursor: help;
+
+    &:hover {
+        opacity: 1;
+        color: var(--cashier-accent);
+    }
+}
+
+/* Workspace Action Buttons Container */
+.cbm_cashier_workstation .cbm_workspace_actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Payment Amount Input */
+.cbm_cashier_workstation .cbm_pay_amount_input {
+    flex-shrink: 0;
+
+    label {
+        color: var(--cashier-text-muted) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+}
+
+.cbm_cashier_workstation .cbm_pay_amount_field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    input, .cbm_input_amount {
+        flex: 1;
+        max-width: 12rem;
+        padding: 0.5rem 0.75rem;
+        font-weight: 600;
+        text-align: right;
+        border: 0.0625rem solid var(--cashier-border);
+        border-radius: 0.375rem;
+        background: var(--cashier-card-elevated);
+        color: var(--cashier-text);
+
+        &::placeholder { color: var(--cashier-text-hint); }
+        &:focus {
+            outline: none;
+            border-color: var(--cashier-accent);
+            box-shadow: 0 0 0 0.125rem var(--cashier-accent-glow);
+        }
+        &:disabled, &[readonly] {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+    }
+}
+
+.cbm_cashier_workstation .cbm_pay_amount_currency {
+    font-weight: 500;
+    color: var(--cashier-text-muted);
+}
+
+.cbm_cashier_workstation .cbm_pay_partial_warning {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(251, 191, 36, 0.12);
+    border: 0.0625rem solid rgba(251, 191, 36, 0.25);
+    border-radius: 0.375rem;
+    color: #fbbf24;
+    font-weight: 500;
+}
+
+/* Payment Method Section */
+.cbm_cashier_workstation .cbm_workspace_payment {
+    flex-shrink: 0;
+
+    label {
+        color: var(--cashier-text-muted) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .method-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+/* Content area - flex container for list + workspace */
+.cbm_cashier_workstation .cbm_cashier_content {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--cashier-bg);
+}
+
+/* ==========================================================================
+   EMPTY STATE - "Aucun document aujourd'hui"
+   ========================================================================== */
+.cbm_cashier_workstation .cbm_cashier_initial {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--cashier-text-muted);
+
+    .cbm_icon {
+        color: var(--cashier-text-hint);
+        opacity: 0.5;
+        margin-bottom: 1rem;
+    }
+
+    h3 {
+        color: var(--cashier-text);
+        font-weight: 600;
+        font-size: var(--font-h3);
+        margin: 0 0 0.5rem 0;
+    }
+
+    p {
+        color: var(--cashier-text-muted);
+        font-size: var(--font-body-sm);
+        margin: 0;
+        max-width: 20rem;
+    }
+}
+
+/* Light mode empty state */
+.cbm_cashier_workstation.cbm-light-mode .cbm_cashier_initial {
+    h3 {
+        color: var(--cashier-text);
+    }
+
+    p {
+        color: var(--cashier-text-muted);
+    }
+
+    .cbm_icon {
+        color: var(--cashier-text-hint);
+    }
+}
+
+/* ==========================================================================
+   ACTION BUTTONS - Primary and Secondary
+   ========================================================================== */
+.cbm_cashier_workstation .cbm_btn_primary {
+    background: var(--cashier-accent) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.625rem 1rem;
+    transition: background 0.15s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    cursor: pointer;
+
+    &:hover {
+        background: #5558e3 !important;
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    &:disabled {
+        background: var(--cashier-card-elevated) !important;
+        color: var(--cashier-text-hint) !important;
+        cursor: not-allowed;
+    }
+
+    .cbm_icon {
+        color: inherit;
+    }
+}
+
+.cbm_cashier_workstation .cbm_btn_secondary {
+    background: var(--cashier-card-elevated) !important;
+    border: 0.0625rem solid var(--cashier-border) !important;
+    color: var(--cashier-text) !important;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    padding: 0.625rem 1rem;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    cursor: pointer;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--cashier-text-hint) !important;
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    .cbm_icon {
+        color: inherit;
+    }
+}
+
+/* Light mode button overrides */
+.cbm_cashier_workstation.cbm-light-mode .cbm_btn_secondary {
+    background: var(--cashier-card) !important;
+    border-color: var(--cashier-border) !important;
+    color: var(--cashier-text) !important;
+
+    &:hover {
+        background: var(--cashier-card-hover) !important;
+    }
+}
+
+.cbm_cashier_workstation .cbm_workspace_action_btn {
+    flex: 1;
+    background: var(--cashier-card-elevated);
+    border: 1px solid var(--cashier-border);
+    color: var(--cashier-text);
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--cashier-text-hint);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Primary action button */
+.cbm_cashier_workstation .cbm_workspace_submit {
+    background: var(--cashier-accent);
+    border: none;
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    transition: background 0.15s ease, transform 0.1s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: auto;  /* Push to bottom of flex container */
+
+    &:hover {
+        background: #5558e3;
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    &:disabled {
+        background: var(--cashier-card-elevated);
+        color: var(--cashier-text-hint);
+        cursor: not-allowed;
+    }
+}
+
+/* ==========================================================================
+   PREMIUM TOOLTIP COMPONENT
+   Glassmorphic tooltip with gradient accents
+   ========================================================================== */
+
+/* Tooltip trigger wrapper */
+.cbm_tooltip_trigger {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip container */
+.cbm_tooltip {
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    width: max-content;
+    max-width: 280px;
+    z-index: 1000;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.cbm_tooltip_trigger:hover .cbm_tooltip,
+.cbm_tooltip_trigger:focus-within .cbm_tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Tooltip card - Glassmorphic dark style */
+.cbm_tooltip_card {
+    position: relative;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(31, 41, 55, 0.95));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 0 30px rgba(99, 102, 241, 0.12),
+        0 8px 32px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+}
+
+/* Gradient glow overlay */
+.cbm_tooltip_card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.06));
+    border-radius: inherit;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Tooltip header with icon */
+.cbm_tooltip_header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.cbm_tooltip_icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg, .cbm_icon {
+        width: 14px;
+        height: 14px;
+        color: #a5b4fc;
+    }
+}
+
+.cbm_tooltip_title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+/* Tooltip content */
+.cbm_tooltip_content {
+    position: relative;
+    z-index: 1;
+}
+
+.cbm_tooltip_text {
+    font-size: 0.8125rem;
+    color: #d1d5db;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Tooltip meta/footer */
+.cbm_tooltip_meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+    z-index: 1;
+
+    svg, .cbm_icon {
+        width: 12px;
+        height: 12px;
+        color: #6b7280;
+    }
+
+    span {
+        font-size: 0.6875rem;
+        color: #9ca3af;
+    }
+}
+
+/* Arrow/caret */
+.cbm_tooltip_arrow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(135deg, rgba(31, 41, 55, 0.95), rgba(17, 24, 39, 0.95));
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Tooltip positioning variants */
+.cbm_tooltip.cbm_tooltip_top {
+    bottom: calc(100% + 12px);
+    top: auto;
+}
+
+.cbm_tooltip.cbm_tooltip_bottom {
+    bottom: auto;
+    top: calc(100% + 12px);
+
+    .cbm_tooltip_arrow {
+        bottom: auto;
+        top: -6px;
+        border-right: none;
+        border-bottom: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+}
+
+.cbm_tooltip.cbm_tooltip_left {
+    bottom: auto;
+    top: 50%;
+    left: auto;
+    right: calc(100% + 12px);
+    transform: translateY(-50%) translateX(8px);
+
+    .cbm_tooltip_arrow {
+        bottom: auto;
+        left: auto;
+        right: -6px;
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+        border-left: none;
+        border-top: none;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+}
+
+.cbm_tooltip_trigger:hover .cbm_tooltip.cbm_tooltip_left,
+.cbm_tooltip_trigger:focus-within .cbm_tooltip.cbm_tooltip_left {
+    transform: translateY(-50%) translateX(0);
+}
+
+.cbm_tooltip.cbm_tooltip_right {
+    bottom: auto;
+    top: 50%;
+    left: calc(100% + 12px);
+    right: auto;
+    transform: translateY(-50%) translateX(-8px);
+
+    .cbm_tooltip_arrow {
+        bottom: auto;
+        left: -6px;
+        right: auto;
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+        border-right: none;
+        border-bottom: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+}
+
+.cbm_tooltip_trigger:hover .cbm_tooltip.cbm_tooltip_right,
+.cbm_tooltip_trigger:focus-within .cbm_tooltip.cbm_tooltip_right {
+    transform: translateY(-50%) translateX(0);
+}
+
+/* Light mode tooltip */
+.cbm-light-mode .cbm_tooltip_card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(249, 250, 251, 0.98));
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 0 30px rgba(99, 102, 241, 0.08),
+        0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.cbm-light-mode .cbm_tooltip_card::before {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.03));
+}
+
+.cbm-light-mode .cbm_tooltip_icon {
+    background: rgba(99, 102, 241, 0.1);
+
+    svg, .cbm_icon {
+        color: #6366f1;
+    }
+}
+
+.cbm-light-mode .cbm_tooltip_title {
+    color: #111827;
+}
+
+.cbm-light-mode .cbm_tooltip_text {
+    color: #4b5563;
+}
+
+.cbm-light-mode .cbm_tooltip_meta {
+    border-top-color: rgba(0, 0, 0, 0.06);
+
+    svg, .cbm_icon {
+        color: #9ca3af;
+    }
+
+    span {
+        color: #6b7280;
+    }
+}
+
+.cbm-light-mode .cbm_tooltip_arrow {
+    background: linear-gradient(135deg, rgba(249, 250, 251, 0.98), rgba(255, 255, 255, 0.98));
+    border-color: rgba(0, 0, 0, 0.08);
+}

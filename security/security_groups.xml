@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 
+    Clinic Portal Security Groups - Hierarchical Access Levels
+    
+    Hierarchy:
+    1. group_clinic_portal_user - Clinical Staff (base kiosk)
+    2. group_clinic_portal_approver - Department Supervisor (approve transfers)
+    3. group_clinic_portal_manager - Operations Manager (settings access)
+    4. group_clinic_portal_executive - Executive Director (financial dashboard)
+    -->
+    
+    <!-- Level 1: Clinical Staff -->
+    <record id="group_clinic_portal_user" model="res.groups">
+        <field name="name">Clinical Staff</field>
+        <field name="implied_ids" eval="[
+            (4, ref('base.group_user')),
+            (4, ref('stock.group_stock_user')),
+            (4, ref('sales_team.group_sale_salesman')),
+        ]"/>
+        <field name="comment">
+            Clinic staff (Nurses/Doctors) with simplified portal access.
+            Can create requests, view products, bill patients.
+        </field>
+    </record>
+
+    <!-- Level 2: Department Supervisor -->
+    <record id="group_clinic_portal_approver" model="res.groups">
+        <field name="name">Department Supervisor</field>
+        <field name="implied_ids" eval="[
+            (4, ref('group_clinic_portal_user')),
+        ]"/>
+        <field name="comment">
+            Can approve transfer requests for their department.
+            Sees approval sidebar in portal.
+        </field>
+    </record>
+
+    <!-- Level 3: Operations Manager -->
+    <record id="group_clinic_portal_manager" model="res.groups">
+        <field name="name">Operations Manager</field>
+        <field name="implied_ids" eval="[
+            (4, ref('group_clinic_portal_approver')),
+            (4, ref('stock.group_stock_manager')),
+        ]"/>
+        <field name="comment">
+            Can configure portal tiles and manage dashboard settings.
+            Full access to all approvals sidebar.
+        </field>
+    </record>
+
+    <!-- Level 4: Executive Director -->
+    <record id="group_clinic_portal_executive" model="res.groups">
+        <field name="name">Executive Director</field>
+        <field name="implied_ids" eval="[
+            (4, ref('group_clinic_portal_manager')),
+        ]"/>
+        <field name="comment">
+            Access to financial dashboard (gains/losses).
+            Can notify DRH for escalation.
+        </field>
+    </record>
+
+    <!-- Cashier Access (Independent Group) -->
+    <record id="group_clinic_portal_cashier" model="res.groups">
+        <field name="name">Cashier</field>
+        <field name="implied_ids" eval="[
+            (4, ref('base.group_user')),
+        ]"/>
+        <field name="comment">
+            Cashier staff with access to the Cashier tile in CBM Portal.
+            Can validate quotations, register payments, and process refunds.
+        </field>
+    </record>
+</odoo>

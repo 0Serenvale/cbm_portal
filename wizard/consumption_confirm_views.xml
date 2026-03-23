@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Consumption Confirmation Wizard View -->
+    <record id="view_stock_consumption_confirm_form" model="ir.ui.view">
+        <field name="name">stock.consumption.confirm.form</field>
+        <field name="model">stock.consumption.confirm</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Consumption">
+                <sheet>
+                    <!-- Warning Banner -->
+                    <div class="alert alert-warning" role="alert" 
+                         style="text-align: center; font-size: 16px; margin-bottom: 16px;">
+                        <i class="fa fa-exclamation-triangle"/> 
+                        <strong>Please verify</strong> the items below before confirming.
+                    </div>
+
+                    <!-- Patient Info -->
+                    <group>
+                        <group>
+                            <field name="partner_id" 
+                                   string="Patient" 
+                                   readonly="1"
+                                   options="{'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="location_id" 
+                                   string="From" 
+                                   readonly="1"
+                                   options="{'no_open': True}"/>
+                        </group>
+                    </group>
+
+                    <separator string="Items to Consume"/>
+                    
+                    <!-- Items Summary -->
+                    <field name="summary_lines" readonly="1" nolabel="1"/>
+                    
+                    <group>
+                        <field name="item_count" string="Total Items" readonly="1"/>
+                    </group>
+
+                    <!-- Hidden fields -->
+                    <field name="picking_id" invisible="1"/>
+                </sheet>
+                
+                <footer>
+                    <button name="action_confirm_consumption" 
+                            string="✓ CONFIRM CONSUMPTION" 
+                            type="object" 
+                            class="btn-primary"
+                            attrs="{'invisible': [('item_count', '=', 0)]}"/>
+                    <button string="Cancel" 
+                            class="btn-secondary" 
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

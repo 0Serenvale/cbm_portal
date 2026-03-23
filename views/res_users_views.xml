@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add fullscreen_kiosk_mode field to user form -->
+    <record id="view_users_form_cbm_portal" model="ir.ui.view">
+        <field name="name">res.users.form.cbm.portal</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='action_id']" position="after">
+                <field name="fullscreen_kiosk_mode"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

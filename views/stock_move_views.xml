@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Report Discrepancy button to stock.move form view -->
+    <record id="view_move_form_backend_discrepancy" model="ir.ui.view">
+        <field name="name">stock.move.form.backend.discrepancy</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Add button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_report_discrepancy"
+                        string="Report Discrepancy"
+                        type="object"
+                        class="btn-warning"
+                        attrs="{'invisible': [('product_id', '=', False)]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

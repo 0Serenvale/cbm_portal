@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <!-- CBM Kiosk Client Action -->
+    <record id="action_cbm_kiosk" model="ir.actions.client">
+        <field name="name">CBM Kiosk</field>
+        <field name="tag">cbm_kiosk_action</field>
+        <field name="target">main</field>
+    </record>
+
+    <!-- Root menu entry for CBM Portal App (Kiosk Interface) -->
+    <menuitem id="menu_cbm_kiosk_root"
+              name="CBM Portal"
+              action="action_cbm_kiosk"
+              web_icon="clinic_staff_portal,static/description/icon.png"
+              sequence="5"
+              groups="base.group_system,clinic_staff_portal.group_clinic_portal_user,clinic_staff_portal.group_clinic_portal_manager"/>
+</data>
+</odoo>

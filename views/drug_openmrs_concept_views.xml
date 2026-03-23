@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree view -->
+    <record id="view_drug_openmrs_concept_tree" model="ir.ui.view">
+        <field name="name">drug.openmrs.concept.tree</field>
+        <field name="model">drug.openmrs.concept</field>
+        <field name="arch" type="xml">
+            <tree string="Drug Concepts">
+                <field name="name"/>
+                <field name="openmrs_uuid"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_drug_openmrs_concept_form" model="ir.ui.view">
+        <field name="name">drug.openmrs.concept.form</field>
+        <field name="model">drug.openmrs.concept</field>
+        <field name="arch" type="xml">
+            <form string="Drug Concept">
+                <group>
+                    <field name="name"/>
+                    <field name="openmrs_uuid"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_drug_openmrs_concept" model="ir.actions.act_window">
+        <field name="name">Drug Concepts</field>
+        <field name="res_model">drug.openmrs.concept</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No drug concepts cached yet.
+            </p>
+            <p>
+                Go to "Search &amp; Import Drug Concepts" to add entries from OpenMRS,
+                or they will be cached automatically when searching in the Link to OpenMRS wizard.
+            </p>
+        </field>
+    </record>
+</odoo>

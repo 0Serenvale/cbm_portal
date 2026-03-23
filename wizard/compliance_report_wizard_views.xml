@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="compliance_report_wizard_view_form" model="ir.ui.view">
+        <field name="name">compliance.report.wizard.form</field>
+        <field name="model">compliance.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Compliance Report">
+                <!-- Config State -->
+                <group attrs="{'invisible': [('state', '!=', 'config')]}">
+                    <field name="state" invisible="1"/>
+                    <group>
+                        <field name="document_ids" widget="many2many_tags"
+                               options="{'no_create': True}"
+                               placeholder="All acknowledgement-required documents..."/>
+                    </group>
+                    <group>
+                        <field name="include_signature"/>
+                        <field name="include_stamp"/>
+                    </group>
+                </group>
+                <!-- Done State -->
+                <group attrs="{'invisible': [('state', '!=', 'done')]}">
+                    <field name="state" invisible="1"/>
+                    <div class="alert alert-success" role="alert">
+                        <strong>Report generated successfully.</strong>
+                        Click the download link below.
+                    </div>
+                    <group>
+                        <field name="report_file" filename="report_filename" readonly="1"/>
+                        <field name="report_filename" invisible="1"/>
+                    </group>
+                </group>
+                <footer attrs="{'invisible': [('state', '!=', 'config')]}">
+                    <button name="action_generate_report" string="Generate PDF"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+                <footer attrs="{'invisible': [('state', '!=', 'done')]}">
+                    <button string="Close" class="btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="compliance_report_wizard_action" model="ir.actions.act_window">
+        <field name="name">Export Compliance Report</field>
+        <field name="res_model">compliance.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu item under Tile Manager -->
+    <menuitem id="compliance_report_wizard_menu"
+              name="Export Compliance Report"
+              parent="clinic_staff_portal.menu_tile_manager"
+              action="compliance_report_wizard_action"
+              sequence="12"/>
+</odoo>

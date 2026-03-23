@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <!-- 
+    CBM Portal Legacy Menu Structure
+    NOTE: The main entry point is now the CBM Kiosk (cbm_kiosk_action.xml).
+    These menus are kept for fallback/alternative access.
+    -->
+
+    <!-- ================== ACTIONS ================== -->
+    
+    <!-- Action: Request Medication (Internal Transfer from Pharmacy) -->
+    <record id="action_request_medication" model="ir.actions.act_window">
+        <field name="name">Request Medication</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_picking_kiosk"/>
+        <field name="target">current</field>
+        <field name="context">{
+            'portal_mode': True,
+            'portal_stock_behavior': 'request',
+            'form_view_initial_mode': 'edit',
+        }</field>
+    </record>
+
+    <!-- Action: Pharmacy Consumption (Billable to Patient) -->
+    <record id="action_consumption_pharmacy" model="ir.actions.act_window">
+        <field name="name">Consommation Pharmacie</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_picking_kiosk"/>
+        <field name="target">current</field>
+        <field name="context">{
+            'portal_mode': True,
+            'portal_stock_behavior': 'billable',
+            'form_view_initial_mode': 'edit',
+        }</field>
+    </record>
+
+    <!-- Action: Magasin Consumption (Internal/Non-billable) -->
+    <record id="action_consumption_magasin" model="ir.actions.act_window">
+        <field name="name">Consommation Magasin</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_picking_kiosk"/>
+        <field name="target">current</field>
+        <field name="context">{
+            'portal_mode': True,
+            'portal_stock_behavior': 'internal',
+            'form_view_initial_mode': 'edit',
+        }</field>
+    </record>
+
+    <!-- Action: Return Medication -->
+    <record id="action_return_medication" model="ir.actions.act_window">
+        <field name="name">Retour Médicaments</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_picking_kiosk"/>
+        <field name="target">current</field>
+        <field name="context">{
+            'portal_mode': True,
+            'portal_stock_behavior': 'return',
+            'form_view_initial_mode': 'edit',
+        }</field>
+    </record>
+
+    <!-- Action: My Requests (History) -->
+    <record id="action_my_requests" model="ir.actions.act_window">
+        <field name="name">Mes Demandes</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('portal_requester_id', '=', uid)]</field>
+        <field name="context">{'search_default_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune demande pour le moment
+            </p>
+        </field>
+    </record>
+</data>
+</odoo>

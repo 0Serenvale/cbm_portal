@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 
+    KIOSK VIEW: Touch-friendly consumption form for surgery/fast environments.
+    Features:
+    - Large patient field at top
+    - Barcode scan input
+    - +/- buttons on each item
+    - Big confirm button
+    -->
+    <record id="view_picking_kiosk" model="ir.ui.view">
+        <field name="name">stock.picking.kiosk</field>
+        <field name="model">stock.picking</field>
+        <field name="priority">2000</field>
+        <field name="arch" type="xml">
+            <form string="Consumption Kiosk" class="o_kiosk_mode">
+                <!-- Hidden fields -->
+                <field name="state" invisible="1"/>
+                <field name="portal_behavior" invisible="1"/>
+                <field name="company_id" invisible="1"/>
+                <field name="picking_type_id" invisible="1"/>
+                <field name="location_id" invisible="1"/>
+                <field name="location_dest_id" invisible="1"/>
+                <field name="is_portal_request" invisible="1"/>
+
+                <sheet>
+                <!-- Patient Header (only for billable/surgery, not for internal) -->
+                    <div class="alert alert-info text-center" 
+                         role="status"
+                         style="padding: 20px; border-radius: 10px; margin-bottom: 20px;"
+                         attrs="{'invisible': [('portal_behavior', '=', 'internal')]}">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <i class="fa fa-user-md fa-2x" title="Patient"/>
+                            <field name="partner_id" 
+                                   string="Patient"
+                                   placeholder="Select Patient..."
+                                   options="{'no_create': True, 'no_open': True}"
+                                   attrs="{'required': [('portal_behavior', 'in', ['billable', 'surgery'])]}"
+                                   style="font-size: 20px; min-width: 300px;"/>
+                        </div>
+                    </div>
+
+                    <!-- Product List with +/- buttons -->
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <field name="move_ids_without_package" 
+                               context="{'default_location_id': location_id, 'default_location_dest_id': location_dest_id}">
+                            <tree editable="bottom" 
+                                  decoration-muted="product_uom_qty == 0"
+                                  decoration-danger="forecast_availability &lt; 0"
+                                  create="1" delete="1">
+                                <field name="state" invisible="1"/>
+                                <field name="company_id" invisible="1"/>
+                                <field name="product_uom_category_id" invisible="1"/>
+                                <field name="location_id" invisible="1"/>
+                                <field name="location_dest_id" invisible="1"/>
+                                <field name="name" invisible="1"/>
+                                
+                                <field name="product_id"
+                                       string="Product"
+                                       required="1"
+                                       options="{'no_create': True}"
+                                       context="{'portal_source_location_id': parent.location_id}"
+                                       style="font-size: 16px;"/>
+                                
+                                <field name="forecast_availability" 
+                                       string="Avail" 
+                                       readonly="1"
+                                       style="width: 50px;"/>
+                                
+                                <button name="action_kiosk_decrement" 
+                                        type="object" 
+                                        icon="fa-minus-circle"
+                                        class="btn-link text-danger"
+                                        title="Decrease"/>
+                                
+                                <field name="product_uom_qty" 
+                                       string="Qty" 
+                                       style="font-size: 18px; font-weight: bold; text-align: center; width: 60px;"/>
+                                
+                                <button name="action_kiosk_increment" 
+                                        type="object" 
+                                        icon="fa-plus-circle"
+                                        class="btn-link text-success"
+                                        title="Increase"/>
+                                
+                                <field name="product_uom" string="Unit" groups="uom.group_uom"/>
+                            </tree>
+                        </field>
+                    </div>
+
+                    <!-- Large Submit Button -->
+                    <div class="text-center" style="margin-top: 20px;">
+                        <button name="action_portal_submit"
+                                string="✓ CONFIRM CONSUMPTION"
+                                type="object"
+                                class="btn btn-primary btn-lg"
+                                style="font-size: 22px; padding: 15px 60px;"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban view for folder children (modal display) -->
+    <record id="view_clinic_portal_tile_kanban_folder" model="ir.ui.view">
+        <field name="name">clinic.portal.tile.kanban.folder</field>
+        <field name="model">clinic.portal.tile</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard" create="0" edit="0">
+                <field name="name"/>
+                <field name="icon"/>
+                <field name="color"/>
+                <field name="type"/>
+                <field name="stock_behavior"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div style="min-height: 100px; padding: 15px; margin: 10px; border-radius: 8px; background-color: #f0f0f0;">
+                            <button type="object" name="action_open_tile" 
+                                    class="btn w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                                    style="border: none; background: transparent; cursor: pointer;">
+                                <i t-att-class="'fa fa-2x mb-2 ' + (record.icon.raw_value || 'fa-cube')" t-att-title="record.name.raw_value"/>
+                                <strong><field name="name"/></strong>
+                            </button>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+</odoo>

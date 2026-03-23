@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_openmrs_import_wizard_form" model="ir.ui.view">
+        <field name="name">openmrs.import.wizard.form</field>
+        <field name="model">openmrs.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Search OpenMRS">
+                <group>
+                    <field name="target_model" readonly="1"/>
+                    <field name="search_term" placeholder="Type name to search, e.g. Tablet, Paracetamol"/>
+                </group>
+                <group>
+                    <button name="action_search" string="Search OpenMRS"
+                            type="object" class="btn-primary" icon="fa-search"/>
+                </group>
+                <field name="result_ids" nolabel="1">
+                    <tree string="Results" editable="bottom">
+                        <field name="selected" widget="boolean_toggle"
+                               attrs="{'readonly': [('already_imported', '=', True)]}"/>
+                        <field name="name"/>
+                        <field name="openmrs_uuid"/>
+                        <field name="already_imported" widget="boolean"/>
+                    </tree>
+                </field>
+                <footer>
+                    <button name="action_import_selected" string="Import Selected"
+                            type="object" class="btn-primary" icon="fa-download"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Server action to open wizard for dosage forms -->
+    <record id="action_open_import_dosage_form" model="ir.actions.act_window">
+        <field name="name">Search OpenMRS Dosage Forms</field>
+        <field name="res_model">openmrs.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_target_model': 'drug.dosage.form'}</field>
+    </record>
+
+    <!-- Server action to open wizard for drug concepts -->
+    <record id="action_open_import_drug_concept" model="ir.actions.act_window">
+        <field name="name">Search OpenMRS Drug Concepts</field>
+        <field name="res_model">openmrs.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_target_model': 'drug.openmrs.concept'}</field>
+    </record>
+</odoo>

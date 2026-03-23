@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Kanban Dashboard View - Standard Odoo Pattern -->
+    <record id="view_clinic_portal_tile_kanban" model="ir.ui.view">
+        <field name="name">clinic.portal.tile.kanban</field>
+        <field name="model">clinic.portal.tile</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard" create="false" edit="false" sample="0">
+                <field name="name"/>
+                <field name="type"/>
+                <field name="stock_behavior"/>
+                <field name="icon"/>
+                <field name="pending_count"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div style="min-height: 120px; padding: 20px; margin: 10px; border-radius: 8px; background-color: #f0f0f0;">
+                            <button type="object" name="action_open_tile" 
+                                    class="btn w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                                    style="border: none; background: transparent; cursor: pointer;">
+                                <i t-att-class="'fa fa-3x mb-2 ' + (record.icon.raw_value || 'fa-cube')"/>
+                                <strong style="font-size: 16px;"><field name="name"/></strong>
+                                <t t-if="record.pending_count.raw_value &gt; 0">
+                                    <span class="badge rounded-pill bg-warning text-dark mt-2">
+                                        <field name="pending_count"/> Pending
+                                    </span>
+                                </t>
+                            </button>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Dashboard Action - Filtered by visibility -->
+    <record id="action_clinic_portal_dashboard" model="ir.actions.act_window">
+        <field name="name">Clinic Portal</field>
+        <field name="res_model">clinic.portal.tile</field>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="view_clinic_portal_tile_kanban"/>
+        <field name="domain">[('is_visible_to_user', '=', True), ('active', '=', True), ('parent_id', '=', False)]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No operations available for your location
+            </p>
+            <p>
+                Contact your administrator to set up portal tiles.
+            </p>
+        </field>
+    </record>
+</odoo>

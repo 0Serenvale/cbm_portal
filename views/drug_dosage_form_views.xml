@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree view -->
+    <record id="view_drug_dosage_form_tree" model="ir.ui.view">
+        <field name="name">drug.dosage.form.tree</field>
+        <field name="model">drug.dosage.form</field>
+        <field name="arch" type="xml">
+            <tree string="Dosage Forms">
+                <field name="name"/>
+                <field name="openmrs_uuid"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_drug_dosage_form_form" model="ir.ui.view">
+        <field name="name">drug.dosage.form.form</field>
+        <field name="model">drug.dosage.form</field>
+        <field name="arch" type="xml">
+            <form string="Dosage Form" create="false">
+                <group>
+                    <field name="name"/>
+                    <field name="openmrs_id"/>
+                    <field name="openmrs_uuid"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_drug_dosage_form" model="ir.actions.act_window">
+        <field name="name">Dosage Forms</field>
+        <field name="res_model">drug.dosage.form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No dosage forms imported yet.
+            </p>
+            <p>
+                Go to "Search &amp; Import Dosage Forms" to add entries from OpenMRS.
+            </p>
+        </field>
+    </record>
+</odoo>

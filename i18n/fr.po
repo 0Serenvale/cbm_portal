@@ -1,0 +1,3492 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* clinic_staff_portal
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0-20240826\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-21 01:37+0000\n"
+"PO-Revision-Date: 2025-12-21 01:37+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: clinic_staff_portal
+#: model:res.groups,comment:clinic_staff_portal.group_clinic_portal_executive
+msgid ""
+"\n"
+"            Access to financial dashboard (gains/losses).\n"
+"            Can notify DRH for escalation.\n"
+"        "
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:res.groups,comment:clinic_staff_portal.group_clinic_portal_approver
+msgid ""
+"\n"
+"            Can approve transfer requests for their department.\n"
+"            Sees approval sidebar in portal.\n"
+"        "
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:res.groups,comment:clinic_staff_portal.group_clinic_portal_manager
+msgid ""
+"\n"
+"            Can configure portal tiles and manage dashboard settings.\n"
+"            Full access to all approvals sidebar.\n"
+"        "
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:res.groups,comment:clinic_staff_portal.group_clinic_portal_user
+msgid ""
+"\n"
+"            Clinic staff (Nurses/Doctors) with simplified portal access.\n"
+"            Can create requests, view products, bill patients.\n"
+"        "
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:mail.template,body_html:clinic_staff_portal.mail_template_drh_escalation
+msgid ""
+"\n"
+"<div style=\"font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; color: #333;\">\n"
+"    \n"
+"    <!-- Professional Header -->\n"
+"    <div style=\"background: linear-gradient(135deg, #1e3a5f, #2d5a87); padding: 25px 30px; border-radius: 8px 8px 0 0;\">\n"
+"        <h2 style=\"color: white; margin: 0; font-weight: 400; letter-spacing: 0.5px;\">Communication Interne</h2>\n"
+"        <p style=\"color: rgba(255,255,255,0.8); margin: 5px 0 0 0; font-size: 13px;\">Direction des Ressources Humaines</p>\n"
+"    </div>\n"
+"    \n"
+"    <!-- Main Content -->\n"
+"    <div style=\"background: #ffffff; padding: 30px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;\">\n"
+"        \n"
+"        <p style=\"margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;\">\n"
+"            Madame, Monsieur,\n"
+"        </p>\n"
+"        \n"
+"        <p style=\"margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;\">\n"
+"            Je me permets de porter à votre attention une situation qui nécessite votre intervention concernant \n"
+"            <strong>${ctx.get('department_name', 'un département')}</strong>.\n"
+"        </p>\n"
+"        \n"
+"        <!-- Key Metrics Box -->\n"
+"        <div style=\"background: #f8f9fa; border-left: 4px solid #dc3545; padding: 20px; margin: 25px 0; border-radius: 0 4px 4px 0;\">\n"
+"            <p style=\"margin: 0 0 10px 0; font-size: 14px; color: #6c757d;\">Situation actuelle :</p>\n"
+"            <p style=\"margin: 0; font-size: 24px; font-weight: 600; color: #1e3a5f;\">\n"
+"                ${ctx.get('picking_count', 0)} mouvement(s) en attente\n"
+"            </p>\n"
+"            <p style=\"margin: 10px 0 0 0; font-size: 14px; color: #6c757d;\">\n"
+"                Délai maximum constaté : <strong style=\"color: #dc3545;\">${ctx.get('max_days', 0)} jours</strong>\n"
+"            </p>\n"
+"        </div>\n"
+"        \n"
+"        <p style=\"margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;\">\n"
+"            Cette accumulation de mouvements non validés représente un <strong>risque opérationnel</strong> \n"
+"            pouvant affecter la continuité des services et l'exactitude de notre inventaire.\n"
+"        </p>\n"
+"        \n"
+"        <p style=\"margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;\">\n"
+"            Je vous serais reconnaissant(e) de bien vouloir examiner cette situation avec \n"
+"            le(s) responsable(s) concerné(s) afin d'identifier les causes de ce retard et de \n"
+"            <strong>mettre en place les mesures correctives appropriées</strong>.\n"
+"        </p>\n"
+"        \n"
+"        <!-- Diplomatic Note -->\n"
+"        <div style=\"background: #fff8e1; border: 1px solid #ffc107; padding: 15px; border-radius: 4px; margin: 25px 0;\">\n"
+"            <p style=\"margin: 0; font-size: 13px; color: #856404; line-height: 1.5;\">\n"
+"                <strong>Note :</strong> Cette notification a un caractère strictement confidentiel. \n"
+"                Elle vise à assurer le bon fonctionnement opérationnel de l'établissement et ne \n"
+"                constitue en aucun cas un jugement sur la performance individuelle.\n"
+"            </p>\n"
+"        </div>\n"
+"        \n"
+"        <p style=\"margin: 0 0 5px 0; font-size: 15px; line-height: 1.6;\">\n"
+"            Je reste à votre disposition pour tout échange complémentaire.\n"
+"        </p>\n"
+"        \n"
+"        <p style=\"margin: 25px 0 0 0; font-size: 15px;\">\n"
+"            Cordialement,\n"
+"        </p>\n"
+"        <p style=\"margin: 5px 0 0 0; font-size: 15px; font-weight: 600; color: #1e3a5f;\">\n"
+"            ${ctx.get('sender_name', 'La Direction')}\n"
+"        </p>\n"
+"        \n"
+"    </div>\n"
+"    \n"
+"    <!-- Footer -->\n"
+"    <div style=\"background: #f5f5f5; padding: 15px 30px; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0; border-top: none;\">\n"
+"        <p style=\"margin: 0; font-size: 11px; color: #888; text-align: center;\">\n"
+"            CBM Portal • Communication confidentielle • ${ctx.get('send_date', '')}\n"
+"        </p>\n"
+"    </div>\n"
+"    \n"
+"</div>\n"
+"        "
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid ""
+"\n"
+"• %(prod)s: need %(qty)s, available %(avail)s (Alert: %(alert)s)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid ""
+"\"Day Zero\" for the portal. Enforcement only counts data from this date "
+"forward."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "+ Add"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_clinic_portal_tile_config
+msgid "<b>Action</b> tiles: Link to maintenance, lunch, etc."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid ""
+"<b>Billable:</b> Use stock FROM user's location TO patient (creates "
+"quotation)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "<b>Internal:</b> Non-billable consumption (no patient)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid ""
+"<b>Limit to Locations:</b> Only users with access to these locations will "
+"see this tile"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "<b>Request:</b> Pull FROM warehouse TO user's location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "<b>Return:</b> Push FROM user's location TO warehouse"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid ""
+"<b>Stock Discrepancy Alert</b><br/><b>Nurse:</b> "
+"%(user)s<br/><b>Patient:</b> %(patient)s<br/><b>Product:</b> "
+"%(prod)s<br/><b>Location:</b> %(loc)s<br/><b>Attempted Qty:</b> "
+"%(qty)s<br/><b>System Stock:</b> %(avail)s<br/><br/><i>Please investigate: "
+"Nurse error or inventory issue?</i>"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_clinic_portal_tile_config
+msgid "<b>Stock</b> tiles: Request, Consume, Transfer, Return"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid ""
+"<b>Visible to Groups:</b> Only users in these groups will see this tile"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "<i class=\"fa fa-user-md fa-2x\" title=\"Patient\"/>"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "<strong>Behavior Guide:</strong>"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "<strong>Visibility Rules:</strong>"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid ""
+"Access Control Error\n"
+"\n"
+"Your account has no 'Allowed Operation Types' configured.\n"
+"Please contact your Administrator."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Access denied"
+msgstr "Accès refusé"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Accountability"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Action"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Action Configuration"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__active
+msgid "Active"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Added consumption from: %s"
+msgstr "Dispensation ajoutée depuis : %s"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__adjustments-horizontal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__adjustments-horizontal
+msgid "Adjustments (Preferences)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__res_config_settings__clinic_stock_alert_visibility__admin_only
+msgid "Administrators Only"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Alertes de divergence de stock à investiguer"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_stock_discrepancy
+msgid ""
+"Alerts are created when a nurse tries to consume a product\n"
+"                that shows 0 stock in the system."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__res_config_settings__clinic_stock_alert_visibility__all
+msgid "All Users"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "An error occurred while processing: %s"
+msgstr "Une erreur s'est produite lors du traitement : %s"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Annuler"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Annuler et retourner à l'accueil"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_location__replenishment_policy
+msgid "Anti-Hoarding Policy"
+msgstr "Politique anti-accumulation"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Appearance"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Approvisionnement pharmacie"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__archive-box
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__archive-box
+msgid "Archive Box (Storage)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__archive-box-arrow-down
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__archive-box-arrow-down
+msgid "Archive In (Reception)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__arrow-down-tray
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__arrow-down-tray
+msgid "Arrow Down (Download/Receive)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__arrow-path
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__arrow-path
+msgid "Arrow Path (Return/Exchange)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__arrow-up-tray
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__arrow-up-tray
+msgid "Arrow Up (Upload/Send)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__arrows-right-left
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__arrows-right-left
+msgid "Arrows Exchange (Transfer)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__attempted_qty
+msgid "Attempted Quantity"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Aucun mouvement en attente"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Aucun mouvement trouvé"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/folder_selector.xml:0
+#, python-format
+msgid "Aucun élément dans ce dossier"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Aucune demande au cours des 30 derniers jours."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_my_requests
+msgid "Aucune demande pour le moment"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__res_config_settings__clinic_lot_selection_mode__auto_fefo
+msgid "Auto-Select (First Expiry First Out)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "Avail"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__color
+msgid "Background Color"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__banknotes
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__banknotes
+msgid "Banknotes (Invoices)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking__barcode_input
+msgid "Barcode"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Barcode search failed"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__beaker
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__beaker
+msgid "Beaker (Pharmacy/Lab)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__bell
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__bell
+msgid "Bell (Notifications)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__bell-alert
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__bell-alert
+msgid "Bell Alert (Urgent)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Bienvenue,"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Billed to: <a href=\"/web#id=%s&model=sale.order\">%s</a>"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Block access (red) when pending transfers exceed this. 0 = disabled."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Block access for POs older than this (days). 0 = disabled."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking_type__pending_block_threshold
+msgid "Block new requests when user has this many pending. 0 = no blocking."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_pending_po_block_days
+msgid ""
+"Block portal access for purchase orders older than this many days. Set to 0 "
+"to disable blocking (warnings only)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_pending_transfer_block_threshold
+msgid ""
+"Block portal access when pending transfers exceed this count. Set to 0 to "
+"disable blocking (warnings only)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__bolt
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__bolt
+msgid "Bolt (Emergency/Urgent)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Bons de commande"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Bons de commande en attente de validation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__bookmark
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__bookmark
+msgid "Bookmark (Favorite)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__building-office
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__building-office
+msgid "Building (Department)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.client,name:clinic_staff_portal.action_cbm_kiosk
+msgid "CBM Kiosk"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_cbm_kiosk_root
+msgid "CBM Portal"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_type_form_portal
+msgid "CBM Portal Settings"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:mail.template,name:clinic_staff_portal.mail_template_drh_escalation
+msgid "CBM Portal: DRH Escalation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__calculator
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__calculator
+msgid "Calculator (Accounting)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__calendar
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__calendar
+msgid "Calendar (Schedule)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__calendar-days
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__calendar-days
+msgid "Calendar Days (Appointments)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Can view financial dashboard and send DRH notifications."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/wizard/consumption_confirm.py:0
+#, python-format
+msgid "Cannot confirm: No items to consume."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_pharmacy_location_id
+msgid "Central pharmacy location. Source for medication requests."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/folder_selector.xml:0
+#, python-format
+msgid "Chargement..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__chart-bar
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__chart-bar
+msgid "Chart Bar (Reports)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__presentation-chart-line
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__presentation-chart-line
+msgid "Chart Line (Trends)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__chart-pie
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__chart-pie
+msgid "Chart Pie (Statistics)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__chat-bubble-left-right
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__chat-bubble-left-right
+msgid "Chat (Communication)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__check-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__check-circle
+msgid "Check Circle (Approved)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_move__hoarding_status__blocked
+msgid "Check Stock!"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Click or press Enter to add"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Clinic Portal"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_location_form_inherit_clinic_portal
+msgid "Clinic Portal - Anti-Hoarding Settings"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Clinic Portal Configuration"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_clinic_portal_tile
+msgid "Clinic Portal Tile"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:res.groups,name:clinic_staff_portal.group_clinic_portal_user
+msgid "Clinical Staff"
+msgstr "Utilisateur portail clinique"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__clipboard
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__clipboard
+msgid "Clipboard (Tasks)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__clipboard-document-check
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__clipboard-document-check
+msgid "Clipboard Check (Completed)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__clipboard-document-list
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__clipboard-document-list
+msgid "Clipboard List (Checklist)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__clock
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__clock
+msgid "Clock (Time/Pending)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__cog-6-tooth
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__cog-6-tooth
+msgid "Cog (Settings)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__cog-8-tooth
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__cog-8-tooth
+msgid "Cog Large (Config)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_res_config_settings
+msgid "Config Settings"
+msgstr "Paramètres de Configuration"
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid ""
+"Configuration Error\n"
+"\n"
+"Cannot determine source location for this operation.\n"
+"Please ensure your access control is configured properly."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_clinic_portal_tile_config
+msgid "Configure Portal Tiles"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Confirm Consumption"
+msgstr "Confirmer la dispensation"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Confirmer la dispensation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Confirmer la dispensation au patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_consumption_magasin
+msgid "Consommation Magasin"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_consumption_pharmacy
+msgid "Consommation Pharmacie"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Consulter l'historique de vos demandes et dispensations"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Consultez l'état de vos demandes dans la page"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Consumption"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Consumption %s recorded!"
+msgstr "Dispensation %s enregistrée !"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_category__consumption_billable
+msgid "Consumption (Billable)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_category__consumption_internal
+msgid "Consumption (Internal)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_stock_consumption_confirm
+msgid "Consumption Confirmation Wizard"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "Consumption Kiosk"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__consumption_source
+msgid "Consumption Source"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Continuer"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Continuer vers la sélection des produits"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_location__replenishment_policy
+msgid ""
+"Controls whether to warn or block requests when stock already exists at this"
+" location."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_clinic_portal_tile_config
+msgid "Create your first portal tile"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__create_uid
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__create_uid
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__create_date
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__create_date
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__cube
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__cube
+msgid "Cube (Products)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__cube-transparent
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__cube-transparent
+msgid "Cube Transparent (Stock)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_cuisine_location_id
+msgid "Cuisine Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid ""
+"Current quantity at your location. Consider using existing stock before "
+"ordering more."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_tree
+msgid "Date"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__accountability_start_date
+msgid "Date de Responsabilité"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Date/Time"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "Decrease"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Demande"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Demande de stock"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Demander des produits à la pharmacie centrale"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:res.groups,name:clinic_staff_portal.group_clinic_portal_approver
+msgid "Department Supervisor"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Destination for all consumption (Patient/Customer)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__executive_user_ids
+msgid "Directeurs Exécutifs"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Dispensation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__display_name
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__display_name
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Divergences Stock"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__document-text
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__document-text
+msgid "Document (Forms)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__document-check
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__document-check
+msgid "Document Check (Validated)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__document-duplicate
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__document-duplicate
+msgid "Document Duplicate (Copy)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__currency-dollar
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__currency-dollar
+msgid "Dollar (Finance)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Déconnexion"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Délivrance au patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Département"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Détail par Département"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Empty barcode"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_pending_enforcement_enabled
+msgid "Enable Pending Enforcement"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_type_form_portal
+msgid "Enforcement Thresholds"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Enregistrer la délivrance de médicaments au patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__envelope
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__envelope
+msgid "Envelope (Messages)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Envoyer la demande à la pharmacie"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Envoyer notification à la Liaison RH"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__exclamation-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__exclamation-circle
+msgid "Exclamation (Warning)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:res.groups,name:clinic_staff_portal.group_clinic_portal_executive
+msgid "Executive Director"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__resolution_notes
+msgid "Explain what was found during investigation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Explain what was found..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__eye
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__eye
+msgid "Eye (Ophthalmology)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__eye-dropper
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__eye-dropper
+msgid "Eye Dropper (Medication)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Failed to load details"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Failed to load history"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Failed to load user context"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Failed to submit consumption"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Failed to submit request"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Fait"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Fermer"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__fire
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__fire
+msgid "Fire (Emergency)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__dest_location_id
+msgid "Fixed Destination Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__source_location_id
+msgid "Fixed Source Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__flag
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__flag
+msgid "Flag (Mark)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__folder
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__type__folder
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__folder
+msgid "Folder (Group)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Folder Hierarchy"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__folder-open
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__folder-open
+msgid "Folder Open (Browse)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__source_location_id
+msgid ""
+"For Request: This is the warehouse to pull from.\n"
+"Leave empty to use picking type default."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__dest_location_id
+msgid ""
+"For Return: This is the warehouse to return to.\n"
+"Leave empty to use picking type default."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__location_id
+msgid "From Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_users__fullscreen_kiosk_mode
+msgid "Fullscreen Kiosk Mode"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__gift
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__gift
+msgid "Gift (Samples)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__accountability_start_date
+msgid ""
+"Global accountability start date. All enforcement calculations only count "
+"data from this date forward. Set to \"Day Zero\" for the portal."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Go Home Now"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Group By"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__hand-raised
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__hand-raised
+msgid "Hand Raised (Stop/Hygiene)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_location__replenishment_policy__hard
+msgid "Hard Block"
+msgstr "Blocage"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_move__hoarding_status__warning
+msgid "Has Stock"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__heart
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__heart
+msgid "Heart (Health/Cardio)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__icon
+msgid "Heroicon name to display for this tile"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__icon_color
+msgid "Hex color code for icon (e.g., #ffffff for white)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__color
+msgid "Hex color code for tile icon background (e.g., #714B67)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__res_config_settings__clinic_stock_alert_visibility__none
+msgid "Hidden"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Historique"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Historique des demandes"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__home
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__home
+msgid "Home (Dashboard)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking_type__portal_category
+msgid "How this operation type appears in CBM Portal"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking__portal_behavior
+msgid "How this request was created"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid ""
+"How to handle lot selection for lot-tracked products in product search."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_lot_selection_mode
+msgid ""
+"How to handle lot selection for lot-tracked products:\n"
+"Auto FEFO: Automatically select the lot with earliest expiry date.\n"
+"Manual: Show a dropdown for user to select lot."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__drh_user_id
+msgid "Human Resources liaison who receives escalation notifications."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__id
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__id
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__id
+msgid "ID"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__identification
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__identification
+msgid "ID Card (Patient ID)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_informatique_location_id
+msgid "IT supplies location."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__icon
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__icon_color
+msgid "Icon Color"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_users__fullscreen_kiosk_mode
+msgid ""
+"If checked, Odoo navigation (navbar, sidebar) is hidden when using CBM Portal.\n"
+"User sees only the CBM Portal interface.\n"
+"Uncheck for users who need to access other Odoo apps."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__message_has_error
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking_type__portal_visible
+msgid "If checked, this operation type will appear as an icon in CBM Portal"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking_type__portal_requires_patient
+msgid "If checked, user must select a patient before adding products"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__limit_location_ids
+msgid ""
+"If set, only users who have access to at least one of these locations will "
+"see this tile. Leave empty for everyone."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__parent_id
+msgid ""
+"If set, this tile appears inside the parent folder, not on main dashboard."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "In Stock"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__inbox-arrow-down
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__inbox-arrow-down
+msgid "Inbox Down (Receive)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__inbox-stack
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__inbox-stack
+msgid "Inbox Stack (Receptions)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Incident Details"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "Increase"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking__is_portal_request
+msgid "Indicates this picking was created via the Clinic Portal"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__information-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__information-circle
+msgid "Info (Information)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Informations"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_informatique_location_id
+msgid "Informatique Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Insufficient Stock"
+msgstr "Stock insuffisant"
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid ""
+"Insufficient stock for '%(prod)s': need %(qty)s but only %(avail)s available at %(loc)s.\n"
+"\n"
+"A discrepancy alert (%(alert)s) has been created for investigation."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Insufficient stock for consumption:"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking__portal_behavior__internal
+msgid "Internal Use"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__stock_behavior__internal
+msgid "Internal Use (Non-Billable)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Invalid operation type"
+msgstr "Type d'opération invalide"
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Invalid patient ID"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_stock_discrepancy__state__inventory_issue
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Inventory Issue"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_stock_location
+msgid "Inventory Locations"
+msgstr "Emplacements des stocks"
+
+#. module: clinic_staff_portal
+#: model:clinic.portal.tile,name:clinic_staff_portal.tile_invoices
+msgid "Invoices"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__summary_lines
+msgid "Items Summary"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Jours Max"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__key
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__key
+msgid "Key (Access/Security)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Key Personnel"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_cuisine_location_id
+msgid "Kitchen/food supplies location."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile____last_update
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy____last_update
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__write_uid
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__write_uid
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__write_date
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__write_date
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Leave both empty = visible to everyone"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Leave empty for all groups"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Leave empty for all locations"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__group_ids
+msgid "Leave empty to show to all portal users."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__drh_user_id
+msgid "Liaison RH"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__lifebuoy
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__lifebuoy
+msgid "Lifebuoy (Emergency/Rescue)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__limit_location_ids
+msgid "Limit to Locations"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Livraisons en attente de réception"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__location_id
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__lock-closed
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__lock-closed
+msgid "Lock Closed (Secured)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__lock-open
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__lock-open
+msgid "Lock Open (Unlocked)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_lot_selection_mode
+msgid "Lot Selection Mode"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_magasin_location_id
+msgid "Magasin Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__consumption_source__magasin
+msgid "Magasin Location (from Settings)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_maintenance_location_id
+msgid "Maintenance Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_maintenance_location_id
+msgid "Maintenance supplies location."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__res_config_settings__clinic_lot_selection_mode__manual
+msgid "Manual Selection (Show Lot Dropdown)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__map-pin
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__map-pin
+msgid "Map Pin (Location)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Mark as Inventory Issue"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Mark as Nurse Error"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_discrepancy.py:0
+#, python-format
+msgid "Marked as inventory issue by %s"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_discrepancy.py:0
+#, python-format
+msgid "Marked as nurse error by %s"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__megaphone
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__megaphone
+msgid "Megaphone (Announcement)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_my_requests
+msgid "Mes Demandes"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Mes Demandes Récentes"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Mes Validations"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__minus-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__minus-circle
+msgid "Minus Circle (Remove)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Modifier"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__moon
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__moon
+msgid "Moon (Night Shift)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__name
+msgid "Name"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_discrepancy.py:0
+#: code:addons/clinic_staff_portal/models/stock_discrepancy.py:0
+#: code:addons/clinic_staff_portal/models/stock_discrepancy.py:0
+#: code:addons/clinic_staff_portal/models/stock_discrepancy.py:0
+#, python-format
+msgid "New"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:clinic.portal.tile,name:clinic_staff_portal.tile_maintenance_request
+msgid "New Maintenance"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_new_maintenance_request
+msgid "New Maintenance Request"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "New Portal Request from %s"
+msgstr "Nouvelle demande portail de %s"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "No Products"
+msgstr "Aucun produit"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_location__replenishment_policy__none
+msgid "No Restriction"
+msgstr "Aucune restriction"
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "No product found for barcode: %s"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "No source location configured"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_stock_discrepancy
+msgid "No stock discrepancy alerts!"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "No ward assigned to your user. Contact admin."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Non spécifié"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_move__hoarding_status
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "Note"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Notification envoyée à %s (%d mouvement(s))"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Notifier RH"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__pending_count
+msgid "Number of waiting requests for this tile"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_tree
+msgid "Nurse"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_stock_discrepancy__state__nurse_error
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Nurse Error"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__user_id
+msgid "Nurse/User"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__picking_type_id
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__picking_type_id
+msgid "Operation Type"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:res.groups,name:clinic_staff_portal.group_clinic_portal_manager
+msgid "Operations Manager"
+msgstr "Gestionnaire portail clinique"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Opération"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_pending_po_block_days
+msgid "PO Block Days"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_pending_po_warn_days
+msgid "PO Warning Days"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__paper-airplane
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__paper-airplane
+msgid "Paper Airplane (Send)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__parent_id
+msgid "Parent Folder"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__patient_id
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__partner_id
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking__patient_id
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal_fields
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+#, python-format
+msgid "Patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking__portal_behavior__billable
+msgid "Patient Billing"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__stock_behavior__billable
+msgid "Patient Consumption (Billing)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_patient_location_id
+msgid "Patient Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Patient Required"
+msgstr "Patient requis"
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Patient is required for billable consumption. Please select a patient."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Patient is required for this operation"
+msgstr "Un patient est requis pour cette opération"
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Patient not found for barcode: %s"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Patient not found. Try manual search."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Patient selected: "
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__pending_count
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Pending"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Pending Enforcement"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_stock_discrepancy__state__pending
+msgid "Pending Investigation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_pharmacy_location_id
+msgid "Pharmacy Location"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__consumption_source__pharmacy
+msgid "Pharmacy Location (from Settings)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__phone
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__phone
+msgid "Phone (Contact)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__picking_id
+msgid "Picking"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_stock_picking_type
+msgid "Picking Type"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Picking not found"
+msgstr "Transfert non trouvé"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Please add at least one product"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Please add at least one product before submitting."
+msgstr "Veuillez ajouter au moins un produit avant de soumettre."
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Please select a patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Please select a patient before submitting."
+msgstr "Veuillez sélectionner un patient avant de soumettre."
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__plus-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__plus-circle
+msgid "Plus Circle (Add New)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Portail CBM"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking__portal_behavior
+msgid "Portal Behavior"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking_type__portal_category
+msgid "Portal Category"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Portal Consumption: %s"
+msgstr "Dispensation portail : %s"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking_type__portal_icon
+msgid "Portal Icon"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking__is_portal_request
+msgid "Portal Request"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Portal Tile"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_tree
+msgid "Portal Tiles"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__product_id
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Product"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Product Not Found"
+msgstr "Produit non trouvé"
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_product_product
+msgid "Product Variant"
+msgstr "Variante de produit"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Product not found"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Product not found for barcode: %s"
+msgstr "Produit non trouvé pour le code-barres : %s"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "Products"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Products ("
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Produit"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Put this tile inside a folder"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__qr-code
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__qr-code
+msgid "QR Code (Barcode)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "Qty"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Qté"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "Quantity"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_move__ward_qty_trusted
+msgid ""
+"Quantity at destination location based on movements since the 'Trust Date'"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__question-mark-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__question-mark-circle
+msgid "Question (Help)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Qui reçoit le médicament ?"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:clinic.portal.tile,name:clinic_staff_portal.tile_quotations
+msgid "Quotations"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Receives escalation notifications from executives."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_move__ward_qty_trusted
+msgid "Recent Stock"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Rechercher un produit par nom..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__name
+msgid "Reference"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Remove blocked items first: "
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking__portal_behavior__request
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_category__request
+#, python-format
+msgid "Request"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/controllers/main.py:0
+#, python-format
+msgid "Request %s submitted successfully!"
+msgstr "Demande %s envoyée avec succès !"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__stock_behavior__request
+msgid "Request (Pull from Warehouse)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_request_medication
+msgid "Request Medication"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Request Submitted Successfully!"
+msgstr "Demande envoyée avec succès !"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__stock_behavior
+msgid ""
+"Request: Source = Warehouse (fixed), Dest = User's location\n"
+"Patient Consumption: Source = User's location, Dest = Virtual/Patient, Creates SO\n"
+"Surgery Kiosk: Same as Patient but with barcode scanner UI\n"
+"Internal Use: Source = User's location, Dest = Virtual (no SO)\n"
+"Return: Source = User's location, Dest = Warehouse (fixed)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking__portal_requester_id
+msgid "Requester"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__action_id
+msgid "Required for Window Action type. Opens this action directly."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking__patient_id
+msgid "Required for consumption - auto-generates quotation on validation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking_type__portal_requires_patient
+msgid "Requires Patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Resolution"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__resolution_notes
+msgid "Resolution Notes"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Resolve"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_stock_discrepancy__state__resolved
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Resolved"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__resolved_by
+msgid "Resolved By"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__resolved_date
+msgid "Resolved Date"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_discrepancy.py:0
+#, python-format
+msgid "Resolved by %s"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Responsable"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/folder_selector.xml:0
+#, python-format
+msgid "Retour"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_return_medication
+msgid "Retour Médicaments"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Retour à l'accueil"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Retour à l'étape précédente"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking__portal_behavior__return
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_category__return
+msgid "Return"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__stock_behavior__return
+msgid "Return (Push to Warehouse)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Returning to home screen..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Revenus Vérifiés (semaine)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__rocket-launch
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__rocket-launch
+msgid "Rocket (Fast/Priority)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Réceptions"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Réessayer"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "SUBMIT REQUEST"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__scale
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__scale
+msgid "Scale (Weight/Measure)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking__barcode_input
+msgid "Scan barcode to add product. Clears after processing."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Scan or search to add products"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Scanner le bracelet ou saisir le nom du patient..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Scanner un code-barres ou taper et appuyer sur Entrée..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Scannez le bracelet patient ou tapez son nom"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Search Stock Discrepancy Alerts"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Select Operation Type"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "Select Patient..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "Select patient for billing..."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking_type__portal_icon
+msgid "Select the icon to display in CBM Portal"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Setup Required"
+msgstr "Configuration requise"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking_type__pending_warn_threshold
+msgid "Seuil Alerte"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking_type__pending_block_threshold
+msgid "Seuil Blocage"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__shield-check
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__shield-check
+msgid "Shield Check (Protection)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__shopping-bag
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__shopping-bag
+msgid "Shopping Bag (Supplies)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__shopping-cart
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__shopping-cart
+msgid "Shopping Cart (Orders)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_picking_type__portal_visible
+msgid "Show in CBM Portal"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid ""
+"Show visual warnings on sidebar chips when pending items exceed thresholds."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Show warning (yellow) when pending transfers exceed this count."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Show warning for purchase orders older than this (days)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_pending_po_warn_days
+msgid ""
+"Show warning for purchase orders older than this many days. Set to 0 to "
+"disable."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_pending_transfer_warn_threshold
+msgid ""
+"Show warning when pending transfers exceed this count. Set to 0 to disable."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking_type__pending_warn_threshold
+msgid "Show warning when user has this many pending requests."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__face-smile
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__face-smile
+msgid "Smile (Pediatrics)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_location__replenishment_policy__soft
+msgid "Soft Warning"
+msgstr "Avertissement"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Source for medication requests and pharmacy consumption."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Source for supplies/magasin consumption."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__sparkles
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__sparkles
+msgid "Sparkles (Clean/Sterile)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__star
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__star
+msgid "Star (Priority)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__state
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Status"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__stock_behavior
+msgid "Stock Behavior"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Stock Configuration"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Stock Details"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_clinic_stock_discrepancy
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_form
+msgid "Stock Discrepancy Alert"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_stock_discrepancy
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_stock_alert_visibility
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_stock_discrepancy
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_tree
+msgid "Stock Discrepancy Alerts"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_stock_move
+msgid "Stock Move"
+msgstr "Mouvement de stock"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__type__stock
+msgid "Stock Operation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "Stock Request"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid ""
+"Stock discrepancy: %(user)s tried to consume %(qty)s of %(prod)s for patient"
+" %(patient)s, but system shows only %(avail)s at %(loc)s"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__system_qty
+msgid "Stock level shown in system at time of attempt"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__child_ids
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Sub-Tiles"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Suivi"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__sun
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__sun
+msgid "Sun (Radiology/Light)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_magasin_location_id
+msgid "Supplies/warehouse location for non-pharmacy consumption."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking__portal_behavior__surgery
+msgid "Surgery Kiosk"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__stock_behavior__surgery
+msgid "Surgery Kiosk (Fast Billing)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.actions.server,name:clinic_staff_portal.action_server_sync_cbm_portal_users
+msgid "Sync CBM Portal Users (Fix Home Action)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__system_qty
+msgid "System Stock"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Sélection du patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Sélectionner un autre patient"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Tableau de Bord Financier"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__tag
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__tag
+msgid "Tag (Label)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__action_id
+msgid "Target Action"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_picking__portal_requester_id
+msgid "The portal user who created this request"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__picking_type_id
+msgid "The stock operation type to use for this tile."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_stock_location__consumption_start_date
+msgid ""
+"The system ignores all stock history before this date when calculating "
+"'trusted' inventory. Set this to ignore old/incorrect data (e.g., set to "
+"today to start fresh)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "This consumption has already been submitted."
+msgstr "Cette dispensation a déjà été soumise."
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_tile_manager
+msgid "Tile Manager"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Tile Type"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_clinic_portal_tile_config
+msgid ""
+"Tiles appear on the Clinic Portal dashboard. Choose a <b>Type</b> and "
+"<b>Behavior</b>:"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__child_ids
+msgid "Tiles that appear when this folder is clicked."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_stock_discrepancy_search
+msgid "Today"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_consumption_confirm__item_count
+msgid "Total Items"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Tout reçu"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Toutes les quantités sont en"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_stock_picking
+msgid "Transfer"
+msgstr "Transfert"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_pending_transfer_block_threshold
+msgid "Transfer Block Threshold"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid "Transfer To"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_res_config_settings__clinic_pending_transfer_warn_threshold
+msgid "Transfer Warning Threshold"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Transferts"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Transferts En attente"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Transferts sortants nécessitant votre approbation"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__exclamation-triangle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__exclamation-triangle
+msgid "Triangle (Alert)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__truck
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__truck
+msgid "Truck (Delivery)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_stock_location__consumption_start_date
+msgid "Trust Data From"
+msgstr "Faire confiance aux données depuis"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__type
+msgid "Type"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__arrow-uturn-left
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__arrow-uturn-left
+msgid "U-Turn (Return)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "Unit"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.actions.act_window,help:clinic_staff_portal.action_clinic_portal_tile_config
+msgid "Use <b>Limit to Locations</b> to show tiles only to specific staff."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_res_users
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__user
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__user
+msgid "User (Person)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__user-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__user-circle
+msgid "User Circle (Profile)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__user-group
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__user-group
+msgid "User Group (Team)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__user-plus
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__user-plus
+msgid "User Plus (Add Patient)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__consumption_source__ward
+msgid "User's Ward (from Access Control)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__users
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__users
+msgid "Users (People)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__executive_user_ids
+msgid "Users who can see the financial dashboard (gains/losses)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Valeur d'Actif Non Sécurisée"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Valeur à Risque"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Valider la demande"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_patient_location_id
+msgid "Virtual location for consumed items (destination)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "Visibility Settings"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__group_ids
+msgid "Visible to Groups"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_portal_tile__is_visible_to_user
+msgid "Visible to User"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "Voir les détails financiers"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid ""
+"Vos demandes sont envoyées automatiquement — pas besoin d'appeler le "
+"responsable"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_form_portal
+msgid ""
+"Warning = Stock exists at your location. Blocked = Cannot request more."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_stock_discrepancy__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_stock_discrepancy__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_pending_enforcement_enabled
+msgid ""
+"When enabled, show visual warnings on sidebar chips when pending transfers "
+"or purchase orders exceed thresholds."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_portal_tile__consumption_source
+msgid ""
+"Where to consume stock from:\n"
+"User's Ward: Uses destination of user's pharmacy operation type\n"
+"Pharmacy: Direct consumption from central pharmacy\n"
+"Magasin: Consumption from supplies warehouse"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.res_config_settings_view_form_clinic_portal
+msgid "Who can see stock discrepancy alerts in the portal dashboard."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_res_config_settings__clinic_stock_alert_visibility
+msgid ""
+"Who can see stock discrepancy alerts in the portal:\n"
+"Admin Only: Only administrators see alerts.\n"
+"All: All portal users see alerts.\n"
+"None: Alerts are hidden (still logged)."
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__type__action
+msgid "Window Action"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__wrench-screwdriver
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__wrench-screwdriver
+msgid "Wrench (Maintenance)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__wrench
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__wrench
+msgid "Wrench Only (Repair)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_portal_tile__icon__x-circle
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__stock_picking_type__portal_icon__x-circle
+msgid "X Circle (Rejected)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "You want %(qty)s of '%(prod)s', but only %(avail)s available."
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "Your account needs configuration. Please contact your supervisor."
+msgstr ""
+"Votre compte nécessite une configuration. Veuillez contacter votre "
+"responsable."
+
+#. module: clinic_staff_portal
+#: model:mail.template,subject:clinic_staff_portal.mail_template_drh_escalation
+msgid "[Confidentiel] Situation opérationnelle nécessitant votre attention"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "disponible(s)"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_clinic_portal_tile_form
+msgid "e.g., Request Meds"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "en attente"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_type_form_portal
+msgid "fa-cube"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "unités"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "À jour"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "à investiguer"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/xml/cbm_kiosk.xml:0
+#, python-format
+msgid "à recevoir"
+msgstr ""
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_picking_kiosk
+msgid "✓ CONFIRM CONSUMPTION"
+msgstr ""
+
+#. module: clinic_staff_portal
+#. odoo-python
+#: code:addons/clinic_staff_portal/models/stock_picking.py:0
+#, python-format
+msgid "✓ Your request has been processed and is ready!"
+msgstr "✓ Votre demande a été traitée et est prête !"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Some products have limited stock. You can still submit - admin has been notified. Contact them to confirm."
+msgstr "Certains produits ont un stock limité. Vous pouvez toujours soumettre - l'administrateur a été notifié. Contactez-le pour confirmer."
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "INSUFFICIENT STOCK"
+msgstr "STOCK INSUFFISANT"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Reduce quantities or contact pharmacy."
+msgstr "Réduisez les quantités ou contactez la pharmacie."
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "Limited stock for"
+msgstr "Stock limité pour"
+
+#. module: clinic_staff_portal
+#. odoo-javascript
+#: code:addons/clinic_staff_portal/static/src/js/cbm_kiosk.js:0
+#, python-format
+msgid "You can continue - admin has been notified."
+msgstr "Vous pouvez continuer - l'admin a été notifié."
+
+#. module: clinic_staff_portal
+#. Drug Registration
+#: model:drug.sync.wizard,name:clinic_staff_portal.model_drug_sync_wizard
+msgid "Drug Registration Wizard"
+msgstr "Assistant d'enregistrement de médicament"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_drug_sync_wizard_form
+msgid "Drug Registration"
+msgstr "Enregistrement du médicament"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.product_template_form_drug_sync_fields
+msgid "Register Drug"
+msgstr "Enregistrer le médicament"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_drug_sync_wizard__drug_name
+msgid "Prescribing Name"
+msgstr "Nom de prescription"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_drug_sync_wizard__concept_id
+msgid "Active Ingredient (DCI)"
+msgstr "Principe actif (DCI)"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_drug_sync_wizard_form
+msgid "Pharmaceutical Details"
+msgstr "Détails pharmaceutiques"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_drug_sync_wizard__dosage_form_id
+msgid "Dosage Form"
+msgstr "Forme galénique"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_drug_sync_wizard__strength
+msgid "Strength"
+msgstr "Dosage"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_product_template__is_synced_to_openmrs
+msgid "Registered"
+msgstr "Enregistré"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_product_template__openmrs_concept_uuid
+msgid "Active Ingredient (DCI)"
+msgstr "Principe actif (DCI)"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_product_template__dosage_form_id
+msgid "Dosage Form"
+msgstr "Forme galénique"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.product_template_form_drug_sync_fields
+msgid "Drug Reference"
+msgstr "Référence médicament"
+
+#. module: clinic_staff_portal
+#. Drug Dosage Form model
+#: model:ir.model,name:clinic_staff_portal.model_drug_dosage_form
+msgid "OpenMRS Dosage Form"
+msgstr "Forme galénique"
+
+#. module: clinic_staff_portal
+#. Drug Concept model
+#: model:ir.model,name:clinic_staff_portal.model_drug_openmrs_concept
+msgid "OpenMRS Drug Concept (local cache)"
+msgstr "Principe actif (cache local)"
+
+#. module: clinic_staff_portal
+#. Import wizard
+#: model:ir.model,name:clinic_staff_portal.model_openmrs_import_wizard
+msgid "Search and Import from OpenMRS"
+msgstr "Rechercher et importer"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_openmrs_import_wizard_form
+msgid "Search OpenMRS"
+msgstr "Rechercher"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_openmrs_import_wizard__search_term
+msgid "Search"
+msgstr "Rechercher"
+
+#. module: clinic_staff_portal
+#: model_terms:ir.ui.view,arch_db:clinic_staff_portal.view_openmrs_import_wizard_form
+msgid "Import Selected"
+msgstr "Importer la sélection"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_openmrs_import_wizard_line__already_imported
+msgid "Already Imported"
+msgstr "Déjà importé"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_openmrs_import_wizard_line__selected
+msgid "Select"
+msgstr "Sélectionner"
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_open_import_dosage_form
+msgid "Search OpenMRS Dosage Forms"
+msgstr "Rechercher des formes galéniques"
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.action_open_import_drug_concept
+msgid "Search OpenMRS Drug Concepts"
+msgstr "Rechercher des principes actifs"
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_drug_sync_root
+msgid "OpenMRS Drug Sync"
+msgstr "Registre des médicaments"
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_drug_dosage_forms
+msgid "Dosage Forms"
+msgstr "Formes galéniques"
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_drug_concepts
+msgid "Drug Concepts"
+msgstr "Principes actifs"
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_import_dosage_forms
+msgid "Search & Import Dosage Forms"
+msgstr "Rechercher et importer des formes galéniques"
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_import_drug_concepts
+msgid "Search & Import Drug Concepts"
+msgstr "Rechercher et importer des principes actifs"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/wizard/drug_sync_wizard.py:0
+#, python-format
+msgid "Please fill in: %s"
+msgstr "Veuillez remplir : %s"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/wizard/drug_sync_wizard.py:0
+#, python-format
+msgid "Product has no variant. Save the product first."
+msgstr "Le produit n'a pas de variante. Enregistrez d'abord le produit."
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/wizard/drug_sync_wizard.py:0
+#, python-format
+msgid "OpenMRS rejected the drug creation:\n%s"
+msgstr "L'enregistrement du médicament a été refusé :\n%s"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/wizard/openmrs_import_wizard.py:0
+#, python-format
+msgid "No results found for '%s'"
+msgstr "Aucun résultat trouvé pour '%s'"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/wizard/openmrs_import_wizard.py:0
+#, python-format
+msgid "No new items selected for import."
+msgstr "Aucun nouvel élément sélectionné pour l'import."
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/wizard/openmrs_import_wizard.py:0
+#, python-format
+msgid "Import Complete"
+msgstr "Import terminé"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/wizard/openmrs_import_wizard.py:0
+#, python-format
+msgid "%d items imported."
+msgstr "%d éléments importés."

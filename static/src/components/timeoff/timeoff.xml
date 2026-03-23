@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="clinic_staff_portal.TimeOffForm" owl="1">
+        <!-- Header -->
+        <div class="cbm_page_header">
+            <button class="cbm_back_btn" t-on-click="goHome" title="Retour à l'accueil">
+                <span class="cbm_icon_arrow_left"/>Retour
+            </button>
+            <div class="cbm_page_title">
+                <h2>Demande de Congé</h2>
+                <span class="cbm_page_subtitle">Faire une demande d'absence</span>
+            </div>
+            <button class="cbm_close_btn" t-on-click="goHome">
+                <span class="cbm_icon_x"/>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="cbm_page_body">
+            <div class="cbm_page_content">
+                <!-- Loading State -->
+                <div t-if="state.timeoffLoading" class="cbm_timeoff_loading">
+                    <span class="spinner-border spinner-border-sm me-2"/>
+                    Chargement...
+                </div>
+
+                <!-- Success State -->
+                <div t-elif="state.timeoffSuccess" class="cbm_timeoff_success">
+                    <div class="cbm_success_icon">
+                        <span class="cbm_icon_check_lg"/>
+                    </div>
+                    <h3 class="cbm_success_title">Demande envoyée</h3>
+                    <p class="cbm_success_message" t-esc="state.timeoffSuccessMessage"/>
+                    <button class="cbm_btn_primary" t-on-click="goHome">
+                        <span class="cbm_icon_home me-2"/>
+                        Retour à l'accueil
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <div t-else="" class="cbm_content_container cbm_timeoff_form">
+                    <!-- Employee Selection (visible when there are multiple employees to select) -->
+                    <div t-if="state.timeoffEmployees.length > 1" class="cbm_timeoff_section">
+                        <label class="cbm_timeoff_label">
+                            <span class="cbm_icon_user"/>
+                            Employé
+                        </label>
+                        <div t-att-class="'cbm_employee_dropdown' + (state.timeoffEmployeeDropdownOpen ? ' open' : '')">
+                            <div class="cbm_employee_selected" t-on-click="toggleEmployeeDropdown">
+                                <div class="cbm_employee_avatar">
+                                    <span class="cbm_icon_user"/>
+                                </div>
+                                <span class="cbm_selected_name" t-esc="getSelectedEmployeeName()"/>
+                                <span class="cbm_icon_chevron_down cbm_dropdown_arrow"/>
+                            </div>
+                            <div t-if="state.timeoffEmployeeDropdownOpen" class="cbm_employee_list">
+                                <!-- Search Input -->
+                                <div class="cbm_employee_search">
+                                    <span class="cbm_icon_search"/>
+                                    <input type="text"
+                                           class="cbm_employee_search_input"
+                                           placeholder="Rechercher un employé..."
+                                           t-model="state.timeoffEmployeeSearch"
+                                           t-on-input="onEmployeeSearch"
+                                           t-on-keydown="onEmployeeSearchKeydown"
+                                           t-ref="employeeSearchInput"/>
+                                </div>
+                                <!-- Employee List -->
+                                <div class="cbm_employee_list_items">
+                                    <t t-foreach="getFilteredEmployees()" t-as="emp" t-key="emp.id">
+                                        <div t-att-class="'cbm_employee_list_item' + (state.timeoffSelectedEmployeeId === emp.id ? ' selected' : '') + (state.timeoffHighlightedEmployeeIndex === emp_index ? ' highlighted' : '')"
+                                             t-on-click="() => this.onTimeOffEmployeeSelect(emp.id)"
+                                             t-att-data-employee-id="emp.id">
+                                            <div class="cbm_employee_avatar">
+                                                <span class="cbm_icon_user"/>
+                                            </div>
+                                            <span class="cbm_item_name" t-esc="emp.name"/>
+                                            <span t-if="emp.is_self" class="cbm_self_badge">Moi</span>
+                                        </div>
+                                    </t>
+                                    <div t-if="getFilteredEmployees().length === 0" class="cbm_employee_no_results">
+                                        Aucun employé trouvé
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave Type Selection -->
+                    <div class="cbm_timeoff_section">
+                        <label class="cbm_timeoff_label">
+                            <span class="cbm_icon_calendar"/>
+                            Type de congé
+                        </label>
+                        <select class="cbm_leave_type_select"
+                                t-on-change="onTimeOffLeaveTypeChange"
+                                t-att-value="state.timeoffSelectedLeaveTypeId">
+                            <option value="">-- Sélectionner un type --</option>
+                            <t t-foreach="state.timeoffLeaveTypes" t-as="leaveType" t-key="leaveType.id">
+                                <option t-att-value="leaveType.id"
+                                        t-att-selected="state.timeoffSelectedLeaveTypeId === leaveType.id"
+                                        t-esc="leaveType.name"/>
+                            </t>
+                        </select>
+                    </div>
+
+                    <!-- Date and Duration Row -->
+                    <div class="cbm_timeoff_section">
+                        <div class="cbm_date_row">
+                            <!-- Start Date -->
+                            <div class="cbm_date_field">
+                                <label class="cbm_timeoff_label">
+                                    <span class="cbm_icon_calendar"/>
+                                    Date de début
+                                </label>
+                                <input type="date"
+                                       t-ref="dateInput"
+                                       class="cbm_date_input"
+                                       t-att-value="state.timeoffDateFrom"
+                                       t-on-change="onTimeOffDateChange"/>
+                            </div>
+
+                            <!-- Number of Days -->
+                            <div class="cbm_days_field">
+                                <label class="cbm_timeoff_label">
+                                    <span class="cbm_icon_clock"/>
+                                    Nombre de jours
+                                </label>
+                                <input type="number"
+                                       t-ref="daysInput"
+                                       class="cbm_days_input"
+                                       min="0.5"
+                                       step="0.5"
+                                       t-att-value="state.timeoffNumberOfDays"
+                                       t-on-change="onTimeOffDaysChange"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reason / Description -->
+                    <div class="cbm_timeoff_section">
+                        <label class="cbm_timeoff_label">
+                            <span class="cbm_icon_chat"/>
+                            Motif (optionnel)
+                        </label>
+                        <textarea class="cbm_reason_textarea"
+                                  rows="3"
+                                  placeholder="Décrivez le motif de votre demande..."
+                                  t-on-input="onTimeOffReasonInput"
+                                  t-att-value="state.timeoffReason"/>
+                    </div>
+
+                    <!-- Info Panel -->
+                    <div class="cbm_timeoff_info" title="Ces informations vous aident à comprendre le processus de demande de congé">
+                        <h6 title="Ce qui se passe après l'envoi de votre demande">
+                            <span class="cbm_icon_info"/>
+                            Que se passe-t-il ensuite ?
+                        </h6>
+                        <ul>
+                            <li>Votre demande sera transmise à votre responsable pour validation</li>
+                            <li>Vous recevrez une notification dès que la décision sera prise</li>
+                            <li>Consultez la page Suivi pour voir l'état de toutes vos demandes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div t-if="!state.timeoffLoading &amp;&amp; !state.timeoffSuccess" class="cbm_page_footer">
+            <button class="cbm_btn_secondary btn-lg" t-on-click="goHome">Annuler</button>
+            <button class="cbm_btn_primary btn-lg"
+                    t-on-click="submitTimeOff"
+                    t-att-disabled="state.timeoffSubmitting || !isTimeOffFormValid()">
+                <t t-if="state.timeoffSubmitting">
+                    <span class="spinner-border spinner-border-sm me-2"/>
+                    Envoi en cours...
+                </t>
+                <t t-else="">
+                    <span class="cbm_icon_send me-2"/>
+                    Envoyer la demande
+                </t>
+            </button>
+        </div>
+    </t>
+
+</templates>

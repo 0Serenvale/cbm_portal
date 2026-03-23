@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="ir_cron_close_stale_cashier_sessions" model="ir.cron">
+        <field name="name">Fermer les sessions caisse obsolètes</field>
+        <field name="model_id" ref="clinic_staff_portal.model_cashier_session"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_close_stale_sessions()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=0, minute=5, second=0)"/>
+    </record>
+</odoo>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- QWeb template for accountability warning PDF (rendered by cron) -->
+    <template id="report_accountability_warning">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Segoe UI', Roboto, sans-serif;">
+                        <!-- Red header bar -->
+                        <div style="background: #991b1b; color: #fff; padding: 16px 20px; border-radius: 4px; margin-bottom: 24px;">
+                            <h2 style="margin: 0; font-size: 18px;">AVERTISSEMENT &#8212; Retard de Validation</h2>
+                            <p style="margin: 4px 0 0; font-size: 12px; color: #fecaca;">
+                                Document g&#233;n&#233;r&#233; automatiquement le <t t-esc="report_date"/>
+                            </p>
+                        </div>
+
+                        <!-- Recipient info -->
+                        <p style="font-size: 14px; margin-bottom: 16px;">
+                            <strong>&#192; l'attention de :</strong> <t t-esc="responsible_name"/>
+                            <br/>
+                            <strong>Emplacement :</strong> <t t-esc="location_name"/>
+                        </p>
+
+                        <!-- Body -->
+                        <p style="font-size: 13px; line-height: 1.7;">
+                            Madame, Monsieur,
+                        </p>
+                        <p style="font-size: 13px; line-height: 1.7;">
+                            Le syst&#232;me CBM Portal a d&#233;tect&#233; que votre emplacement comporte des
+                            <strong>r&#233;ceptions et/ou transferts internes en attente de validation
+                            depuis <t t-esc="threshold_days"/> jours ou plus</strong>.
+                        </p>
+                        <!-- Transfer details table -->
+                        <h4 style="margin: 24px 0 12px; font-size: 14px; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
+                            D&#233;tail des Op&#233;rations en Retard
+                        </h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                            <thead>
+                                <tr style="background: #f3f4f6;">
+                                    <th style="padding: 8px; text-align: left; border-bottom: 2px solid #d1d5db;">R&#233;f&#233;rence</th>
+                                    <th style="padding: 8px; text-align: left; border-bottom: 2px solid #d1d5db;">Type</th>
+                                    <th style="padding: 8px; text-align: left; border-bottom: 2px solid #d1d5db;">Date Pr&#233;vue</th>
+                                    <th style="padding: 8px; text-align: center; border-bottom: 2px solid #d1d5db;">Retard</th>
+                                    <th style="padding: 8px; text-align: left; border-bottom: 2px solid #d1d5db;">Produits</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="pickings" t-as="p">
+                                    <tr>
+                                        <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb;">
+                                            <t t-esc="p['name']"/>
+                                        </td>
+                                        <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb;">
+                                            <t t-esc="p['type']"/>
+                                        </td>
+                                        <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb;">
+                                            <t t-esc="p['date']"/>
+                                        </td>
+                                        <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+                                            <strong style="color: #991b1b;"><t t-esc="p['days']"/> j</strong>
+                                        </td>
+                                        <td style="padding: 6px 8px; border-bottom: 1px solid #e5e7eb; font-size: 11px;">
+                                            <t t-esc="p['products']"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Deadline warning -->
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 16px; margin-top: 24px;">
+                            <p style="margin: 0; font-size: 13px; color: #991b1b; font-weight: 600;">
+                                IMPORTANT : Vous disposez de 24 heures pour r&#233;gulariser cette situation.
+                            </p>
+                            <p style="margin: 8px 0 0; font-size: 12px; color: #7f1d1d;">
+                                Pass&#233; ce d&#233;lai, votre acc&#232;s au syst&#232;me CBM Portal sera suspendu et un rapport
+                                sera transmis &#224; la Direction des Ressources Humaines.
+                            </p>
+                        </div>
+
+                        <!-- Action required -->
+                        <div style="margin-top: 20px;">
+                            <h4 style="font-size: 13px; margin-bottom: 8px;">Actions requises :</h4>
+                            <ol style="font-size: 12px; line-height: 1.8; margin: 0; padding-left: 20px;">
+                                <li>Ouvrir les transferts list&#233;s ci-dessus dans le syst&#232;me</li>
+                                <li>V&#233;rifier les quantit&#233;s et valider chaque r&#233;ception/transfert</li>
+                                <li>Signer ce document depuis la tuile <strong>Documents</strong> du portail CBM</li>
+                            </ol>
+                        </div>
+
+                        <!-- Official stamp &amp; signature (from document record) -->
+                        <div t-if="doc.stamp_image or doc.signature_image" style="margin-top: 40px; text-align: right;">
+                            <div style="display: inline-block; text-align: center;">
+                                <t t-if="doc.stamp_image">
+                                    <img t-att-src="image_data_uri(doc.stamp_image)"
+                                         style="height: 80px; margin-bottom: 8px;" alt="Cachet"/>
+                                </t>
+                                <t t-if="doc.signature_image">
+                                    <img t-att-src="image_data_uri(doc.signature_image)"
+                                         style="height: 60px; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto;" alt="Signature"/>
+                                </t>
+                                <div t-if="doc.signatory_name" style="font-size: 12px; font-weight: 600; margin-top: 4px;">
+                                    <t t-esc="doc.signatory_name"/>
+                                </div>
+                                <div t-if="doc.signatory_title" style="font-size: 11px; color: #6b7280;">
+                                    <t t-esc="doc.signatory_title"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div style="margin-top: 40px; font-size: 11px; color: #6b7280;">
+                            <p>
+                                Ce document est g&#233;n&#233;r&#233; automatiquement par le syst&#232;me de gestion CBM Portal.<br/>
+                                La signature de ce document atteste que vous avez pris connaissance du retard
+                                et vous engagez &#224; r&#233;gulariser la situation dans les meilleurs d&#233;lais.
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report action for rendering the warning PDF -->
+    <record id="action_report_accountability_warning" model="ir.actions.report">
+        <field name="name">Avertissement Accountability</field>
+        <field name="model">clinic.document</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic_staff_portal.report_accountability_warning</field>
+        <field name="report_file">clinic_staff_portal.report_accountability_warning</field>
+        <field name="print_report_name">'Avertissement_%s' % object.name</field>
+    </record>
+</odoo>

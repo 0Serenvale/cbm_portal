@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="ir_cron_document_compliance_check" model="ir.cron">
+        <field name="name">Document Compliance: Check Deadlines &amp; Notify DRH</field>
+        <field name="model_id" ref="clinic_staff_portal.model_clinic_document"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_check_compliance_deadlines()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=7, minute=0, second=0)"/>
+    </record>
+</odoo>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- DRH Escalation Email Template - Professional Administrative Communication -->
+    <record id="mail_template_drh_escalation" model="mail.template">
+        <field name="name">CBM Portal: DRH Escalation</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="subject">[Confidentiel] Situation opérationnelle nécessitant votre attention</field>
+        <field name="email_from">${(object.company_id.email or user.email_formatted) | safe}</field>
+        <field name="email_to">${ctx.get('drh_email', '')}</field>
+        <field name="lang">${object.lang}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; color: #333;">
+    
+    <!-- Professional Header -->
+    <div style="background: linear-gradient(135deg, #1e3a5f, #2d5a87); padding: 25px 30px; border-radius: 8px 8px 0 0;">
+        <h2 style="color: white; margin: 0; font-weight: 400; letter-spacing: 0.5px;">Communication Interne</h2>
+        <p style="color: rgba(255,255,255,0.8); margin: 5px 0 0 0; font-size: 13px;">Direction des Ressources Humaines</p>
+    </div>
+    
+    <!-- Main Content -->
+    <div style="background: #ffffff; padding: 30px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;">
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+            Madame, Monsieur,
+        </p>
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+            Je me permets de porter à votre attention une situation qui nécessite votre intervention concernant 
+            <strong>${ctx.get('department_name', 'un département')}</strong>.
+        </p>
+        
+        <!-- Key Metrics Box -->
+        <div style="background: #f8f9fa; border-left: 4px solid #dc3545; padding: 20px; margin: 25px 0; border-radius: 0 4px 4px 0;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #6c757d;">Situation actuelle :</p>
+            <p style="margin: 0; font-size: 24px; font-weight: 600; color: #1e3a5f;">
+                ${ctx.get('picking_count', 0)} mouvement(s) en attente
+            </p>
+            <p style="margin: 10px 0 0 0; font-size: 14px; color: #6c757d;">
+                Délai maximum constaté : <strong style="color: #dc3545;">${ctx.get('max_days', 0)} jours</strong>
+            </p>
+        </div>
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+            Cette accumulation de mouvements non validés représente un <strong>risque opérationnel</strong> 
+            pouvant affecter la continuité des services et l'exactitude de notre inventaire.
+        </p>
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+            Je vous serais reconnaissant(e) de bien vouloir examiner cette situation avec 
+            le(s) responsable(s) concerné(s) afin d'identifier les causes de ce retard et de 
+            <strong>mettre en place les mesures correctives appropriées</strong>.
+        </p>
+        
+        <!-- Diplomatic Note -->
+        <div style="background: #fff8e1; border: 1px solid #ffc107; padding: 15px; border-radius: 4px; margin: 25px 0;">
+            <p style="margin: 0; font-size: 13px; color: #856404; line-height: 1.5;">
+                <strong>Note :</strong> Cette notification a un caractère strictement confidentiel. 
+                Elle vise à assurer le bon fonctionnement opérationnel de l'établissement et ne 
+                constitue en aucun cas un jugement sur la performance individuelle.
+            </p>
+        </div>
+        
+        <p style="margin: 0 0 5px 0; font-size: 15px; line-height: 1.6;">
+            Je reste à votre disposition pour tout échange complémentaire.
+        </p>
+        
+        <p style="margin: 25px 0 0 0; font-size: 15px;">
+            Cordialement,
+        </p>
+        <p style="margin: 5px 0 0 0; font-size: 15px; font-weight: 600; color: #1e3a5f;">
+            ${ctx.get('sender_name', 'La Direction')}
+        </p>
+        
+    </div>
+    
+    <!-- Footer -->
+    <div style="background: #f5f5f5; padding: 15px 30px; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0; border-top: none;">
+        <p style="margin: 0; font-size: 11px; color: #888; text-align: center;">
+            CBM Portal • Communication confidentielle • ${ctx.get('send_date', '')}
+        </p>
+    </div>
+    
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <!-- Stock Discrepancy Alert Template -->
+    <record id="mail_template_stock_discrepancy" model="mail.template">
+        <field name="name">CBM Portal: Stock Discrepancy Alert</field>
+        <field name="model_id" ref="model_clinic_stock_discrepancy"/>
+        <field name="subject">[Alerte Stock] Tentative de consommation sur stock épuisé - ${object.product_id.name}</field>
+        <field name="email_from">${(object.create_uid.company_id.email or user.email_formatted) | safe}</field>
+        <field name="email_to">${ctx.get('email_to', '')}</field>
+        <field name="lang">${object.create_uid.lang}</field>
+        <field name="body_html"><![CDATA[
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; color: #333;">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #dc3545, #c82333); padding: 25px 30px; border-radius: 8px 8px 0 0;">
+        <h2 style="color: white; margin: 0; font-weight: 400; letter-spacing: 0.5px;">Alerte de Discrépance Stock</h2>
+        <p style="color: rgba(255,255,255,0.8); margin: 5px 0 0 0; font-size: 13px;">CBM Portal • Incident de Consommation</p>
+    </div>
+    
+    <!-- Main Content -->
+    <div style="background: #ffffff; padding: 30px; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0;">
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+            Bonjour,
+        </p>
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+            Une tentative de consommation a été bloquée car le stock système est insuffisant (0 ou moins que demandé).
+            Ceci indique une <strong>différence entre le stock physique et le stock système</strong>.
+        </p>
+        
+        <!-- Details Box -->
+        <div style="background: #f8f9fa; border-left: 4px solid #dc3545; padding: 20px; margin: 25px 0; border-radius: 0 4px 4px 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 5px 0; color: #6c757d; width: 140px;">Produit :</td>
+                    <td style="padding: 5px 0; font-weight: 600;">${object.product_id.display_name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #6c757d;">Emplacement :</td>
+                    <td style="padding: 5px 0;">${object.location_id.complete_name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #6c757d;">Utilisateur :</td>
+                    <td style="padding: 5px 0;">${object.user_id.name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #6c757d;">Quantité demandée :</td>
+                    <td style="padding: 5px 0;"><strong>${object.attempted_qty}</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #6c757d;">Stock système :</td>
+                    <td style="padding: 5px 0; color: #dc3545;"><strong>${object.system_qty}</strong></td>
+                </tr>
+            </table>
+        </div>
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6;">
+            Merci de vérifier le stock physique et de corriger l'inventaire ou de marquer l'incident comme "Erreur Infirmier".
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="/web#id=${object.id}&model=clinic.stock.discrepancy&view_type=form" 
+               style="background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: 600;">
+                Voir l'incident
+            </a>
+        </div>
+        
+    </div>
+    
+    <!-- Footer -->
+    <div style="background: #f5f5f5; padding: 15px 30px; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0; border-top: none;">
+        <p style="margin: 0; font-size: 11px; color: #888; text-align: center;">
+            Généré automatiquement par CBM Portal • ${object.create_date}
+        </p>
+    </div>
+    
+</div>
+        ]]></field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

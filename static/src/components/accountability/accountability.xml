@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="clinic_staff_portal.AccountabilityDashboard" owl="1">
+        <!-- Header -->
+        <div class="cbm_kiosk_header">
+            <button class="cbm_back_btn" t-on-click="goHome" title="Retour à l'accueil">
+                <span class="cbm_icon_arrow_left"/> Retour
+            </button>
+            <h2>Accountability Dashboard</h2>
+            <p class="text-muted mb-0 cbm_tracking_title">Suivi des Réceptions et Transferts en Attente</p>
+        </div>
+
+        <!-- Toast notification -->
+        <div t-if="state.successMessage" class="cbm_toast cbm_toast_success">
+            <span class="cbm_icon_check_circle me-2"/>
+            <span t-esc="state.successMessage"/>
+        </div>
+
+        <!-- Loading -->
+        <div t-if="state.loading" class="cbm_page_body d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2"/>
+            Chargement...
+        </div>
+
+        <!-- Content -->
+        <div t-else="" class="cbm_financial_page">
+            <!-- Summary Card -->
+            <div class="cbm_accountability_summary">
+                <div class="cbm_fin_card cbm_fin_card_at_risk">
+                    <div class="cbm_fin_card_icon">
+                        <span class="cbm_icon_warning"/>
+                    </div>
+                    <div class="cbm_fin_card_content">
+                        <div class="cbm_fin_card_label">Inventaire à Risque</div>
+                        <div class="cbm_fin_card_value cbm_fin_at_risk_value">
+                            <t t-esc="(state.totalAtRisk || 0).toLocaleString()"/> <t t-esc="state.currencySymbol"/>
+                        </div>
+                        <div class="cbm_fin_card_meta">
+                            <t t-esc="state.pendingCount || 0"/> réceptions/transferts en attente de validation
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Department Breakdown Table -->
+            <h3 class="mt-4 mb-3">Responsabilité par Département</h3>
+            <div class="cbm_fin_table_container">
+                <table class="cbm_fin_table">
+                    <thead>
+                        <tr>
+                            <th>Département</th>
+                            <th>Responsable</th>
+                            <th>Transferts En attente</th>
+                            <th>Jours Max</th>
+                            <th>Valeur à Risque</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.departments" t-as="dept" t-key="dept.location_id">
+                            <tr>
+                                <td><t t-esc="dept.location_name"/></td>
+                                <td><t t-esc="dept.responsible_name"/></td>
+                                <td class="text-center"><t t-esc="dept.pending_count"/></td>
+                                <td class="text-center">
+                                    <span t-att-class="(dept.oldest_days || 0) >= 8 ? 'cbm_badge_danger' : 'cbm_badge_warning'">
+                                        <t t-esc="dept.oldest_days || 0"/> j
+                                    </span>
+                                </td>
+                                <td class="cbm_fin_loss"><t t-esc="dept.loss_amount.toLocaleString()"/> <t t-esc="dept.currency_symbol"/></td>
+                                <td>
+                                    <button class="cbm_btn_outline cbm_btn_sm"
+                                            t-on-click="() => this.notifyDRH(dept.picking_ids)"
+                                            title="Envoyer notification à la Liaison RH">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="cbm_icon"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+                                        Notifier RH
+                                    </button>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr t-if="!state.departments.length">
+                            <td colspan="6" class="text-center text-muted">Aucune réception ou transfert en attente</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+
+</templates>

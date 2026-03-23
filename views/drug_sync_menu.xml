@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Drug Sync submenu under Inventory > Configuration -->
+    <menuitem id="menu_drug_sync_root"
+              name="OpenMRS Drug Sync"
+              parent="stock.menu_stock_config_settings"
+              sequence="90"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_drug_dosage_forms"
+              name="Dosage Forms"
+              parent="menu_drug_sync_root"
+              action="action_drug_dosage_form"
+              sequence="10"/>
+
+    <menuitem id="menu_drug_concepts"
+              name="Drug Concepts"
+              parent="menu_drug_sync_root"
+              action="action_drug_openmrs_concept"
+              sequence="20"/>
+
+    <menuitem id="menu_import_dosage_forms"
+              name="Search &amp; Import Dosage Forms"
+              parent="menu_drug_sync_root"
+              action="action_open_import_dosage_form"
+              sequence="30"/>
+
+    <menuitem id="menu_import_drug_concepts"
+              name="Search &amp; Import Drug Concepts"
+              parent="menu_drug_sync_root"
+              action="action_open_import_drug_concept"
+              sequence="40"/>
+</odoo>

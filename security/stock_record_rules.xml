@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+    <!--
+    Record Rules for Clinic Portal Users
+    
+    These rules enforce location-based security on stock.picking,
+    ensuring portal users can only interact with pickings in their allowed locations.
+    
+    Works with serenvale_stock_access_control's allowed_location_ids field.
+    -->
+
+    <!-- Rule A: Write/Create pickings at allowed locations OR locations user is responsible for -->
+    <record id="stock_picking_rule_portal_user_write" model="ir.rule">
+        <field name="name">Portal User: Restrict Pickings by Location (Write/Create)</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="groups" eval="[(4, ref('clinic_staff_portal.group_clinic_portal_user'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[
+            '|', '|', '|',
+            ('location_id', 'in', user.allowed_location_ids.ids),
+            ('location_dest_id', 'in', user.allowed_location_ids.ids),
+            ('location_id.responsible_user_ids', 'in', [user.id]),
+            ('location_dest_id.responsible_user_ids', 'in', [user.id])
+        ]</field>
+    </record>
+
+    <!-- Rule B: Read own requests + pickings at locations user is responsible for -->
+    <record id="stock_picking_rule_portal_user_read" model="ir.rule">
+        <field name="name">Portal User: See Own Requests + Responsible Locations</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="groups" eval="[(4, ref('clinic_staff_portal.group_clinic_portal_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[
+            '|', '|',
+            ('portal_requester_id', '=', user.id),
+            ('location_id.responsible_user_ids', 'in', [user.id]),
+            ('location_dest_id.responsible_user_ids', 'in', [user.id])
+        ]</field>
+    </record>
+
+    <!-- Manager Rule: Full Access to All Pickings -->
+    <record id="stock_picking_rule_portal_manager" model="ir.rule">
+        <field name="name">Portal Manager: Full Access to All Pickings</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="groups" eval="[(4, ref('clinic_staff_portal.group_clinic_portal_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <!-- Rule C: Approvers Can Read Pickings Awaiting Their Approval -->
+    <record id="stock_picking_rule_approver_read" model="ir.rule">
+        <field name="name">Portal User: Can Read Pickings Awaiting Approval</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="groups" eval="[(4, ref('clinic_staff_portal.group_clinic_portal_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[('approver_ids', 'in', user.id)]</field>
+    </record>
+
+    <!-- Rule D: Admin Global Read Access -->
+    <record id="stock_picking_rule_admin_read" model="ir.rule">
+        <field name="name">Admin: Full Read Access to All Pickings</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    </data>
+</odoo>

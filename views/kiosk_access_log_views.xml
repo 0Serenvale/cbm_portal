@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_cbm_kiosk_access_log_tree" model="ir.ui.view">
+        <field name="name">cbm.kiosk.access.log.tree</field>
+        <field name="model">cbm.kiosk.access.log</field>
+        <field name="arch" type="xml">
+            <tree string="Kiosk Access Logs" create="false" edit="false" delete="false">
+                <field name="create_date" string="Date/Time"/>
+                <field name="user_id"/>
+                <field name="ip_address"/>
+                <field name="workstation_id"/>
+                <field name="resolution"/>
+                <field name="cashier_session_id" optional="hide"/>
+                <field name="user_agent" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Pivot View for Analytics -->
+    <record id="view_cbm_kiosk_access_log_pivot" model="ir.ui.view">
+        <field name="name">cbm.kiosk.access.log.pivot</field>
+        <field name="model">cbm.kiosk.access.log</field>
+        <field name="arch" type="xml">
+            <pivot string="Access Analytics">
+                <field name="ip_address" type="row"/>
+                <field name="user_id" type="col"/>
+                <field name="create_date" interval="day" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View -->
+    <record id="view_cbm_kiosk_access_log_graph" model="ir.ui.view">
+        <field name="name">cbm.kiosk.access.log.graph</field>
+        <field name="model">cbm.kiosk.access.log</field>
+        <field name="arch" type="xml">
+            <graph string="Access by Resolution" type="pie">
+                <field name="resolution" type="row"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_cbm_kiosk_access_log_search" model="ir.ui.view">
+        <field name="name">cbm.kiosk.access.log.search</field>
+        <field name="model">cbm.kiosk.access.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Access Logs">
+                <field name="user_id"/>
+                <field name="ip_address"/>
+                <field name="resolution"/>
+                <separator/>
+                <filter name="today" string="Today" domain="[('create_date', '>=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <filter name="this_week" string="This Week" domain="[('create_date', '>=', (context_today() - datetime.timedelta(days=7)))]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_user" string="User" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_ip" string="IP Address" context="{'group_by': 'ip_address'}"/>
+                    <filter name="group_workstation" string="Workstation" context="{'group_by': 'workstation_id'}"/>
+                    <filter name="group_resolution" string="Resolution" context="{'group_by': 'resolution'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_cbm_kiosk_access_log" model="ir.actions.act_window">
+        <field name="name">Kiosk Access Logs</field>
+        <field name="res_model">cbm.kiosk.access.log</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No access logs yet
+            </p>
+            <p>
+                Access logs are created automatically when users open the CBM Portal.
+            </p>
+        </field>
+    </record>
+
+    <!-- Root menu for Kiosk Admin -->
+    <menuitem id="menu_cbm_kiosk_admin_root"
+              name="Kiosk Admin"
+              web_icon="clinic_staff_portal,static/description/icon.png"
+              sequence="101"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_cbm_kiosk_access_log"
+              name="Access Logs"
+              parent="menu_cbm_kiosk_admin_root"
+              action="action_cbm_kiosk_access_log"
+              sequence="10"
+              groups="base.group_system"/>
+</odoo>

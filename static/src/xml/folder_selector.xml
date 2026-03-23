@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="clinic_staff_portal.FolderSelectorAction" owl="1">
+        <div class="folder-selector-container">
+            <!-- Header -->
+            <div class="folder-selector-header">
+                <button class="cbm_btn_secondary btn-lg" t-on-click="onBackClick">
+                    <i class="fa fa-arrow-left me-2"/>
+                    Retour
+                </button>
+                <h1 class="folder-title" t-esc="state.folderName"/>
+                <div style="width: 120px;"/> <!-- Spacer for centering -->
+            </div>
+            
+            <!-- Loading State -->
+            <div t-if="state.loading" class="folder-loading">
+                <i class="fa fa-spinner fa-spin fa-3x"/>
+                <p>Chargement...</p>
+            </div>
+            
+            <!-- Tiles Grid -->
+            <div t-else="" class="folder-tiles-grid">
+                <t t-foreach="state.tiles" t-as="tile" t-key="tile.id">
+                    <div class="folder-tile" t-on-click="() => this.onTileClick(tile)">
+                        <i t-attf-class="fa {{ tile.icon || 'fa-cube' }} fa-4x"/>
+                        <span class="tile-name" t-esc="tile.name"/>
+                    </div>
+                </t>
+            </div>
+            
+            <!-- Empty State -->
+            <div t-if="!state.loading &amp;&amp; state.tiles.length === 0" class="folder-empty">
+                <i class="fa fa-folder-open-o fa-5x text-muted"/>
+                <p class="text-muted mt-3">Aucun élément dans ce dossier</p>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+    <!--
+    Default Custom Tiles for CBM Portal Dashboard
+    These tiles appear in the "Quick Links" section on the home screen.
+    noupdate="0" temporarily to refresh on upgrade.
+    -->
+
+    <!-- Quotations Tile -->
+    <record id="tile_quotations" model="clinic.portal.tile">
+        <field name="name">Quotations</field>
+        <field name="type">action</field>
+        <field name="icon">document-text</field>
+        <field name="color">#3B82F6</field>
+        <field name="icon_color">#ffffff</field>
+        <field name="sequence">10</field>
+        <field name="action_id" ref="sale.action_quotations_with_onboarding"/>
+        <field name="description">Voir et gérer les devis clients</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Invoices Tile -->
+    <record id="tile_invoices" model="clinic.portal.tile">
+        <field name="name">Invoices</field>
+        <field name="type">action</field>
+        <field name="icon">banknotes</field>
+        <field name="color">#10B981</field>
+        <field name="icon_color">#ffffff</field>
+        <field name="sequence">20</field>
+        <field name="action_id" ref="account.action_move_out_invoice_type"/>
+        <field name="description">Consulter les factures émises</field>
+        <field name="active" eval="True"/>
+    </record>
+</data>
+
+<!-- Custom action for new maintenance request (always created) -->
+<record id="action_new_maintenance_request" model="ir.actions.act_window">
+    <field name="name">New Maintenance Request</field>
+    <field name="res_model">maintenance.request</field>
+    <field name="view_mode">form</field>
+    <field name="target">current</field>
+    <field name="context">{'form_view_initial_mode': 'edit'}</field>
+</record>
+
+<!-- Action for Time Off tile (intercepted by JS, but needed for reference) -->
+<record id="action_new_timeoff_request" model="ir.actions.act_window">
+    <field name="name">New Time Off Request</field>
+    <field name="res_model">hr.leave</field>
+    <field name="view_mode">form</field>
+    <field name="target">current</field>
+    <field name="context">{'form_view_initial_mode': 'edit'}</field>
+</record>
+
+<data noupdate="1">
+    <!-- New Maintenance Request Tile (opens form directly) -->
+    <record id="tile_maintenance_request" model="clinic.portal.tile">
+        <field name="name">New Maintenance</field>
+        <field name="type">action</field>
+        <field name="icon">wrench-screwdriver</field>
+        <field name="color">#6B7280</field>
+        <field name="icon_color">#ffffff</field>
+        <field name="sequence">30</field>
+        <field name="action_id" ref="action_new_maintenance_request"/>
+        <field name="description">Signaler un problème technique ou demander une réparation</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Time Off Request Tile -->
+    <record id="tile_timeoff_request" model="clinic.portal.tile">
+        <field name="name">Demande Congé</field>
+        <field name="type">action</field>
+        <field name="icon">calendar-days</field>
+        <field name="color">#8B5CF6</field>
+        <field name="icon_color">#ffffff</field>
+        <field name="sequence">35</field>
+        <field name="action_id" ref="action_new_timeoff_request"/>
+        <field name="description">Soumettre une demande de congé à votre responsable</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Discuss / Messages Tile -->
+    <record id="tile_discuss" model="clinic.portal.tile">
+        <field name="name">Messages</field>
+        <field name="type">client_action</field>
+        <field name="icon">chat-bubble-left-right</field>
+        <field name="color">#0EA5E9</field>
+        <field name="icon_color">#ffffff</field>
+        <field name="sequence">40</field>
+        <field name="client_action_tag">mail.action_discuss</field>
+        <field name="description">Accéder à vos conversations et messages (s'ouvre dans un nouvel onglet)</field>
+        <field name="active" eval="True"/>
+    </record>
+</data>
+</odoo>

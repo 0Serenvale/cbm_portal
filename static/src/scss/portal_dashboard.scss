@@ -1,0 +1,114 @@
+/* Clinic Portal Dashboard Styles */
+
+.o_clinic_portal_dashboard {
+    padding: 1.6rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    min-height: calc(100vh - 100px);
+
+    .o_kanban_renderer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: flex-start;
+        padding: 1rem;
+    }
+
+    .o_kanban_record {
+        flex: 0 0 auto;
+        margin: 0 !important;
+    }
+}
+
+.o_portal_tile {
+    width: 20rem;
+    height: 16rem;
+    border-radius: 1.6rem;
+    background: white;
+    box-shadow: 0 0.4rem 1.5rem rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+    border: none;
+
+    &:hover {
+        transform: translateY(-0.5rem);
+        box-shadow: 0 0.8rem 2.5rem rgba(0, 0, 0, 0.15);
+    }
+
+    .o_portal_tile_content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .o_portal_tile_icon {
+        margin-bottom: 1.5rem;
+        color: #714B67;
+
+        .fa {
+            transition: transform 0.3s ease;
+        }
+    }
+
+    &:hover .o_portal_tile_icon .fa {
+        transform: scale(1.1);
+    }
+
+    .o_portal_tile_info {
+        width: 100%;
+    }
+
+    .o_portal_tile_name {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.8rem;
+        line-height: 1.2;
+    }
+
+    .o_portal_tile_badge {
+        .badge {
+            font-size: 1.1rem;
+            padding: 0.4rem 1rem;
+        }
+    }
+}
+
+/* Color variations */
+.o_portal_tile_color_0 .o_portal_tile_icon { color: #714B67; }  /* Purple */
+.o_portal_tile_color_1 .o_portal_tile_icon { color: #F06050; }  /* Red */
+.o_portal_tile_color_2 .o_portal_tile_icon { color: #F4A460; }  /* Orange */
+.o_portal_tile_color_3 .o_portal_tile_icon { color: #F7CD1F; }  /* Yellow */
+.o_portal_tile_color_4 .o_portal_tile_icon { color: #6CC1ED; }  /* Light Blue */
+.o_portal_tile_color_5 .o_portal_tile_icon { color: #814968; }  /* Dark Purple */
+.o_portal_tile_color_6 .o_portal_tile_icon { color: #EB7E7F; }  /* Pink */
+.o_portal_tile_color_7 .o_portal_tile_icon { color: #2C8397; }  /* Teal */
+.o_portal_tile_color_8 .o_portal_tile_icon { color: #475577; }  /* Dark Blue */
+.o_portal_tile_color_9 .o_portal_tile_icon { color: #D6145F; }  /* Magenta */
+.o_portal_tile_color_10 .o_portal_tile_icon { color: #30C381; } /* Green */
+.o_portal_tile_color_11 .o_portal_tile_icon { color: #9365B8; } /* Violet */
+
+/* Portal Picking Form */
+.o_portal_picking_form {
+    .o_form_sheet {
+        max-width: 80rem;
+        margin: 0 auto;
+    }
+
+    .oe_title h1 {
+        font-size: 1.4rem;
+    }
+
+    /* Make submit button more prominent */
+    .o_form_statusbar {
+        .btn-lg {
+            padding: 1.2rem 3rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+    }
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+    
+    <!-- Default: New users get CBM Kiosk as Home Action (redirect to portal) -->
+    <record id="default_user_action_cbm_kiosk" model="ir.default">
+        <field name="field_id" ref="base.field_res_users__action_id"/>
+        <field name="json_value" eval="ref('clinic_staff_portal.action_cbm_kiosk')"/>
+    </record>
+
+    <!-- Server Action: Sync CBM Portal Users -->
+    <record id="action_server_sync_cbm_portal_users" model="ir.actions.server">
+        <field name="name">Sync CBM Portal Users (Fix Home Action)</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="binding_model_id" ref="base.model_res_users"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = model.action_sync_cbm_portal_users()
+        </field>
+    </record>
+
+    <!-- Server Action: UNSYNC / Disable Kiosk Mode for All Users -->
+    <record id="action_server_unsync_cbm_portal_users" model="ir.actions.server">
+        <field name="name">Disable CBM Portal Kiosk Mode (Restore Normal Odoo)</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="binding_model_id" ref="base.model_res_users"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = model.action_unsync_cbm_portal_users()
+        </field>
+    </record>
+
+    <!-- 
+    NOTE: Both 'Sync' and 'Unsync' actions are available via:
+    1. Server Actions dropdown in Users list view (binding_model_id)
+    2. Settings > Technical > Server Actions
+    No dedicated menu needed.
+    -->
+</odoo>

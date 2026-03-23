@@ -1,0 +1,41 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_clinic_portal_tile_all,clinic.portal.tile all users,model_clinic_portal_tile,base.group_user,1,0,0,0
+access_clinic_portal_tile_manager,clinic.portal.tile manager,model_clinic_portal_tile,group_clinic_portal_manager,1,1,1,1
+access_consumption_confirm_user,stock.consumption.confirm user,model_stock_consumption_confirm,group_clinic_portal_user,1,1,1,1
+access_stock_discrepancy_user,clinic.stock.discrepancy read,model_clinic_stock_discrepancy,group_clinic_portal_user,1,0,1,0
+access_stock_discrepancy_manager,clinic.stock.discrepancy full,model_clinic_stock_discrepancy,group_clinic_portal_manager,1,1,1,1
+access_cashier_session_user,cashier.session user,model_cashier_session,group_clinic_portal_user,1,1,1,0
+access_cashier_session_manager,cashier.session manager,model_cashier_session,group_clinic_portal_manager,1,1,1,1
+access_stock_picking_type_user,stock.picking.type user read,stock.model_stock_picking_type,group_clinic_portal_user,1,0,0,0
+access_stock_picking_type_manager,stock.picking.type manager,stock.model_stock_picking_type,group_clinic_portal_manager,1,1,1,0
+access_kiosk_access_log_user,cbm.kiosk.access.log user,model_cbm_kiosk_access_log,group_clinic_portal_user,0,0,1,0
+access_kiosk_access_log_manager,cbm.kiosk.access.log manager,model_cbm_kiosk_access_log,group_clinic_portal_manager,1,1,1,1
+access_clinic_document_user,clinic.document user,model_clinic_document,group_clinic_portal_user,1,0,0,0
+access_clinic_document_manager,clinic.document manager,model_clinic_document,group_clinic_portal_manager,1,1,1,1
+access_consumption_ledger_user,clinic.consumption.ledger user,model_clinic_consumption_ledger,group_clinic_portal_user,1,0,0,0
+access_consumption_ledger_manager,clinic.consumption.ledger manager,model_clinic_consumption_ledger,group_clinic_portal_manager,1,1,1,1
+access_drug_sync_wizard_admin,drug.sync.wizard admin,model_drug_sync_wizard,base.group_system,1,1,1,1
+access_drug_dosage_form_user,drug.dosage.form read,model_drug_dosage_form,base.group_user,1,0,0,0
+access_drug_dosage_form_admin,drug.dosage.form admin,model_drug_dosage_form,base.group_system,1,1,1,1
+access_drug_openmrs_concept_user,drug.openmrs.concept read,model_drug_openmrs_concept,base.group_user,1,0,0,0
+access_drug_openmrs_concept_admin,drug.openmrs.concept admin,model_drug_openmrs_concept,base.group_system,1,1,1,1
+access_openmrs_import_wizard_admin,openmrs.import.wizard admin,model_openmrs_import_wizard,base.group_system,1,1,1,1
+access_openmrs_import_wizard_line_admin,openmrs.import.wizard.line admin,model_openmrs_import_wizard_line,base.group_system,1,1,1,1
+access_clinic_document_ack_user,clinic.document.acknowledgement user,model_clinic_document_acknowledgement,group_clinic_portal_user,1,0,1,0
+access_clinic_document_ack_manager,clinic.document.acknowledgement manager,model_clinic_document_acknowledgement,group_clinic_portal_manager,1,1,1,1
+access_clinic_prescription_user,clinic.prescription user,model_clinic_prescription,group_clinic_portal_user,1,0,0,0
+access_clinic_prescription_manager,clinic.prescription manager,model_clinic_prescription,group_clinic_portal_manager,1,1,1,1
+access_clinic_prescription_line_user,clinic.prescription.line user,model_clinic_prescription_line,group_clinic_portal_user,1,0,0,0
+access_clinic_prescription_line_manager,clinic.prescription.line manager,model_clinic_prescription_line,group_clinic_portal_manager,1,1,1,1
+access_compliance_report_wizard_manager,compliance.report.wizard manager,model_compliance_report_wizard,group_clinic_portal_manager,1,1,1,1
+access_clinic_workstation_user,clinic.workstation user,model_clinic_workstation,group_clinic_portal_user,1,0,0,0
+access_clinic_workstation_manager,clinic.workstation manager,model_clinic_workstation,group_clinic_portal_manager,1,1,1,1
+access_stock_picking_portal_user,stock.picking portal user,stock.model_stock_picking,group_clinic_portal_user,1,1,1,0
+access_stock_move_portal_user,stock.move portal user,stock.model_stock_move,group_clinic_portal_user,1,1,1,0
+access_stock_move_line_portal_user,stock.move.line portal user,stock.model_stock_move_line,group_clinic_portal_user,1,1,1,0
+access_stock_lot_portal_user,stock.lot portal user,stock.model_stock_lot,group_clinic_portal_user,1,0,0,0
+access_stock_quant_portal_user,stock.quant portal user,stock.model_stock_quant,group_clinic_portal_user,1,0,0,0
+access_product_product_portal_user,product.product portal user,product.model_product_product,group_clinic_portal_user,1,0,0,0
+access_product_template_portal_user,product.template portal user,product.model_product_template,group_clinic_portal_user,1,0,0,0
+access_sale_order_portal_user,sale.order portal user,sale.model_sale_order,group_clinic_portal_user,1,0,0,0
+access_sale_order_line_portal_user,sale.order.line portal user,sale.model_sale_order_line,group_clinic_portal_user,1,0,0,0
