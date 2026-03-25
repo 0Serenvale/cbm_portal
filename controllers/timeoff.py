@@ -377,3 +377,81 @@ class TimeOffController(http.Controller):
         except Exception as e:
             _logger.error("Error in get_timeoff_history: %s", str(e))
             return []
+
+    @http.route('/cbm/timeoff/get_pdf/<int:leave_id>', type='http', auth='user')
+    def get_timeoff_pdf(self, leave_id, **kwargs):
+        """Génère et retourne le PDF d'une demande de congé.
+
+        Seul l'employé concerné, un responsable de sa localisation, le DRH
+        ou un administrateur système peut télécharger le PDF.
+        """
+        try:
+            user = request.env.user
+            Leave = request.env['hr.leave'].sudo()
+            leave = Leave.browse(leave_id)
+
+            if not leave.exists():
+                return request.make_response(
+                    "Demande introuvable.",
+                    headers=[('Content-Type', 'text/plain; charset=utf-8')]
+                )
+
+            # Vérification d'accès : employé concerné, responsable, DRH, ou admin
+            current_employee = request.env['hr.employee'].sudo().search(
+                [('user_id', '=', user.id), ('active', '=', True)], limit=1
+            )
+            ICP = request.env['ir.config_parameter'].sudo()
+            drh_id_str = ICP.get_param('clinic_staff_portal.drh_user_id', '')
+            is_drh = bool(drh_id_str) and str(user.id) == drh_id_str.strip()
+            is_system_admin = user.has_group('base.group_system')
+            is_owner = (
+                current_employee
+                and leave.employee_id
+                and leave.employee_id.id == current_employee.id
+            )
+
+            # Check if user is responsable for the leave employee's location
+            is_responsable = False
+            if leave.employee_id and not is_owner and not is_drh and not is_system_admin:
+                Location = request.env['stock.location'].sudo()
+                responsible_locations = Location.search(
+                    [('responsible_user_ids', 'in', user.id)]
+                )
+                if responsible_locations:
+                    allowed_employee_ids = set()
+                    for loc in responsible_locations:
+                        if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
+                            allowed_employee_ids.update(loc.employee_ids_1.ids)
+                    is_responsable = leave.employee_id.id in allowed_employee_ids
+
+            if not is_owner and not is_drh and not is_system_admin and not is_responsable:
+                return request.make_response(
+                    "Accès refusé.",
+                    headers=[('Content-Type', 'text/plain; charset=utf-8')],
+                    status=403
+                )
+
+            report = request.env.ref(
+                'clinic_staff_portal.action_report_timeoff_request'
+            ).sudo()
+            pdf_content, _ = report._render_qweb_pdf(
+                report.report_name, [leave_id]
+            )
+
+            filename = 'Conge_%s.pdf' % (leave.name or str(leave_id)).replace('/', '_')
+            return request.make_response(
+                pdf_content,
+                headers=[
+                    ('Content-Type', 'application/pdf'),
+                    ('Content-Disposition', 'attachment; filename="%s"' % filename),
+                    ('Content-Length', len(pdf_content)),
+                ]
+            )
+
+        except Exception as e:
+            _logger.error("CBM Timeoff: Erreur génération PDF pour congé %s: %s",
+                          leave_id, str(e), exc_info=True)
+            return request.make_response(
+                "Erreur lors de la génération du PDF.",
+                headers=[('Content-Type', 'text/plain; charset=utf-8')]
+            )

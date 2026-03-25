@@ -32,6 +32,7 @@ export class TimeOffForm extends Component {
             timeoffSubmitting: false,
             timeoffSuccess: false,
             timeoffSuccessMessage: '',
+            timeoffSuccessLeaveId: null,
             timeoffEmployeeDropdownOpen: false,
             timeoffEmployeeSearch: '',
             timeoffHighlightedEmployeeIndex: -1,
@@ -218,6 +219,7 @@ export class TimeOffForm extends Component {
             
             this.state.timeoffSuccess = true;
             this.state.timeoffSuccessMessage = result.request_name || _t('Demande créée avec succès');
+            this.state.timeoffSuccessLeaveId = result.request_id || null;
             this.state.timeoffSubmitting = false;
             
         } catch (error) {
@@ -232,6 +234,12 @@ export class TimeOffForm extends Component {
         }
     }
     
+    printTimeOff() {
+        if (this.state.timeoffSuccessLeaveId) {
+            window.open('/cbm/timeoff/get_pdf/' + this.state.timeoffSuccessLeaveId, '_blank');
+        }
+    }
+
     goHome() {
         this.props.onNavigateHome();
     }

@@ -15,8 +15,11 @@ class CBMDocumentsController(http.Controller):
         Document = request.env['clinic.document'].sudo()
         Ack = request.env['clinic.document.acknowledgement'].sudo()
 
-        # Check if user is admin
-        is_admin = user.has_group('stock.group_stock_manager')
+        # Check if user is a Portal Administrator (CBM setting, not Odoo group)
+        ICP = request.env['ir.config_parameter'].sudo()
+        admin_ids_str = ICP.get_param('clinic_staff_portal.admin_user_ids', '')
+        admin_ids = [int(i) for i in admin_ids_str.split(',') if i.strip().isdigit()]
+        is_admin = user.id in admin_ids
 
         # Get user's allowed locations (aligned with tile visibility logic)
         user_location_ids = []
@@ -146,7 +149,7 @@ class CBMDocumentsController(http.Controller):
         ], limit=1)
 
         if existing:
-            return {'success': True, 'already': True}
+            return {'success': True, 'already': True, 'ack_id': existing.id}
 
         # Get IP address from request
         ip_address = request.httprequest.environ.get(
@@ -157,7 +160,7 @@ class CBMDocumentsController(http.Controller):
         if ',' in ip_address:
             ip_address = ip_address.split(',')[0].strip()
 
-        Ack.create({
+        new_ack = Ack.create({
             'document_id': document_id,
             'user_id': user.id,
             'document_version': doc.version,
@@ -166,7 +169,7 @@ class CBMDocumentsController(http.Controller):
             'user_agent': (user_agent or '')[:500],
         })
 
-        return {'success': True, 'already': False}
+        return {'success': True, 'already': False, 'ack_id': new_ack.id}
 
     @http.route('/cbm/session/config', type='json', auth='user')
     def get_session_config(self):
@@ -277,3 +280,53 @@ class CBMDocumentsController(http.Controller):
             })
 
         return {'documents': report}
+
+    @http.route('/cbm/documents/ack_receipt/<int:ack_id>', type='http', auth='user')
+    def get_ack_receipt_pdf(self, ack_id, **kwargs):
+        """Génère et retourne le PDF du reçu d'accusé de réception.
+
+        Seul l'utilisateur qui a signé peut télécharger son propre reçu.
+        """
+        try:
+            user = request.env.user
+            Ack = request.env['clinic.document.acknowledgement'].sudo()
+            ack = Ack.browse(ack_id)
+
+            if not ack.exists():
+                return request.make_response(
+                    "Accusé de réception introuvable.",
+                    headers=[('Content-Type', 'text/plain; charset=utf-8')]
+                )
+
+            if ack.user_id.id != user.id:
+                return request.make_response(
+                    "Accès refusé.",
+                    headers=[('Content-Type', 'text/plain; charset=utf-8')],
+                    status=403
+                )
+
+            report = request.env.ref(
+                'clinic_staff_portal.action_report_document_ack_receipt'
+            ).sudo()
+            pdf_content, _ = report._render_qweb_pdf(
+                report.report_name, [ack_id]
+            )
+
+            doc_name = (ack.document_id.name or str(ack_id)).replace('/', '_').replace(' ', '_')
+            filename = 'Recu_Signature_%s.pdf' % doc_name
+            return request.make_response(
+                pdf_content,
+                headers=[
+                    ('Content-Type', 'application/pdf'),
+                    ('Content-Disposition', 'attachment; filename="%s"' % filename),
+                    ('Content-Length', len(pdf_content)),
+                ]
+            )
+
+        except Exception as e:
+            _logger.error("CBM Documents: Erreur génération reçu ack %s: %s",
+                          ack_id, str(e), exc_info=True)
+            return request.make_response(
+                "Erreur lors de la génération du PDF.",
+                headers=[('Content-Type', 'text/plain; charset=utf-8')]
+            )

@@ -32,10 +32,16 @@
                     </div>
                     <h3 class="cbm_success_title">Demande envoyée</h3>
                     <p class="cbm_success_message" t-esc="state.timeoffSuccessMessage"/>
-                    <button class="cbm_btn_primary" t-on-click="goHome">
-                        <span class="cbm_icon_home me-2"/>
-                        Retour à l'accueil
-                    </button>
+                    <div class="cbm_timeoff_success_actions">
+                        <button t-if="state.timeoffSuccessLeaveId" class="cbm_btn cbm_btn_secondary" t-on-click="printTimeOff">
+                            <span class="cbm_icon_printer me-2"/>
+                            Télécharger le reçu PDF
+                        </button>
+                        <button class="cbm_btn_primary" t-on-click="goHome">
+                            <span class="cbm_icon_home me-2"/>
+                            Retour à l'accueil
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Form -->

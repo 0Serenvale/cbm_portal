@@ -85,25 +85,44 @@
                                 <span class="cbm_icon_lock"/> DOCUMENT EN RETARD - Acc&#232;s bloqu&#233;
                             </span>
                         </t>
-                        <div class="cbm_ack_prompt">
-                            <label class="cbm_ack_label">
-                                Tapez votre nom complet pour confirmer :
-                                <strong t-esc="state.ackExpectedName"/>
-                            </label>
-                            <div class="cbm_ack_input_row">
-                                <input type="text"
-                                       class="cbm_ack_input"
-                                       t-att-placeholder="state.ackExpectedName"
-                                       t-att-value="state.ackTypedName"
-                                       t-on-input="onAckNameInput"
-                                       t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.acknowledgeDocument(state.pdfViewerDoc)"/>
-                                <button class="cbm_btn cbm_btn_acknowledge"
-                                        t-on-click="() => this.acknowledgeDocument(state.pdfViewerDoc)">
-                                    <span class="cbm_icon_check"/> Confirmer
-                                </button>
+                        <!-- Post-signature: bouton imprimer le reçu -->
+                        <t t-if="state.ackSuccess and state.lastAckId">
+                            <div class="cbm_ack_prompt">
+                                <p class="cbm_ack_success_msg">
+                                    <span class="cbm_icon_check"/> Document signé avec succès.
+                                </p>
+                                <div class="cbm_ack_input_row">
+                                    <button class="cbm_btn cbm_btn_secondary" t-on-click="printAckReceipt">
+                                        <span class="cbm_icon_printer"/> Imprimer le reçu PDF
+                                    </button>
+                                    <button class="cbm_btn cbm_btn_primary" t-on-click="closePdfViewer">
+                                        <span class="cbm_icon_x"/> Fermer
+                                    </button>
+                                </div>
                             </div>
-                            <span t-if="state.ackError" class="cbm_ack_error" t-esc="state.ackError"/>
-                        </div>
+                        </t>
+                        <!-- Formulaire de signature -->
+                        <t t-else="">
+                            <div class="cbm_ack_prompt">
+                                <label class="cbm_ack_label">
+                                    Tapez votre nom complet pour confirmer :
+                                    <strong t-esc="state.ackExpectedName"/>
+                                </label>
+                                <div class="cbm_ack_input_row">
+                                    <input type="text"
+                                           class="cbm_ack_input"
+                                           t-att-placeholder="state.ackExpectedName"
+                                           t-att-value="state.ackTypedName"
+                                           t-on-input="onAckNameInput"
+                                           t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.acknowledgeDocument(state.pdfViewerDoc)"/>
+                                    <button class="cbm_btn cbm_btn_acknowledge"
+                                            t-on-click="() => this.acknowledgeDocument(state.pdfViewerDoc)">
+                                        <span class="cbm_icon_check"/> Confirmer
+                                    </button>
+                                </div>
+                                <span t-if="state.ackError" class="cbm_ack_error" t-esc="state.ackError"/>
+                            </div>
+                        </t>
                     </div>
                 </div>
             </t>

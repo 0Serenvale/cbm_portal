@@ -55,6 +55,8 @@ Features:
         'views/product_pricelist_views.xml',
         'report/cashier_session_report.xml',  # Must load BEFORE views that reference it
         'report/accountability_warning_report.xml',
+        'report/timeoff_request_report.xml',
+        'report/document_ack_receipt_report.xml',
         'views/cashier_session_views.xml',
         'views/kiosk_access_log_views.xml',
         'views/clinic_workstation_views.xml',

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_document_ack_receipt">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="ack">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Segoe UI', Roboto, sans-serif;">
+
+                        <!-- Titre -->
+                        <div style="border-bottom: 2px solid #1d4ed8; padding-bottom: 12px; margin-bottom: 24px;">
+                            <h2 style="margin: 0; font-size: 20px; color: #1e3a5f;">REÇU D'ACCUSÉ DE RÉCEPTION</h2>
+                            <p style="margin: 4px 0 0; font-size: 12px; color: #6b7280;">
+                                Généré le <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')"/>
+                            </p>
+                        </div>
+
+                        <!-- Informations du document -->
+                        <h4 style="font-size: 13px; color: #374151; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.05em;">
+                            Document concerné
+                        </h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px;">
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 600; width: 35%; border: 1px solid #e2e8f0;">Titre</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;"><span t-field="ack.document_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Version</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">v<span t-field="ack.document_version"/></td>
+                            </tr>
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Catégorie</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">
+                                    <t t-if="ack.document_id.category == 'procedure'">Procédure</t>
+                                    <t t-elif="ack.document_id.category == 'formation'">Formation</t>
+                                    <t t-elif="ack.document_id.category == 'guide'">Guide</t>
+                                    <t t-elif="ack.document_id.category == 'policy'">Politique</t>
+                                    <t t-else="">Autre</t>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Signature électronique -->
+                        <h4 style="font-size: 13px; color: #374151; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.05em;">
+                            Signature électronique
+                        </h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px;">
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 600; width: 35%; border: 1px solid #e2e8f0;">Nom confirmé</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0; font-weight: 600;">
+                                    <span t-field="ack.typed_name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Signé le</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">
+                                    <span t-field="ack.acknowledged_date" t-options="{'format': 'dd/MM/yyyy HH:mm'}"/>
+                                </td>
+                            </tr>
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Adresse IP</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0; font-size: 12px; color: #6b7280;">
+                                    <span t-field="ack.ip_address"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Cachet et signature de l'autorité émettrice -->
+                        <t t-if="ack.document_id.stamp_image or ack.document_id.signature_image">
+                            <h4 style="font-size: 13px; color: #374151; margin: 0 0 16px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Autorité émettrice
+                            </h4>
+                            <div style="text-align: right; margin-bottom: 32px;">
+                                <div style="display: inline-block; text-align: center;">
+                                    <t t-if="ack.document_id.stamp_image">
+                                        <img t-att-src="image_data_uri(ack.document_id.stamp_image)"
+                                             style="height: 80px; margin-bottom: 8px;" alt="Cachet"/>
+                                    </t>
+                                    <t t-if="ack.document_id.signature_image">
+                                        <img t-att-src="image_data_uri(ack.document_id.signature_image)"
+                                             style="height: 60px; margin-bottom: 4px; display: block; margin-left: auto; margin-right: auto;" alt="Signature"/>
+                                    </t>
+                                    <div t-if="ack.document_id.signatory_name" style="font-size: 12px; font-weight: 600; margin-top: 4px;">
+                                        <t t-esc="ack.document_id.signatory_name"/>
+                                    </div>
+                                    <div t-if="ack.document_id.signatory_title" style="font-size: 11px; color: #6b7280;">
+                                        <t t-esc="ack.document_id.signatory_title"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Signatures manuscrites -->
+                        <div style="border-top: 1px solid #e2e8f0; padding-top: 24px; margin-top: 16px;">
+                            <h4 style="font-size: 13px; color: #374151; margin: 0 0 24px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Signatures manuscrites
+                            </h4>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; vertical-align: top; padding-right: 24px;">
+                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 6px;">
+                                            Signature de l'employé :
+                                        </p>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0 0 32px;">
+                                            <t t-esc="ack.typed_name"/>
+                                        </p>
+                                        <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0 0 16px;">Signature</p>
+                                        <div style="border-bottom: 1px solid #374151; margin-bottom: 6px; margin-top: 20px;"/>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Date</p>
+                                    </td>
+                                    <td style="width: 50%; vertical-align: top; padding-left: 24px; border-left: 1px solid #e2e8f0;">
+                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 6px;">
+                                            Visa de la Direction des Ressources Humaines :
+                                        </p>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0 0 32px;">&#160;</p>
+                                        <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0 0 16px;">Signature DRH</p>
+                                        <div style="border-bottom: 1px solid #374151; margin-bottom: 6px; margin-top: 20px;"/>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Nom / Date</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Mention légale -->
+                        <div style="margin-top: 32px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 16px; font-size: 11px; color: #6b7280;">
+                            Ce document atteste que <strong><t t-esc="ack.typed_name"/></strong> a lu et accepté
+                            le document « <t t-esc="ack.document_id.name"/> » (version <t t-esc="ack.document_version"/>)
+                            via le portail CBM le <span t-field="ack.acknowledged_date" t-options="{'format': 'dd/MM/yyyy à HH:mm'}"/>.
+                            La saisie du nom complet constitue une signature électronique au sens de la politique interne de l'établissement.
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_document_ack_receipt" model="ir.actions.report">
+        <field name="name">Reçu d'Accusé de Réception</field>
+        <field name="model">clinic.document.acknowledgement</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic_staff_portal.report_document_ack_receipt</field>
+        <field name="report_file">clinic_staff_portal.report_document_ack_receipt</field>
+        <field name="print_report_name">'Recu_Signature_%s' % (object.document_id.name or object.id)</field>
+    </record>
+</odoo>

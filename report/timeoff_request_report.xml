@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_timeoff_request">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="leave">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Segoe UI', Roboto, sans-serif;">
+
+                        <!-- Titre -->
+                        <div style="border-bottom: 2px solid #1d4ed8; padding-bottom: 12px; margin-bottom: 24px;">
+                            <h2 style="margin: 0; font-size: 20px; color: #1e3a5f;">DEMANDE DE CONGÉ</h2>
+                            <p style="margin: 4px 0 0; font-size: 12px; color: #6b7280;">
+                                Référence : <strong t-esc="leave.name"/>
+                                &#160;&#160;|&#160;&#160;
+                                Soumise le <t t-esc="leave.create_date.strftime('%d/%m/%Y')"/>
+                            </p>
+                        </div>
+
+                        <!-- Informations de la demande -->
+                        <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px;">
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 600; width: 35%; border: 1px solid #e2e8f0;">Employé</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;"><span t-field="leave.employee_id"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Type de congé</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;"><span t-field="leave.holiday_status_id"/></td>
+                            </tr>
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Date de début</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">
+                                    <span t-field="leave.request_date_from" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Date de fin</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">
+                                    <span t-field="leave.request_date_to" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                </td>
+                            </tr>
+                            <tr style="background: #f1f5f9;">
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Nombre de jours</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">
+                                    <span t-field="leave.number_of_days"/> jour(s)
+                                </td>
+                            </tr>
+                            <tr t-if="leave.name">
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #e2e8f0;">Motif</td>
+                                <td style="padding: 10px 14px; border: 1px solid #e2e8f0;"><span t-field="leave.name"/></td>
+                            </tr>
+                        </table>
+
+                        <!-- Statut -->
+                        <div style="margin-bottom: 32px;">
+                            <span style="font-size: 13px; font-weight: 600;">Statut :</span>
+                            &#160;
+                            <t t-if="leave.state in ('draft', 'confirm')">
+                                <span style="background: #f59e0b; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    En attente de validation
+                                </span>
+                            </t>
+                            <t t-elif="leave.state == 'validate1'">
+                                <span style="background: #3b82f6; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    Approuvé (1er niveau)
+                                </span>
+                            </t>
+                            <t t-elif="leave.state == 'validate'">
+                                <span style="background: #16a34a; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    Approuvé
+                                </span>
+                            </t>
+                            <t t-elif="leave.state == 'refuse'">
+                                <span style="background: #dc2626; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    Refusé
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <span style="background: #6b7280; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    <t t-esc="leave.state"/>
+                                </span>
+                            </t>
+                        </div>
+
+                        <!-- Signatures -->
+                        <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 24px;">
+                            <h4 style="font-size: 13px; margin: 0 0 24px; color: #374151;">SIGNATURES</h4>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; vertical-align: top; padding-right: 24px;">
+                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 40px;">Visa du responsable hiérarchique :</p>
+                                        <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Nom / Date</p>
+                                    </td>
+                                    <td style="width: 50%; vertical-align: top; padding-left: 24px; border-left: 1px solid #e2e8f0;">
+                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 40px;">Visa de la Direction des Ressources Humaines :</p>
+                                        <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Nom / Date</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Pied de page -->
+                        <div style="margin-top: 40px; font-size: 11px; color: #9ca3af;">
+                            <p style="margin: 0;">
+                                Imprimé le <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')"/>
+                                par <t t-esc="user.name"/>
+                            </p>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_timeoff_request" model="ir.actions.report">
+        <field name="name">Demande de Congé</field>
+        <field name="model">hr.leave</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic_staff_portal.report_timeoff_request</field>
+        <field name="report_file">clinic_staff_portal.report_timeoff_request</field>
+        <field name="print_report_name">'Conge_%s' % (object.name or object.id)</field>
+    </record>
+</odoo>

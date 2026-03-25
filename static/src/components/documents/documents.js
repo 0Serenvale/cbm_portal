@@ -27,6 +27,8 @@ export class DocumentsViewer extends Component {
             ackTypedName: '',
             ackExpectedName: '',
             ackError: '',
+            ackSuccess: false,
+            lastAckId: null,
             // Compliance lock
             isComplianceLocked: false,
         });
@@ -74,6 +76,8 @@ export class DocumentsViewer extends Component {
         this.state.pdfViewerDoc = null;
         this.state.ackTypedName = '';
         this.state.ackError = '';
+        this.state.ackSuccess = false;
+        this.state.lastAckId = null;
     }
 
     async acknowledgeDocument(doc) {
@@ -96,8 +100,11 @@ export class DocumentsViewer extends Component {
             if (result.success) {
                 this.state.ackTypedName = '';
                 this.state.ackError = '';
-                this.closePdfViewer();
-                this.showToast(_t("Document accepté"), 'success');
+                this.state.ackSuccess = true;
+                this.state.lastAckId = result.ack_id || null;
+                if (!result.already) {
+                    this.showToast(_t("Document accepté"), 'success');
+                }
                 await this.checkPendingAcknowledgements();
             } else {
                 this.state.ackError = result.error || _t("Erreur");
@@ -110,6 +117,12 @@ export class DocumentsViewer extends Component {
     onAckNameInput(ev) {
         this.state.ackTypedName = ev.target.value;
         this.state.ackError = '';
+    }
+
+    printAckReceipt() {
+        if (this.state.lastAckId) {
+            window.open('/cbm/documents/ack_receipt/' + this.state.lastAckId, '_blank');
+        }
     }
 
     async checkPendingAcknowledgements() {
