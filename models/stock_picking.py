@@ -604,8 +604,9 @@ class StockPicking(models.Model):
                 if move.move_line_ids:
                     move.move_line_ids.sudo().unlink()
 
-                # Get lot from FEFO (earliest expiry) if product is lot-tracked
-                lot_id = False
+                # Build move lines with FEFO lot split:
+                # Walk lots in expiry order and allocate qty greedily across them.
+                # A single lot may not hold the full requested qty, so we must split.
                 if move.product_id.tracking == 'lot':
                     quants = self.env['stock.quant'].sudo().search([
                         ('product_id', '=', move.product_id.id),
@@ -613,25 +614,42 @@ class StockPicking(models.Model):
                         ('lot_id', '!=', False),
                         ('quantity', '>', 0),
                     ])
-                    if quants:
-                        best = quants.sorted(
-                            key=lambda q: q.lot_id.expiration_date or fields.Datetime.max
-                        )
-                        lot_id = best[0].lot_id.id
-
-                MoveLine.create({
-                    'move_id': move.id,
-                    'product_id': move.product_id.id,
-                    'product_uom_id': move.product_uom.id,
-                    'location_id': move.location_id.id,
-                    'location_dest_id': move.location_dest_id.id,
-                    'picking_id': self.id,
-                    'lot_id': lot_id,
-                    'reserved_uom_qty': 0,
-                    'qty_done': move.product_uom_qty,
-                })
-                _logger.info("*** Move line: %s x %.2f (lot_id=%s, qty_done=%.2f)",
-                            move.product_id.name, move.product_uom_qty, lot_id, move.product_uom_qty)
+                    sorted_quants = quants.sorted(
+                        key=lambda q: q.lot_id.expiration_date or fields.Datetime.max
+                    )
+                    remaining = move.product_uom_qty
+                    for quant in sorted_quants:
+                        if remaining <= 0:
+                            break
+                        take = min(remaining, quant.quantity)
+                        MoveLine.create({
+                            'move_id': move.id,
+                            'product_id': move.product_id.id,
+                            'product_uom_id': move.product_uom.id,
+                            'location_id': move.location_id.id,
+                            'location_dest_id': move.location_dest_id.id,
+                            'picking_id': self.id,
+                            'lot_id': quant.lot_id.id,
+                            'reserved_uom_qty': 0,
+                            'qty_done': take,
+                        })
+                        _logger.info("*** Move line: %s x %.2f (lot=%s)",
+                                    move.product_id.name, take, quant.lot_id.name)
+                        remaining -= take
+                else:
+                    MoveLine.create({
+                        'move_id': move.id,
+                        'product_id': move.product_id.id,
+                        'product_uom_id': move.product_uom.id,
+                        'location_id': move.location_id.id,
+                        'location_dest_id': move.location_dest_id.id,
+                        'picking_id': self.id,
+                        'lot_id': False,
+                        'reserved_uom_qty': 0,
+                        'qty_done': move.product_uom_qty,
+                    })
+                    _logger.info("*** Move line: %s x %.2f (no lot)",
+                                move.product_id.name, move.product_uom_qty)
 
             # Validate
             if self.move_ids_without_package:
