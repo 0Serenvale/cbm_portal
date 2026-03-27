@@ -4,7 +4,7 @@
  * Handles leave request form
  */
 
-import { Component, useState, useRef } from "@odoo/owl";
+import { Component, useState, useRef, onMounted } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 
@@ -246,6 +246,199 @@ export class TimeOffForm extends Component {
 }
 
 TimeOffForm.props = {
+    onNavigateHome: Function,
+    showToast: { type: Function, optional: true },
+};
+
+// ============================================================
+// TimeoffRequests – management view for responsables
+// ============================================================
+
+export class TimeoffRequests extends Component {
+    static template = "clinic_staff_portal.TimeoffRequests";
+
+    setup() {
+        this.rpc = useService("rpc");
+        this.filterBarRef = useRef("filterBar");
+        this.state = useState({
+            leaves: [],
+            loading: false,
+            filter: 'all',          // 'all' | 'pending' | 'validate' | 'refuse'
+            actionInProgress: null, // leave_id currently being acted on
+        });
+        this.loadLeaves();
+        onMounted(() => this._snapIndicator());
+    }
+
+    // ---- helpers ----
+
+    toTitleCase(name) {
+        if (!name) return '';
+        return name.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    getInitials(name) {
+        if (!name) return '?';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    // ---- filter pill sliding indicator ----
+
+    setFilter(value) {
+        this.state.filter = value;
+        // after OWL re-renders, snap indicator to active chip
+        setTimeout(() => this._snapIndicator(), 0);
+    }
+
+    hoverPill(btn) {
+        const bar = this.filterBarRef.el;
+        if (!bar) return;
+        const indicator = bar.querySelector('.cbm_filter_pill_indicator');
+        if (!indicator) return;
+        const barRect = bar.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        indicator.style.width  = btnRect.width  + 'px';
+        indicator.style.height = btnRect.height + 'px';
+        indicator.style.transform = `translateX(${btnRect.left - barRect.left - 4}px)`;
+        indicator.classList.add('visible');
+    }
+
+    _snapIndicator() {
+        const bar = this.filterBarRef.el;
+        if (!bar) return;
+        const active = bar.querySelector('.cbm_filter_chip.active');
+        if (!active) return;
+        this.hoverPill(active);
+    }
+
+    async loadLeaves() {
+        try {
+            this.state.loading = true;
+            const result = await this.rpc('/cbm/timeoff_requests/get_all', {});
+            if (result.success === false) {
+                if (this.props.showToast) {
+                    this.props.showToast(result.error || _t('Erreur de chargement'), 'danger');
+                }
+                this.state.leaves = [];
+            } else {
+                this.state.leaves = result.leaves || [];
+            }
+        } catch (error) {
+            console.error('[TIMEOFF REQUESTS] load error:', error);
+            if (this.props.showToast) {
+                this.props.showToast(_t('Erreur de connexion'), 'danger');
+            }
+        } finally {
+            this.state.loading = false;
+        }
+    }
+
+    async approveLeave(leaveId) {
+        this.state.actionInProgress = leaveId;
+        try {
+            const result = await this.rpc('/cbm/timeoff_requests/approve', { leave_id: leaveId });
+            if (result.success) {
+                if (this.props.showToast) {
+                    this.props.showToast(_t('Demande approuvée'), 'success');
+                }
+                await this.loadLeaves();
+            } else {
+                if (this.props.showToast) {
+                    this.props.showToast(result.error || _t('Erreur lors de l\'approbation'), 'danger');
+                }
+            }
+        } catch (error) {
+            console.error('[TIMEOFF REQUESTS] approve error:', error);
+            if (this.props.showToast) {
+                this.props.showToast(_t('Erreur de connexion'), 'danger');
+            }
+        } finally {
+            this.state.actionInProgress = null;
+        }
+    }
+
+    async refuseLeave(leaveId) {
+        this.state.actionInProgress = leaveId;
+        try {
+            const result = await this.rpc('/cbm/timeoff_requests/refuse', { leave_id: leaveId });
+            if (result.success) {
+                if (this.props.showToast) {
+                    this.props.showToast(_t('Demande refusée'), 'success');
+                }
+                await this.loadLeaves();
+            } else {
+                if (this.props.showToast) {
+                    this.props.showToast(result.error || _t('Erreur lors du refus'), 'danger');
+                }
+            }
+        } catch (error) {
+            console.error('[TIMEOFF REQUESTS] refuse error:', error);
+            if (this.props.showToast) {
+                this.props.showToast(_t('Erreur de connexion'), 'danger');
+            }
+        } finally {
+            this.state.actionInProgress = null;
+        }
+    }
+
+    printLeave(leaveId) {
+        window.open('/cbm/timeoff/get_pdf/' + leaveId, '_blank');
+    }
+
+    get filteredLeaves() {
+        const f = this.state.filter;
+        if (f === 'all') return this.state.leaves;
+        if (f === 'pending') return this.state.leaves.filter(l => ['draft', 'confirm', 'validate1'].includes(l.state));
+        if (f === 'validate') return this.state.leaves.filter(l => l.state === 'validate');
+        if (f === 'refuse') return this.state.leaves.filter(l => l.state === 'refuse');
+        return this.state.leaves;
+    }
+
+    getStateClass(state) {
+        if (['draft', 'confirm', 'validate1'].includes(state)) return 'state-pending';
+        if (state === 'validate') return 'state-validate';
+        if (state === 'refuse') return 'state-refuse';
+        return 'state-draft';
+    }
+
+    getStateBadgeClass(state) {
+        const map = {
+            draft: 'cbm_badge_warning',
+            confirm: 'cbm_badge_warning',
+            validate1: 'cbm_badge_info',
+            validate: 'cbm_badge_success',
+            refuse: 'cbm_badge_danger',
+        };
+        return map[state] || 'cbm_badge_secondary';
+    }
+
+    getStateLabel(state) {
+        const map = {
+            draft: _t('Brouillon'),
+            confirm: _t('En attente'),
+            validate1: _t('Validation partielle'),
+            validate: _t('Approuvé'),
+            refuse: _t('Refusé'),
+        };
+        return map[state] || state;
+    }
+
+    canApprove(state) {
+        return ['draft', 'confirm', 'validate1'].includes(state);
+    }
+
+    canRefuse(state) {
+        return ['draft', 'confirm', 'validate1', 'validate'].includes(state);
+    }
+
+    goHome() {
+        this.props.onNavigateHome();
+    }
+}
+
+TimeoffRequests.props = {
     onNavigateHome: Function,
     showToast: { type: Function, optional: true },
 };

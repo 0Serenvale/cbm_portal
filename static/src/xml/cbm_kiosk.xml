@@ -500,6 +500,20 @@
                             </div>
                             <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
                         </div>
+
+                        <!-- Timeoff Requests - For responsables (location responsable / DRH / admin) -->
+                        <div t-if="state.pendingApprovals.is_timeoff_responsable"
+                             class="cbm_approval_chip cbm_chip_info"
+                             t-on-click="goToTimeoffRequests"
+                             title="Gérer les demandes de congé">
+                            <div class="cbm_chip_icon">
+                                <span class="cbm_icon_calendar"/>
+                            </div>
+                            <div class="cbm_chip_text">
+                                <span class="cbm_chip_label">Demandes de Congé</span>
+                            </div>
+                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
+                        </div>
                     </div>
                 </div>
 
@@ -2344,6 +2358,11 @@
                 <TimeOffForm onNavigateHome.bind="goHome" showToast.bind="showToast"/>
             </div>
 
+            <!-- TIMEOFF REQUESTS MANAGEMENT (responsables only) -->
+            <div t-elif="state.currentState === 'timeoff_requests'" class="cbm_page">
+                <TimeoffRequests onNavigateHome.bind="goHome" showToast.bind="showToast"/>
+            </div>
+
             <!-- CASHIER WORKSTATION - SPLIT VIEW -->
             <div t-elif="state.currentState === 'cashier'" t-att-class="'cbm_cashier_workstation' + (state.cashierLightMode ? ' cbm-light-mode' : '')">
                 <!-- HEADER: Fixed at top, spans full width -->
@@ -3014,86 +3033,153 @@
                     <button class="cbm_back_btn" t-on-click="goHome" title="Retour à l'accueil">
                         <span class="cbm_icon_arrow_left"/> Retour
                     </button>
-                    <h2>Historique des Transferts</h2>
+                    <h2>Suivi</h2>
+                </div>
+
+                <!-- Tabs -->
+                <div class="cbm_history_tabs">
+                    <button t-att-class="'cbm_history_tab' + (state.historyActiveTab === 'transfers' ? ' active' : '')"
+                            t-on-click="() => this.setHistoryTab('transfers')">
+                        <span class="cbm_icon_truck me-2"/>
+                        Transferts
+                    </button>
+                    <button t-att-class="'cbm_history_tab' + (state.historyActiveTab === 'conge' ? ' active' : '')"
+                            t-on-click="() => this.setHistoryTab('conge')">
+                        <span class="cbm_icon_calendar me-2"/>
+                        Congés
+                    </button>
                 </div>
 
                 <div class="cbm_history_container">
-                    <!-- Empty State -->
-                    <div t-if="!state.historyItems.length" class="cbm_history_empty">
-                        <span class="cbm_icon_truck_loading cbm_icon_4x d-block"/>
-                        <p>Aucune demande au cours des 30 derniers jours.</p>
-                    </div>
 
-                    <!-- Table View -->
-                    <div t-else="" class="cbm_history_table_wrapper">
-                        <table class="cbm_history_table">
-                            <thead>
-                                <tr>
-                                    <th class="col-date">Date</th>
-                                    <th class="col-type">Type</th>
-                                    <th class="col-route">De → Vers</th>
-                                    <th class="col-patient">Patient</th>
-                                    <th class="col-products">Produits</th>
-                                    <th class="col-status">Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="state.historyItems" t-as="item" t-key="item.id">
-                                    <tr class="cbm_history_row" t-on-click="() => this.openHistoryDetail(item)">
-                                        <td class="col-date">
-                                            <span t-esc="formatDate(item.create_date)"/>
-                                        </td>
-                                        <td class="col-type">
-                                            <t t-if="item.portal_behavior === 'request'">Demande</t>
-                                            <t t-elif="item.portal_behavior === 'billable' || item.portal_behavior === 'internal'">Dispensation</t>
-                                            <t t-else="">Transfert</t>
-                                        </td>
-                                        <td class="col-route">
-                                            <span class="route-from" t-esc="item.location_src_name || 'Source'"/>
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="cbm_icon route-arrow"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3"/></svg>
-                                            <span class="route-to" t-esc="item.location_dest_name || 'Destination'"/>
-                                        </td>
-                                        <td class="col-patient">
-                                            <span t-if="item.partner_name" t-esc="item.partner_name"/>
-                                            <span t-else="" class="text-muted">-</span>
-                                        </td>
-                                        <td class="col-products">
-                                            <span class="products-count" t-esc="item.move_count || item.products_count || '-'"/>
-                                        </td>
-                                        <td class="col-status">
-                                            <span t-att-class="'cbm_history_badge ' + item.state + (item.is_partial_consumption ? ' cbm_badge_partial' : '')"
-                                                  t-esc="item.state_display"/>
-                                            <!-- FIX Issue #1: Partial consumption indicator -->
-                                            <span t-if="item.is_partial_consumption"
-                                                  class="cbm_partial_indicator"
-                                                  title="Consommation partielle - certains produits non disponibles">
-                                                <span class="cbm_icon_warning cbm_icon_warning_xs"/>
-                                            </span>
-                                        </td>
+                    <!-- TAB: Transferts -->
+                    <div t-if="state.historyActiveTab === 'transfers'">
+                        <div class="cbm_history_table_wrapper">
+                            <table class="cbm_history_table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-date">Date</th>
+                                        <th class="col-type">Type</th>
+                                        <th class="col-route">De → Vers</th>
+                                        <th class="col-patient">Patient</th>
+                                        <th class="col-products">Produits</th>
+                                        <th class="col-status">Statut</th>
                                     </tr>
-                                </t>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <t t-if="!state.historyItems.length">
+                                        <tr>
+                                            <td colspan="6" class="cbm_history_empty_row">
+                                                Aucune demande au cours des 30 derniers jours.
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.historyItems" t-as="item" t-key="item.id">
+                                        <tr class="cbm_history_row" t-on-click="() => this.openHistoryDetail(item)">
+                                            <td class="col-date">
+                                                <span t-esc="formatDate(item.create_date)"/>
+                                            </td>
+                                            <td class="col-type">
+                                                <t t-if="item.portal_behavior === 'request'">Demande</t>
+                                                <t t-elif="item.portal_behavior === 'billable' || item.portal_behavior === 'internal'">Dispensation</t>
+                                                <t t-else="">Transfert</t>
+                                            </td>
+                                            <td class="col-route">
+                                                <span class="route-from" t-esc="item.location_src_name || 'Source'"/>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="cbm_icon route-arrow"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3"/></svg>
+                                                <span class="route-to" t-esc="item.location_dest_name || 'Destination'"/>
+                                            </td>
+                                            <td class="col-patient">
+                                                <span t-if="item.partner_name" t-esc="item.partner_name"/>
+                                                <span t-else="" class="text-muted">-</span>
+                                            </td>
+                                            <td class="col-products">
+                                                <span class="products-count" t-esc="item.move_count || item.products_count || '-'"/>
+                                            </td>
+                                            <td class="col-status">
+                                                <span t-att-class="'cbm_history_badge ' + item.state + (item.is_partial_consumption ? ' cbm_badge_partial' : '')"
+                                                      t-esc="item.state_display"/>
+                                                <span t-if="item.is_partial_consumption"
+                                                      class="cbm_partial_indicator"
+                                                      title="Consommation partielle - certains produits non disponibles">
+                                                    <span class="cbm_icon_warning cbm_icon_warning_xs"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
 
-                        <!-- Load More Button -->
-                        <div t-if="state.historyHasMore" class="cbm_history_load_more">
-                            <button class="cbm_btn cbm_btn_secondary"
-                                    t-on-click="loadMoreHistory"
-                                    t-att-disabled="state.historyLoading">
-                                <t t-if="state.historyLoading">
-                                    <span class="spinner-border spinner-border-sm me-2"/>Chargement...
-                                </t>
-                                <t t-else="">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="cbm_icon me-1">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/>
-                                    </svg>
-                                    Charger plus
-                                </t>
-                            </button>
+                            <div t-if="state.historyHasMore" class="cbm_history_load_more">
+                                <button class="cbm_btn cbm_btn_secondary"
+                                        t-on-click="loadMoreHistory"
+                                        t-att-disabled="state.historyLoading">
+                                    <t t-if="state.historyLoading">
+                                        <span class="spinner-border spinner-border-sm me-2"/>Chargement...
+                                    </t>
+                                    <t t-else="">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor" class="cbm_icon me-1">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"/>
+                                        </svg>
+                                        Charger plus
+                                    </t>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Time Off History Section -->
+                    <!-- TAB: Congés -->
+                    <div t-elif="state.historyActiveTab === 'conge'">
+                        <div t-if="state.timeoffHistoryLoading" class="cbm_history_empty">
+                            <span class="spinner-border spinner-border-sm me-2"/>
+                            Chargement...
+                        </div>
+
+                        <div t-elif="!state.timeoffHistory.length" class="cbm_history_empty">
+                            <span class="cbm_icon_calendar cbm_icon_4x d-block"/>
+                            <p>Aucune demande de congé.</p>
+                        </div>
+
+                        <div t-else="" class="cbm_history_table_wrapper">
+                            <table class="cbm_history_table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-date">Date</th>
+                                        <th class="col-type">Type</th>
+                                        <th class="col-route">Employé</th>
+                                        <th class="col-date">Début</th>
+                                        <th class="col-date">Fin</th>
+                                        <th class="col-products">Jours</th>
+                                        <th class="col-status">Statut</th>
+                                        <th class="col-actions"/>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.timeoffHistory" t-as="to" t-key="to.id">
+                                        <tr class="cbm_history_row">
+                                            <td class="col-date"><span t-esc="formatDate(to.create_date)"/></td>
+                                            <td class="col-type"><span t-esc="to.leave_type"/></td>
+                                            <td class="col-route"><span t-esc="to.employee_name"/></td>
+                                            <td class="col-date"><span t-esc="to.date_from"/></td>
+                                            <td class="col-date"><span t-esc="to.date_to"/></td>
+                                            <td class="col-products"><span t-esc="to.number_of_days"/></td>
+                                            <td class="col-status">
+                                                <span t-att-class="'cbm_history_badge ' + getTimeOffStatusClass(to.state)"
+                                                      t-esc="getTimeOffStatusLabel(to.state)"/>
+                                            </td>
+                                            <td class="col-actions">
+                                                <button class="cbm_btn cbm_btn_secondary cbm_btn_sm"
+                                                        t-on-click="() => this.printTimeOffFromHistory(to.id)">
+                                                    <span class="cbm_icon_printer me-1"/>
+                                                    Imprimer
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                 </div>
             </div>

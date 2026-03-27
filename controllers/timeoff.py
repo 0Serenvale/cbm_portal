@@ -378,6 +378,201 @@ class TimeOffController(http.Controller):
             _logger.error("Error in get_timeoff_history: %s", str(e))
             return []
 
+    # ========================================
+    # TIMEOFF REQUESTS MANAGEMENT (responsable/DRH/admin)
+    # ========================================
+
+    def _check_timeoff_responsable_access(self, user, ICP, Location):
+        """Return (is_responsable, is_drh, is_admin, responsible_locations).
+
+        Tier 1 – location responsable: stock.location.responsible_user_ids
+        Tier 2 – DRH:   clinic_staff_portal.drh_user_id
+        Tier 3 – admin: clinic_staff_portal.admin_user_ids
+        """
+        drh_id_str = ICP.get_param('clinic_staff_portal.drh_user_id', '')
+        is_drh = bool(drh_id_str) and str(user.id) == drh_id_str.strip()
+
+        admin_ids_str = ICP.get_param('clinic_staff_portal.admin_user_ids', '')
+        admin_ids = [int(i) for i in admin_ids_str.split(',') if i.strip().isdigit()]
+        is_admin = user.id in admin_ids
+
+        responsible_locations = Location.search([('responsible_user_ids', 'in', user.id)])
+        is_location_responsable = bool(responsible_locations)
+
+        is_responsable = is_drh or is_admin or is_location_responsable
+        return is_responsable, is_drh, is_admin, responsible_locations
+
+    @http.route('/cbm/timeoff_requests/get_all', type='json', auth='user')
+    def timeoff_requests_get_all(self):
+        """Return leave requests visible to the current responsable.
+
+        - Location responsable: only employees in their locations.
+        - DRH or admin: ALL employees.
+        """
+        try:
+            user = request.env.user
+            ICP = request.env['ir.config_parameter'].sudo()
+            Location = request.env['stock.location'].sudo()
+            Employee = request.env['hr.employee'].sudo()
+            HolidayRequest = request.env['hr.leave'].sudo()
+
+            is_responsable, is_drh, is_admin, responsible_locations = \
+                self._check_timeoff_responsable_access(user, ICP, Location)
+
+            if not is_responsable:
+                return {'success': False, 'error': _('Accès refusé')}
+
+            if is_drh or is_admin:
+                leaves = HolidayRequest.search(
+                    [], order='create_date desc', limit=100
+                )
+            else:
+                # Collect all employee IDs from responsible locations
+                employee_ids = set()
+                for loc in responsible_locations:
+                    if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
+                        employee_ids.update(loc.employee_ids_1.ids)
+
+                if not employee_ids:
+                    return {'success': True, 'leaves': []}
+
+                leaves = HolidayRequest.search(
+                    [('employee_id', 'in', list(employee_ids))],
+                    order='create_date desc', limit=100
+                )
+
+            state_labels = dict(
+                HolidayRequest._fields['state'].selection
+                if hasattr(HolidayRequest._fields['state'], 'selection')
+                else []
+            )
+
+            result = []
+            for leave in leaves:
+                result.append({
+                    'id': leave.id,
+                    'name': leave.name or '',
+                    'employee_name': leave.employee_id.name if leave.employee_id else '',
+                    'employee_id': leave.employee_id.id if leave.employee_id else False,
+                    'leave_type': leave.holiday_status_id.name if leave.holiday_status_id else '',
+                    'date_from': str(leave.request_date_from) if leave.request_date_from else '',
+                    'date_to': str(leave.request_date_to) if leave.request_date_to else '',
+                    'number_of_days': leave.number_of_days_display or leave.number_of_days or 0,
+                    'state': leave.state,
+                    'state_display': state_labels.get(leave.state, leave.state),
+                    'create_date': leave.create_date.isoformat() if leave.create_date else '',
+                })
+
+            return {'success': True, 'leaves': result}
+
+        except Exception as e:
+            _logger.error("[CBM TIMEOFF REQUESTS] get_all error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+
+    @http.route('/cbm/timeoff_requests/approve', type='json', auth='user')
+    def timeoff_requests_approve(self, leave_id):
+        """Approve a leave request (native Odoo workflow).
+
+        Sends an Odoo inbox notification to the employee after approval.
+        """
+        try:
+            user = request.env.user
+            ICP = request.env['ir.config_parameter'].sudo()
+            Location = request.env['stock.location'].sudo()
+
+            is_responsable, is_drh, is_admin, responsible_locations = \
+                self._check_timeoff_responsable_access(user, ICP, Location)
+
+            if not is_responsable:
+                return {'success': False, 'error': _('Accès refusé')}
+
+            leave = request.env['hr.leave'].sudo().browse(leave_id)
+            if not leave.exists():
+                return {'success': False, 'error': _('Demande introuvable')}
+
+            # Location responsable scope check
+            if not is_drh and not is_admin:
+                allowed_ids = set()
+                for loc in responsible_locations:
+                    if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
+                        allowed_ids.update(loc.employee_ids_1.ids)
+                if leave.employee_id.id not in allowed_ids:
+                    return {'success': False, 'error': _("Cet employé n'est pas dans vos emplacements")}
+
+            leave.action_approve()
+
+            # Notify the employee via Odoo inbox
+            employee_user = leave.employee_id.user_id if leave.employee_id else False
+            if employee_user and employee_user.partner_id:
+                leave.message_post(
+                    body=_("Votre demande de congé a été approuvée par %s.") % user.name,
+                    message_type='comment',
+                    subtype_xmlid='mail.mt_comment',
+                    partner_ids=[employee_user.partner_id.id],
+                )
+
+            _logger.info("[CBM TIMEOFF REQUESTS] Leave %s approved by user %s", leave_id, user.name)
+            return {'success': True, 'message': _('Demande approuvée')}
+
+        except Exception as e:
+            _logger.error("[CBM TIMEOFF REQUESTS] approve error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+
+    @http.route('/cbm/timeoff_requests/refuse', type='json', auth='user')
+    def timeoff_requests_refuse(self, leave_id, reason=''):
+        """Refuse a leave request (native Odoo workflow).
+
+        Sends an Odoo inbox notification to the employee after refusal.
+        """
+        try:
+            user = request.env.user
+            ICP = request.env['ir.config_parameter'].sudo()
+            Location = request.env['stock.location'].sudo()
+
+            is_responsable, is_drh, is_admin, responsible_locations = \
+                self._check_timeoff_responsable_access(user, ICP, Location)
+
+            if not is_responsable:
+                return {'success': False, 'error': _('Accès refusé')}
+
+            leave = request.env['hr.leave'].sudo().browse(leave_id)
+            if not leave.exists():
+                return {'success': False, 'error': _('Demande introuvable')}
+
+            # Location responsable scope check
+            if not is_drh and not is_admin:
+                allowed_ids = set()
+                for loc in responsible_locations:
+                    if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
+                        allowed_ids.update(loc.employee_ids_1.ids)
+                if leave.employee_id.id not in allowed_ids:
+                    return {'success': False, 'error': _("Cet employé n'est pas dans vos emplacements")}
+
+            if reason:
+                leave.write({'name': reason})
+
+            leave.action_refuse()
+
+            # Notify the employee via Odoo inbox
+            employee_user = leave.employee_id.user_id if leave.employee_id else False
+            if employee_user and employee_user.partner_id:
+                body = _("Votre demande de congé a été refusée par %s.") % user.name
+                if reason:
+                    body += _(" Motif : %s") % reason
+                leave.message_post(
+                    body=body,
+                    message_type='comment',
+                    subtype_xmlid='mail.mt_comment',
+                    partner_ids=[employee_user.partner_id.id],
+                )
+
+            _logger.info("[CBM TIMEOFF REQUESTS] Leave %s refused by user %s", leave_id, user.name)
+            return {'success': True, 'message': _('Demande refusée')}
+
+        except Exception as e:
+            _logger.error("[CBM TIMEOFF REQUESTS] refuse error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+
     @http.route('/cbm/timeoff/get_pdf/<int:leave_id>', type='http', auth='user')
     def get_timeoff_pdf(self, leave_id, **kwargs):
         """Génère et retourne le PDF d'une demande de congé.

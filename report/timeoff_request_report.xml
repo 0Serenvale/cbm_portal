@@ -87,14 +87,22 @@
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="width: 50%; vertical-align: top; padding-right: 24px;">
-                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 40px;">Visa du responsable hiérarchique :</p>
+                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 4px;">
+                                            Signature de <t t-esc="leave.employee_id.name"/> :
+                                        </p>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0 0 40px;">
+                                            <t t-esc="leave.employee_id.job_id.name or ''"/>
+                                        </p>
                                         <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
-                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Nom / Date</p>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Date</p>
                                     </td>
                                     <td style="width: 50%; vertical-align: top; padding-left: 24px; border-left: 1px solid #e2e8f0;">
-                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 40px;">Visa de la Direction des Ressources Humaines :</p>
+                                        <p style="font-size: 12px; font-weight: 600; margin: 0 0 4px;">
+                                            Signature de la Direction des Ressources Humaines :
+                                        </p>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0 0 40px;">&#160;</p>
                                         <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
-                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Nom / Date</p>
+                                        <p style="font-size: 11px; color: #6b7280; margin: 0;">Date</p>
                                     </td>
                                 </tr>
                             </table>

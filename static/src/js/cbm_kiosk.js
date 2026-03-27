@@ -10,13 +10,13 @@ import { registry } from "@web/core/registry";
 import { Component, useState, onWillStart, onMounted, onWillUnmount, useRef } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
-import { TimeOffForm } from "../components/timeoff/timeoff";
+import { TimeOffForm, TimeoffRequests } from "../components/timeoff/timeoff";
 import { DocumentsViewer } from "../components/documents/documents";
 import { AccountabilityDashboard } from "../components/accountability/accountability";
 
 class CBMKiosk extends Component {
     static template = "clinic_staff_portal.CBMKiosk";
-    static components = { TimeOffForm, DocumentsViewer, AccountabilityDashboard };
+    static components = { TimeOffForm, TimeoffRequests, DocumentsViewer, AccountabilityDashboard };
     
     setup() {
         this.rpc = useService("rpc");
@@ -220,6 +220,7 @@ class CBMKiosk extends Component {
             // Time Off History (for suivi page - form handled by TimeOffForm component)
             timeoffHistory: [],
             timeoffHistoryLoading: false,
+            historyActiveTab: 'transfers',
 
             // Cashier
             hasCashierAccess: false,
@@ -2507,8 +2508,9 @@ class CBMKiosk extends Component {
         this.resetProductState();
         this.resetPatientState();
         this.resetDepartmentState();
+        this.state.historyActiveTab = 'transfers';
         this.loadHistory();
-        this.loadTimeOffHistory();  // Also load time off requests
+        this.loadTimeOffHistory();
         this.state.currentState = "history";
     }
 
@@ -3948,6 +3950,10 @@ class CBMKiosk extends Component {
         // Form is self-contained in TimeOffForm component
     }
 
+    goToTimeoffRequests() {
+        this.state.currentState = 'timeoff_requests';
+    }
+
     async loadTimeOffHistory() {
         try {
             this.state.timeoffHistoryLoading = true;
@@ -3959,6 +3965,16 @@ class CBMKiosk extends Component {
         } catch (error) {
             console.error('Failed to load time off history:', error);
             this.state.timeoffHistoryLoading = false;
+        }
+    }
+
+    setHistoryTab(tab) {
+        this.state.historyActiveTab = tab;
+    }
+
+    printTimeOffFromHistory(leaveId) {
+        if (leaveId) {
+            window.open('/cbm/timeoff/get_pdf/' + leaveId, '_blank');
         }
     }
 

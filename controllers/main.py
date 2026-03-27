@@ -375,10 +375,16 @@ class CBMKioskController(http.Controller):
 
             _logger.info(f"[CBM ENFORCEMENT] Result: request={request_status}, consumption={consumption_status}, overall={transfer_status}")
 
+        # DRH check for timeoff responsable sidebar chip
+        drh_id_str = ICP.get_param('clinic_staff_portal.drh_user_id', '')
+        is_drh = bool(drh_id_str) and str(user.id) == drh_id_str.strip()
+
         # Always show sidebar (all users can have pending work)
         return {
             'show_sidebar': True,
             'is_admin': is_admin,
+            'is_drh': is_drh,
+            'is_timeoff_responsable': is_drh or is_admin or is_location_responsable,
             'is_location_responsable': is_location_responsable,
             'is_po_approver': is_po_approver,
             # Visibility flags (determines IF card should appear based on actual access)

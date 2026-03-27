@@ -35,7 +35,7 @@
                     <div class="cbm_timeoff_success_actions">
                         <button t-if="state.timeoffSuccessLeaveId" class="cbm_btn cbm_btn_secondary" t-on-click="printTimeOff">
                             <span class="cbm_icon_printer me-2"/>
-                            Télécharger le reçu PDF
+                            Imprimer
                         </button>
                         <button class="cbm_btn_primary" t-on-click="goHome">
                             <span class="cbm_icon_home me-2"/>
@@ -188,6 +188,159 @@
                     Envoyer la demande
                 </t>
             </button>
+        </div>
+    </t>
+
+
+    <t t-name="clinic_staff_portal.TimeoffRequests" owl="1">
+        <!-- Header -->
+        <div class="cbm_page_header">
+            <button class="cbm_back_btn" t-on-click="goHome" title="Retour à l'accueil">
+                <span class="cbm_icon_arrow_left"/>Retour
+            </button>
+            <div class="cbm_page_title">
+                <h2>Demandes de Congé</h2>
+                <span class="cbm_page_subtitle">Gérer les demandes de l'équipe</span>
+            </div>
+            <button class="cbm_close_btn" t-on-click="goHome">
+                <span class="cbm_icon_x"/>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="cbm_page_body">
+            <div class="cbm_page_content">
+
+                <!-- Loading -->
+                <div t-if="state.loading" class="cbm_timeoff_loading">
+                    <span class="spinner-border spinner-border-sm me-2"/>
+                    Chargement...
+                </div>
+
+                <div t-else="" class="cbm_content_container">
+
+                    <!-- Filter chips -->
+                    <div class="cbm_timeoff_filters" t-ref="filterBar"
+                         t-on-mouseleave="() => this._snapIndicator()">
+                        <!-- sliding highlight pill -->
+                        <span class="cbm_filter_pill_indicator"/>
+                        <button t-att-class="'cbm_filter_chip' + (state.filter === 'all' ? ' active' : '')"
+                                t-on-click="() => this.setFilter('all')"
+                                t-on-mouseenter="(e) => this.hoverPill(e.currentTarget)">
+                            Tous
+                            <span class="cbm_filter_count" t-esc="state.leaves.length"/>
+                        </button>
+                        <button t-att-class="'cbm_filter_chip' + (state.filter === 'pending' ? ' active' : '')"
+                                t-on-click="() => this.setFilter('pending')"
+                                t-on-mouseenter="(e) => this.hoverPill(e.currentTarget)">
+                            En attente
+                            <span class="cbm_filter_count"
+                                  t-esc="state.leaves.filter(l => ['draft','confirm','validate1'].includes(l.state)).length"/>
+                        </button>
+                        <button t-att-class="'cbm_filter_chip' + (state.filter === 'validate' ? ' active' : '')"
+                                t-on-click="() => this.setFilter('validate')"
+                                t-on-mouseenter="(e) => this.hoverPill(e.currentTarget)">
+                            Approuvés
+                            <span class="cbm_filter_count"
+                                  t-esc="state.leaves.filter(l => l.state === 'validate').length"/>
+                        </button>
+                        <button t-att-class="'cbm_filter_chip' + (state.filter === 'refuse' ? ' active' : '')"
+                                t-on-click="() => this.setFilter('refuse')"
+                                t-on-mouseenter="(e) => this.hoverPill(e.currentTarget)">
+                            Refusés
+                            <span class="cbm_filter_count"
+                                  t-esc="state.leaves.filter(l => l.state === 'refuse').length"/>
+                        </button>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div t-if="filteredLeaves.length === 0" class="cbm_timeoff_empty">
+                        <span class="cbm_icon_calendar cbm_icon_3x"/>
+                        <p>Aucune demande trouvée</p>
+                    </div>
+
+                    <!-- Leave list -->
+                    <div t-else="" class="cbm_timeoff_requests_list">
+                        <t t-foreach="filteredLeaves" t-as="leave" t-key="leave.id">
+                            <div t-att-class="'cbm_timeoff_request_card ' + getStateClass(leave.state)">
+                                <div class="cbm_request_card_main">
+
+                                    <!-- Avatar -->
+                                    <div class="cbm_request_avatar">
+                                        <span t-esc="getInitials(leave.employee_name)"/>
+                                    </div>
+
+                                    <!-- Info -->
+                                    <div class="cbm_request_card_info">
+                                        <div class="cbm_request_employee"
+                                             t-esc="toTitleCase(leave.employee_name)"/>
+                                        <div class="cbm_request_meta">
+                                            <span class="cbm_request_type" t-esc="leave.leave_type"/>
+                                            <span class="cbm_request_sep">·</span>
+                                            <span class="cbm_request_dates">
+                                                <t t-esc="leave.date_from"/>
+                                                <t t-if="leave.date_to &amp;&amp; leave.date_to !== leave.date_from">
+                                                    → <t t-esc="leave.date_to"/>
+                                                </t>
+                                            </span>
+                                            <span class="cbm_request_sep">·</span>
+                                            <span class="cbm_request_days">
+                                                <t t-esc="leave.number_of_days"/> j
+                                            </span>
+                                        </div>
+                                        <div t-if="leave.name" class="cbm_request_reason">
+                                            <span class="cbm_icon_chat me-1"/>
+                                            <span t-esc="leave.name"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status badge -->
+                                    <div class="cbm_request_card_status">
+                                        <span t-att-class="getStateBadgeClass(leave.state)"
+                                              t-esc="getStateLabel(leave.state)"/>
+                                    </div>
+                                </div>
+
+                                <div class="cbm_request_card_actions">
+                                    <!-- Print — pushed left via margin-right:auto in CSS -->
+                                    <button class="cbm_btn_icon"
+                                            t-on-click="() => this.printLeave(leave.id)"
+                                            title="Imprimer le reçu PDF">
+                                        <span class="cbm_icon_printer"/>
+                                    </button>
+                                    <!-- Approve -->
+                                    <button t-if="canApprove(leave.state)"
+                                            class="cbm_btn_success"
+                                            t-att-disabled="state.actionInProgress === leave.id"
+                                            t-on-click="() => this.approveLeave(leave.id)">
+                                        <t t-if="state.actionInProgress === leave.id">
+                                            <span class="spinner-border spinner-border-sm"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="cbm_icon_check"/>
+                                        </t>
+                                        Approuver
+                                    </button>
+                                    <!-- Refuse -->
+                                    <button t-if="canRefuse(leave.state)"
+                                            class="cbm_btn_danger"
+                                            t-att-disabled="state.actionInProgress === leave.id"
+                                            t-on-click="() => this.refuseLeave(leave.id)">
+                                        <t t-if="state.actionInProgress === leave.id">
+                                            <span class="spinner-border spinner-border-sm"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="cbm_icon_x"/>
+                                        </t>
+                                        Refuser
+                                    </button>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </t>
 

@@ -75,6 +75,11 @@
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z'/%3E%3C/svg%3E");
 }
 
+.cbm_icon_printer {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z'/%3E%3C/svg%3E");
+}
+
 .cbm_icon_send {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5'/%3E%3C/svg%3E");
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5'/%3E%3C/svg%3E");
@@ -598,5 +603,365 @@
 
     .col-employee {
         max-width: 10rem;
+    }
+}
+
+/* ==========================================================================
+   TIMEOFF REQUESTS MANAGEMENT PAGE
+   ========================================================================== */
+
+/* --- Status badges --- */
+@mixin _cbm-badge-base {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.cbm_badge_success {
+    @include _cbm-badge-base;
+    background: var(--cbm-accent-green-bg, #dcfce7);
+    border-color: var(--cbm-accent-green-border, #86efac);
+    color: var(--cbm-status-done, #16a34a);
+    box-shadow: 0 1px 3px rgba(22, 163, 74, 0.15);
+}
+
+.cbm_badge_info {
+    @include _cbm-badge-base;
+    background: var(--cbm-accent-blue-bg, #dbeafe);
+    border-color: var(--cbm-accent-blue-border, #93c5fd);
+    color: var(--cbm-status-confirmed, #2563eb);
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.15);
+}
+
+.cbm_badge_warning {
+    @include _cbm-badge-base;
+    background: var(--cbm-accent-amber-bg, #fef3c7);
+    border-color: var(--cbm-accent-amber-border, #fcd34d);
+    color: var(--cbm-status-waiting, #d97706);
+    box-shadow: 0 1px 3px rgba(217, 119, 6, 0.15);
+}
+
+.cbm_badge_danger {
+    @include _cbm-badge-base;
+    background: var(--cbm-accent-red-bg, #fee2e2);
+    border-color: var(--cbm-accent-red-border, #fca5a5);
+    color: var(--cbm-status-cancel, #dc2626);
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.15);
+}
+
+.cbm_badge_secondary {
+    @include _cbm-badge-base;
+    background: var(--cbm-hover-bg, #f1f5f9);
+    border-color: var(--cbm-border-color, #cbd5e1);
+    color: var(--cbm-color-text-muted, #475569);
+}
+
+/* --- Filter chips bar --- */
+.cbm_timeoff_filters {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    padding: 0.3rem;
+    background: var(--cbm-card-elevated, #f8fafc);
+    border: 1px solid var(--cbm-border-color);
+    border-radius: 2rem;
+    width: fit-content;
+    position: relative; // anchor for the sliding indicator
+
+    /* --- Sliding hover/active indicator --- */
+    .cbm_filter_pill_indicator {
+        position: absolute;
+        top: 0.3rem;
+        left: 0.3rem;
+        border-radius: 2rem;
+        background: var(--cbm-hover-bg, #f1f5f9);
+        pointer-events: none;
+        opacity: 0;
+        transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                    height 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.15s ease;
+
+        &.visible { opacity: 1; }
+    }
+
+    .cbm_filter_chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1.1rem;
+        border-radius: 2rem;
+        border: none;
+        background: transparent;
+        color: var(--cbm-color-text-muted);
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        position: relative; // sit above the indicator
+        z-index: 1;
+        transition: color 0.18s ease;
+
+        &:hover { color: var(--cbm-color-text); }
+
+        &.active {
+            color: #fff;
+            font-weight: 600;
+
+            // active chip gets its own solid fill on top of the slide indicator
+            background: var(--cbm-btn-primary-bg, #334155);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cbm_filter_count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.35rem;
+            height: 1.35rem;
+            padding: 0 0.35rem;
+            border-radius: 1rem;
+            background: rgba(0, 0, 0, 0.1);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        &.active .cbm_filter_count {
+            background: rgba(255, 255, 255, 0.22);
+        }
+    }
+}
+
+/* --- Empty state --- */
+.cbm_timeoff_empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    color: var(--cbm-color-text-hint);
+    text-align: center;
+
+    p {
+        margin-top: 1rem;
+        font-size: 1.05rem;
+        color: var(--cbm-color-text-muted);
+    }
+}
+
+.cbm_icon_3x {
+    width: 3rem;
+    height: 3rem;
+    opacity: 0.35;
+}
+
+/* --- Requests list --- */
+.cbm_timeoff_requests_list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cbm_timeoff_request_card {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--cbm-card-bg);
+    border: 1px solid var(--cbm-border-color);
+    border-radius: 0.75rem;
+    box-shadow: var(--cbm-card-shadow);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+        box-shadow: var(--cbm-card-shadow-hover);
+        transform: translateY(-1px);
+    }
+
+
+    .cbm_request_card_main {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.35rem 1.5rem 1.1rem;
+    }
+
+    /* Employee avatar — 24×24 initials circle */
+    .cbm_request_avatar {
+        flex-shrink: 0;
+        width: 2.75rem;   // 44px — comfortable touch target, readable initials
+        height: 2.75rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--cbm-btn-primary-bg, #334155) 0%, #4f6272 100%);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), 0 0 0 2px rgba(255,255,255,0.6);
+        user-select: none;
+    }
+
+    .cbm_request_card_info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .cbm_request_employee {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--cbm-color-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cbm_request_meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.9rem;
+        color: var(--cbm-color-text-muted);
+        margin-top: 0.1rem;
+    }
+
+    .cbm_request_sep {
+        opacity: 0.4;
+        font-size: 0.75rem;
+    }
+
+    .cbm_request_type {
+        font-weight: 500;
+        color: var(--cbm-color-text-hint);
+    }
+
+    .cbm_request_days {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.1rem 0.5rem;
+        border-radius: 1rem;
+        background: var(--cbm-hover-bg);
+        border: 1px solid var(--cbm-border-color);
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--cbm-color-text);
+    }
+
+    .cbm_request_reason {
+        font-size: 0.9rem;
+        color: var(--cbm-color-text-hint);
+        font-style: italic;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cbm_request_card_status {
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
+
+    /* Actions strip at the bottom — separated by a subtle divider */
+    .cbm_request_card_actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        padding: 0.75rem 1.5rem;
+        border-top: 1px solid var(--cbm-border-subtle, rgba(0,0,0,0.06));
+        background: var(--cbm-card-elevated, #f8fafc);
+    }
+
+    /* Push print icon to the left, action buttons to the right */
+    .cbm_request_card_actions .cbm_btn_icon {
+        margin-right: auto;
+    }
+}
+
+/* --- Icon-only button (print) --- */
+.cbm_btn_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    padding: 0;
+    border-radius: 0.5rem;
+    border: 1px solid var(--cbm-border-color);
+    background: var(--cbm-card-bg);
+    color: var(--cbm-color-text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        background: var(--cbm-hover-bg);
+        border-color: var(--cbm-border-strong);
+        color: var(--cbm-color-text);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* --- Action buttons: Approve / Refuse --- */
+@mixin _cbm-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    border-width: 1px;
+    border-style: solid;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease,
+                border-color 0.18s ease, box-shadow 0.18s ease;
+
+    &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+}
+
+.cbm_btn_success {
+    @include _cbm-action-btn;
+    background: var(--cbm-accent-green-bg, #dcfce7);
+    border-color: var(--cbm-accent-green-border, #86efac);
+    color: var(--cbm-status-done, #16a34a);
+
+    &:not(:disabled):hover {
+        background: #16a34a;
+        border-color: #16a34a;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+    }
+}
+
+.cbm_btn_danger {
+    @include _cbm-action-btn;
+    background: transparent;
+    border-color: var(--cbm-border-color, #cbd5e1);
+    color: var(--cbm-color-text-muted, #475569);
+
+    &:not(:disabled):hover {
+        background: #dc2626;
+        border-color: #dc2626;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
     }
 }
