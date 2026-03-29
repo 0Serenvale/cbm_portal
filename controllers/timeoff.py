@@ -382,8 +382,8 @@ class TimeOffController(http.Controller):
     # TIMEOFF REQUESTS MANAGEMENT (responsable/DRH/admin)
     # ========================================
 
-    def _check_timeoff_responsable_access(self, user, ICP, Location):
-        """Return (is_responsable, is_drh, is_admin, responsible_locations).
+    def _check_timeoff_responsable_access(self, user, ICP, _location=None):
+        """Return (is_responsable, is_drh, is_admin, []).
 
         Access is restricted to DRH and portal admins only.
         DRH:   clinic_staff_portal.drh_user_id
@@ -397,7 +397,7 @@ class TimeOffController(http.Controller):
         is_admin = user.id in admin_ids
 
         is_responsable = is_drh or is_admin
-        return is_responsable, is_drh, is_admin, Location.browse([])
+        return is_responsable, is_drh, is_admin, []
 
     @http.route('/cbm/timeoff_requests/get_all', type='json', auth='user')
     def timeoff_requests_get_all(self):
@@ -408,11 +408,10 @@ class TimeOffController(http.Controller):
         try:
             user = request.env.user
             ICP = request.env['ir.config_parameter'].sudo()
-            Location = request.env['stock.location'].sudo()
             HolidayRequest = request.env['hr.leave'].sudo()
 
-            is_responsable, is_drh, is_admin, _locations = \
-                self._check_timeoff_responsable_access(user, ICP, Location)
+            is_responsable, _drh, _admin, _locs = \
+                self._check_timeoff_responsable_access(user, ICP)
 
             if not is_responsable:
                 return {'success': False, 'error': _('Accès refusé')}
@@ -456,10 +455,9 @@ class TimeOffController(http.Controller):
         try:
             user = request.env.user
             ICP = request.env['ir.config_parameter'].sudo()
-            Location = request.env['stock.location'].sudo()
 
-            is_responsable, is_drh, is_admin, responsible_locations = \
-                self._check_timeoff_responsable_access(user, ICP, Location)
+            is_responsable, _drh, _admin, _locs = \
+                self._check_timeoff_responsable_access(user, ICP, None)
 
             if not is_responsable:
                 return {'success': False, 'error': _('Accès refusé')}
@@ -467,15 +465,6 @@ class TimeOffController(http.Controller):
             leave = request.env['hr.leave'].sudo().browse(leave_id)
             if not leave.exists():
                 return {'success': False, 'error': _('Demande introuvable')}
-
-            # Location responsable scope check
-            if not is_drh and not is_admin:
-                allowed_ids = set()
-                for loc in responsible_locations:
-                    if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
-                        allowed_ids.update(loc.employee_ids_1.ids)
-                if leave.employee_id.id not in allowed_ids:
-                    return {'success': False, 'error': _("Cet employé n'est pas dans vos emplacements")}
 
             leave.action_approve()
 
@@ -505,10 +494,9 @@ class TimeOffController(http.Controller):
         try:
             user = request.env.user
             ICP = request.env['ir.config_parameter'].sudo()
-            Location = request.env['stock.location'].sudo()
 
-            is_responsable, is_drh, is_admin, responsible_locations = \
-                self._check_timeoff_responsable_access(user, ICP, Location)
+            is_responsable, _drh, _admin, _locs = \
+                self._check_timeoff_responsable_access(user, ICP, None)
 
             if not is_responsable:
                 return {'success': False, 'error': _('Accès refusé')}
@@ -516,15 +504,6 @@ class TimeOffController(http.Controller):
             leave = request.env['hr.leave'].sudo().browse(leave_id)
             if not leave.exists():
                 return {'success': False, 'error': _('Demande introuvable')}
-
-            # Location responsable scope check
-            if not is_drh and not is_admin:
-                allowed_ids = set()
-                for loc in responsible_locations:
-                    if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
-                        allowed_ids.update(loc.employee_ids_1.ids)
-                if leave.employee_id.id not in allowed_ids:
-                    return {'success': False, 'error': _("Cet employé n'est pas dans vos emplacements")}
 
             if reason:
                 leave.write({'name': reason})
@@ -569,35 +548,23 @@ class TimeOffController(http.Controller):
                     headers=[('Content-Type', 'text/plain; charset=utf-8')]
                 )
 
-            # Vérification d'accès : employé concerné, responsable, DRH, ou admin
+            # Vérification d'accès : employé concerné, DRH, ou admin portail
             current_employee = request.env['hr.employee'].sudo().search(
                 [('user_id', '=', user.id), ('active', '=', True)], limit=1
             )
             ICP = request.env['ir.config_parameter'].sudo()
             drh_id_str = ICP.get_param('clinic_staff_portal.drh_user_id', '')
             is_drh = bool(drh_id_str) and str(user.id) == drh_id_str.strip()
-            is_system_admin = user.has_group('base.group_system')
+            admin_ids_str = ICP.get_param('clinic_staff_portal.admin_user_ids', '')
+            admin_ids = [int(i) for i in admin_ids_str.split(',') if i.strip().isdigit()]
+            is_admin = user.id in admin_ids
             is_owner = (
                 current_employee
                 and leave.employee_id
                 and leave.employee_id.id == current_employee.id
             )
 
-            # Check if user is responsable for the leave employee's location
-            is_responsable = False
-            if leave.employee_id and not is_owner and not is_drh and not is_system_admin:
-                Location = request.env['stock.location'].sudo()
-                responsible_locations = Location.search(
-                    [('responsible_user_ids', 'in', user.id)]
-                )
-                if responsible_locations:
-                    allowed_employee_ids = set()
-                    for loc in responsible_locations:
-                        if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
-                            allowed_employee_ids.update(loc.employee_ids_1.ids)
-                    is_responsable = leave.employee_id.id in allowed_employee_ids
-
-            if not is_owner and not is_drh and not is_system_admin and not is_responsable:
+            if not is_owner and not is_drh and not is_admin:
                 return request.make_response(
                     "Accès refusé.",
                     headers=[('Content-Type', 'text/plain; charset=utf-8')],
