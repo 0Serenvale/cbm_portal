@@ -384,7 +384,7 @@ class CBMKioskController(http.Controller):
             'show_sidebar': True,
             'is_admin': is_admin,
             'is_drh': is_drh,
-            'is_timeoff_responsable': is_drh or is_admin or is_location_responsable,
+            'is_timeoff_responsable': is_drh or is_admin,
             'is_location_responsable': is_location_responsable,
             'is_po_approver': is_po_approver,
             # Visibility flags (determines IF card should appear based on actual access)

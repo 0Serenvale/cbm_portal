@@ -385,9 +385,9 @@ class TimeOffController(http.Controller):
     def _check_timeoff_responsable_access(self, user, ICP, Location):
         """Return (is_responsable, is_drh, is_admin, responsible_locations).
 
-        Tier 1 – location responsable: stock.location.responsible_user_ids
-        Tier 2 – DRH:   clinic_staff_portal.drh_user_id
-        Tier 3 – admin: clinic_staff_portal.admin_user_ids
+        Access is restricted to DRH and portal admins only.
+        DRH:   clinic_staff_portal.drh_user_id
+        Admin: clinic_staff_portal.admin_user_ids
         """
         drh_id_str = ICP.get_param('clinic_staff_portal.drh_user_id', '')
         is_drh = bool(drh_id_str) and str(user.id) == drh_id_str.strip()
@@ -396,50 +396,28 @@ class TimeOffController(http.Controller):
         admin_ids = [int(i) for i in admin_ids_str.split(',') if i.strip().isdigit()]
         is_admin = user.id in admin_ids
 
-        responsible_locations = Location.search([('responsible_user_ids', 'in', user.id)])
-        is_location_responsable = bool(responsible_locations)
-
-        is_responsable = is_drh or is_admin or is_location_responsable
-        return is_responsable, is_drh, is_admin, responsible_locations
+        is_responsable = is_drh or is_admin
+        return is_responsable, is_drh, is_admin, Location.browse([])
 
     @http.route('/cbm/timeoff_requests/get_all', type='json', auth='user')
     def timeoff_requests_get_all(self):
         """Return leave requests visible to the current responsable.
 
-        - Location responsable: only employees in their locations.
         - DRH or admin: ALL employees.
         """
         try:
             user = request.env.user
             ICP = request.env['ir.config_parameter'].sudo()
             Location = request.env['stock.location'].sudo()
-            Employee = request.env['hr.employee'].sudo()
             HolidayRequest = request.env['hr.leave'].sudo()
 
-            is_responsable, is_drh, is_admin, responsible_locations = \
+            is_responsable, is_drh, is_admin, _locations = \
                 self._check_timeoff_responsable_access(user, ICP, Location)
 
             if not is_responsable:
                 return {'success': False, 'error': _('Accès refusé')}
 
-            if is_drh or is_admin:
-                leaves = HolidayRequest.search(
-                    [], order='create_date desc', limit=100
-                )
-            else:
-                # Collect all employee IDs from responsible locations
-                employee_ids = set()
-                for loc in responsible_locations:
-                    if hasattr(loc, 'employee_ids_1') and loc.employee_ids_1:
-                        employee_ids.update(loc.employee_ids_1.ids)
-
-                if not employee_ids:
-                    return {'success': True, 'leaves': []}
-
-                leaves = HolidayRequest.search(
-                    [('employee_id', 'in', list(employee_ids))],
-                    order='create_date desc', limit=100
-                )
+            leaves = HolidayRequest.search([], order='create_date desc', limit=100)
 
             state_labels = dict(
                 HolidayRequest._fields['state'].selection
