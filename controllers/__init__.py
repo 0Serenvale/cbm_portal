@@ -5,3 +5,4 @@ from . import purchase
 from . import timeoff
 from . import documents
 from . import drug_stock
+from . import inventory
