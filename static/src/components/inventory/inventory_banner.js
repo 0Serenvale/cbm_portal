@@ -49,21 +49,25 @@ export class InventoryBanner extends Component {
         try {
             const config = await this.rpc("/cbm/inventory/config");
 
-            if (config && config.id) {
-                const daysUntil = this.calculateDaysUntil(config.inventory_start_date);
+            if (!config || !config.id) {
+                // No active config found (expected if not yet scheduled)
+                this.state.loading = false;
+                return;
+            }
 
-                // Show banner only if within 7 days
-                if (daysUntil <= 7 && daysUntil >= 0) {
-                    this.state.show = true;
-                    this.state.config = config;
-                    this.state.daysUntilStart = daysUntil;
-                    // Use generated announcement, fall back to custom text if empty
-                    this.state.announcement = config.generated_announcement || config.announcement_text;
-                }
+            const daysUntil = this.calculateDaysUntil(config.inventory_start_date);
+
+            // Show banner only if within 7 days
+            if (daysUntil <= 7 && daysUntil >= 0) {
+                this.state.show = true;
+                this.state.config = config;
+                this.state.daysUntilStart = daysUntil;
+                // Use generated announcement, fall back to custom text if empty
+                this.state.announcement = config.generated_announcement || config.announcement_text;
             }
         } catch (error) {
-            console.error("[InventoryBanner] Error fetching configuration:", error);
-            // Silently fail - banner simply won't show if config fetch fails
+            console.error("[InventoryBanner] RPC error fetching configuration:", error);
+            // Log unexpected errors but don't break page (banner just won't show)
         } finally {
             this.state.loading = false;
         }
@@ -75,11 +79,15 @@ export class InventoryBanner extends Component {
      * @returns {number} Days until date (negative if in past)
      */
     calculateDaysUntil(dateStr) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Parse date string in local timezone (not UTC)
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const target = new Date(year, month - 1, day);
+        target.setHours(0, 0, 0, 0);
 
-        const target = new Date(dateStr + "T00:00:00Z");
-        const diffTime = target - today;
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        const diffTime = target - now;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         return diffDays;

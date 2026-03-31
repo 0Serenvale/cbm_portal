@@ -105,22 +105,27 @@ class InventoryConfiguration(models.Model):
         help='Auto-calculated: start_date + duration_days - 1'
     )
 
-    @api.depends('inventory_start_date', 'duration_days')
+    @api.depends('announcement_text', 'inventory_start_date', 'duration_days')
     def _compute_announcement(self):
         """Auto-generate announcement text if not manually set."""
         for rec in self:
-            if not rec.announcement_text and rec.inventory_start_date and rec.duration_days:
+            if rec.announcement_text:
+                # Custom text takes precedence
+                rec.generated_announcement = rec.announcement_text
+            elif rec.inventory_start_date and rec.duration_days:
+                # Auto-generate only if custom is empty
                 date_str = rec.inventory_start_date.strftime('%d/%m/%Y')
                 duration_str = f"{rec.duration_days} jour" if rec.duration_days == 1 else f"{rec.duration_days} jours"
                 rec.generated_announcement = (
                     f"La pharmacie sera fermée le {date_str} pour inventaire pendant {duration_str}."
                 )
             else:
-                rec.generated_announcement = rec.announcement_text or ''
+                rec.generated_announcement = ''
 
     generated_announcement = fields.Text(
         string='Generated Announcement',
         compute='_compute_announcement',
+        store=True,
         help='Auto-generated announcement (or custom if provided)'
     )
 
@@ -189,10 +194,22 @@ class InventoryConfiguration(models.Model):
                 )
                 return False
 
-            # Create inventory session
+            # Check if session already exists for this trigger date (prevent duplicates)
             ClinicInventory = self.env['clinic.inventory']
-            ClinicTeam = self.env['clinic.inventory.team']
+            existing = ClinicInventory.search([
+                ('start_date', '=', today),
+                ('state', 'in', ['draft', 'active', 'pending_approval', 'approved']),
+            ], limit=1)
 
+            if existing:
+                _logger.info(
+                    "[INVENTORY CRON] Session already exists for %s (id=%s), skipping creation",
+                    today, existing.id
+                )
+                config.write({'last_triggered': fields.Datetime.now()})
+                return True
+
+            # Create inventory session
             inventory = ClinicInventory.create({
                 'name': config.name or 'Quarterly Inventory',
                 'location_id': config.location_ids[0].id if config.location_ids else False,

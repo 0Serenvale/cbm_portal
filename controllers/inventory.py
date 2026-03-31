@@ -620,20 +620,34 @@ class InventoryController(http.Controller):
     def get_inventory_config(self):
         """Get active inventory configuration for banner display.
 
+        Returns active config if user has manager access, otherwise empty dict.
+        Used by InventoryBanner component on dashboard.
+
         Returns:
             dict: {
                 id: int,
                 name: str,
                 inventory_start_date: YYYY-MM-DD,
                 duration_days: int,
-                announcement_text: str (custom) or generated_announcement: str (auto),
+                announcement_text: str,
+                generated_announcement: str,
                 cron_schedule: str,
                 state: str,
-                last_triggered: datetime or False,
-            } or {} if no active config found
+                last_triggered: datetime str or None,
+            } or {} if no access or no active config found
         """
         try:
-            Config = request.env['clinic.inventory.config'].sudo()
+            user = request.env.user
+
+            # Only managers can see inventory configuration
+            if not user.has_group('clinic_staff_portal.group_clinic_portal_manager'):
+                _logger.warning(
+                    "[CBM INVENTORY CONFIG] Access denied for user %s (not a manager)",
+                    user.name
+                )
+                return {}
+
+            Config = request.env['clinic.inventory.config']
 
             # Fetch active configuration
             config = Config.search([
@@ -652,7 +666,7 @@ class InventoryController(http.Controller):
                 'generated_announcement': config.generated_announcement,
                 'cron_schedule': config.cron_schedule,
                 'state': config.state,
-                'last_triggered': str(config.last_triggered) if config.last_triggered else False,
+                'last_triggered': config.last_triggered.isoformat() if config.last_triggered else None,
             }
 
         except Exception as e:
