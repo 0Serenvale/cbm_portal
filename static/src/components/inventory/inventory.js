@@ -153,7 +153,9 @@ export class InventoryCount extends Component {
         try {
             this.state.barcodeLoading = true;
 
-            const result = await this.rpc('/cbm/inventory/search_barcode', {
+            // Use shared CBM barcode search (same as consumption module)
+            // Supports: product barcode, lot.ref, lot.name
+            const result = await this.rpc('/cbm/search_barcode', {
                 barcode: barcode,
                 location_id: this.state.locationId,
             });
@@ -170,10 +172,22 @@ export class InventoryCount extends Component {
                 return;
             }
 
+            // Format result for addLineFromBarcode (normalize field names)
+            const productData = {
+                id: result.id,
+                name: result.name,
+                barcode: result.barcode,
+                uom_name: result.uom_name,
+                qty_system: result.qty_available || 0,
+                lot_id: result.lot_id,
+                lot_name: result.lot_name || '',
+                expiry_date: false,  // TODO: Get from lot object
+            };
+
             // Each scan creates a NEW row (no deduplication)
             // User can delete accidental double-scans manually
             // This allows staff to record exact counting flow
-            await this.addLineFromBarcode(result);
+            await this.addLineFromBarcode(productData);
 
             event.target.value = '';
             // Re-focus for next scan
@@ -489,7 +503,8 @@ export class InventoryCount extends Component {
         this.state.barcodeLoading = true;
 
         try {
-            const result = await this.rpc('/cbm/inventory/search_barcode', {
+            // Use shared CBM barcode search
+            const result = await this.rpc('/cbm/search_barcode', {
                 barcode: barcode,
                 location_id: this.state.locationId,
             });
@@ -503,7 +518,19 @@ export class InventoryCount extends Component {
                 return;
             }
 
-            await this.addLineFromBarcode(result);
+            // Format result for addLineFromBarcode
+            const productData = {
+                id: result.id,
+                name: result.name,
+                barcode: result.barcode,
+                uom_name: result.uom_name,
+                qty_system: result.qty_available || 0,
+                lot_id: result.lot_id,
+                lot_name: result.lot_name || '',
+                expiry_date: false,
+            };
+
+            await this.addLineFromBarcode(productData);
 
         } catch (error) {
             console.error("[INVENTORY] Camera barcode processing failed:", error);
