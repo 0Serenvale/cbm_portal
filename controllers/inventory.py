@@ -7,8 +7,7 @@ Provides staff and manager endpoints for physical inventory counting:
 - Manager: session overview, reconciliation view, final PDF
 """
 import logging
-import json
-from odoo import http, fields, _
+from odoo import http, _
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -353,7 +352,6 @@ class InventoryController(http.Controller):
         try:
             user = request.env.user
             ClinicLine = request.env['clinic.inventory.line']
-            ClinicTeam = request.env['clinic.inventory.team']
 
             line = ClinicLine.browse(line_id)
             if not line.exists():
