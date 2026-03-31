@@ -55,11 +55,35 @@
                                 <span class="cbm_icon_barcode"/>
                                 <input type="text"
                                        class="cbm_barcode_input"
-                                       placeholder="Scanner un code-barres (Entrée)..."
+                                       placeholder="Scanner code-barres ou taper (Entrée)..."
                                        t-ref="barcodeInput"
                                        t-on-keydown="onBarcodeInput"
-                                       autocomplete="off"/>
+                                       t-on-input="onBarcodeInputChange"
+                                       autocomplete="off"
+                                       inputmode="none"/>
                                 <span t-if="state.barcodeLoading" class="spinner-border spinner-border-sm"/>
+                            </div>
+                            <button class="cbm_camera_btn" t-on-click="openCamera" title="Ouvrir la caméra" t-att-disabled="state.barcodeLoading">
+                                <span class="cbm_icon_camera"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Modal -->
+                    <div t-if="state.cameraOpen" class="cbm_camera_modal">
+                        <div class="cbm_camera_backdrop" t-on-click="closeCamera"/>
+                        <div class="cbm_camera_container">
+                            <div class="cbm_camera_header">
+                                <h3>Scanner un code-barres</h3>
+                                <button class="cbm_camera_close" t-on-click="closeCamera">
+                                    <span class="cbm_icon_x"/>
+                                </button>
+                            </div>
+                            <div class="cbm_camera_body">
+                                <video t-ref="cameraVideo" class="cbm_camera_video" playsinline="true" autoplay="true" muted="true"/>
+                                <div class="cbm_camera_hint">
+                                    <p>Pointez la caméra vers un code-barres</p>
+                                </div>
                             </div>
                         </div>
                     </div>

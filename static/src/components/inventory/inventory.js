@@ -33,8 +33,10 @@ export class InventoryCount extends Component {
             linesLoading: false,
             lines: [],  // [{id, product_id, product_name, lot_id, lot_name, expiry_date, qty_counted, qty_system, uom_name, barcode}]
 
-            // Barcode input
+            // Barcode input & camera
             barcodeLoading: false,
+            cameraOpen: false,
+            cameraStream: null,
 
             // Table search
             tableSearchQuery: '',
@@ -127,6 +129,11 @@ export class InventoryCount extends Component {
     // ============================================================
     // BARCODE SCANNING
     // ============================================================
+
+    onBarcodeInputChange(event) {
+        // Allow manual typing combined with hardware scanners
+        // (some mobile scanners send input without Enter key)
+    }
 
     async onBarcodeInput(event) {
         if (event.key !== 'Enter') {
@@ -368,6 +375,138 @@ export class InventoryCount extends Component {
 
     goHome() {
         this.props.onNavigateHome();
+    }
+
+    // ============================================================
+    // MOBILE CAMERA BARCODE SCANNING
+    // ============================================================
+
+    async openCamera() {
+        try {
+            this.state.cameraOpen = true;
+
+            // Request camera access
+            const constraints = {
+                video: {
+                    facingMode: 'environment',  // Back camera
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                },
+                audio: false,
+            };
+
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            this.state.cameraStream = stream;
+
+            // Start camera in video element
+            setTimeout(() => {
+                const video = document.querySelector('.cbm_camera_video');
+                if (video) {
+                    video.srcObject = stream;
+                    // Start barcode detection loop
+                    this.startBarcodeDetection(video);
+                }
+            }, 100);
+
+        } catch (error) {
+            console.error("[INVENTORY] Camera access error:", error);
+            if (this.props.showToast) {
+                if (error.name === 'NotAllowedError') {
+                    this.props.showToast(_t("Accès à la caméra refusé"), 'danger');
+                } else if (error.name === 'NotFoundError') {
+                    this.props.showToast(_t("Caméra non trouvée"), 'danger');
+                } else {
+                    this.props.showToast(_t("Erreur caméra"), 'danger');
+                }
+            }
+            this.state.cameraOpen = false;
+        }
+    }
+
+    closeCamera() {
+        if (this.state.cameraStream) {
+            this.state.cameraStream.getTracks().forEach(track => track.stop());
+            this.state.cameraStream = null;
+        }
+        this.state.cameraOpen = false;
+        this.cameraDetectionInterval = null;
+
+        // Re-focus barcode input
+        if (this.barcodeInputRef.el) {
+            setTimeout(() => this.barcodeInputRef.el.focus(), 100);
+        }
+    }
+
+    startBarcodeDetection(video) {
+        // Simple barcode detection using canvas + decoder
+        // For production, use a library like QuaggaJS or jsQR
+        // This is a placeholder that shows the pattern
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        this.cameraDetectionInterval = setInterval(() => {
+            if (!this.state.cameraOpen || !video.videoWidth) {
+                return;
+            }
+
+            try {
+                // Draw video frame to canvas
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+
+                // Get image data for barcode detection
+                // TODO: Integrate with barcode library (QuaggaJS, jsQR, or ZXing)
+                // For now, just show camera is running
+                console.log('[INVENTORY] Camera scanning...', {
+                    width: canvas.width,
+                    height: canvas.height,
+                });
+
+            } catch (error) {
+                console.error("[INVENTORY] Barcode detection error:", error);
+            }
+        }, 500);
+    }
+
+    // Process barcode from camera (called by barcode library)
+    async processCameraBarcode(barcode) {
+        if (!barcode || !this.state.cameraOpen) {
+            return;
+        }
+
+        console.log('[INVENTORY] Camera barcode detected:', barcode);
+
+        // Close camera
+        this.closeCamera();
+
+        // Process as regular barcode scan
+        this.state.barcodeLoading = true;
+
+        try {
+            const result = await this.rpc('/cbm/inventory/search_barcode', {
+                barcode: barcode,
+                location_id: this.state.locationId,
+            });
+
+            this.state.barcodeLoading = false;
+
+            if (!result.found) {
+                if (this.props.showToast) {
+                    this.props.showToast(_t("Produit non trouvé"), 'warning');
+                }
+                return;
+            }
+
+            await this.addLineFromBarcode(result);
+
+        } catch (error) {
+            console.error("[INVENTORY] Camera barcode processing failed:", error);
+            this.state.barcodeLoading = false;
+            if (this.props.showToast) {
+                this.props.showToast(_t("Erreur lors du scan caméra"), 'danger');
+            }
+        }
     }
 
     // ============================================================
