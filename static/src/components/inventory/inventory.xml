@@ -88,6 +88,54 @@
                         </div>
                     </div>
 
+                    <!-- Lot Disambiguation Modal (Multiple Products Same Lot) -->
+                    <div t-if="state.lotSearchModalOpen" class="cbm_inventory_form_modal">
+                        <div class="cbm_form_backdrop" t-on-click="closeLotSearchModal"/>
+                        <div class="cbm_form_card">
+                            <div class="cbm_form_header">
+                                <h3>Plusieurs produits trouvés</h3>
+                                <button class="cbm_form_close" t-on-click="closeLotSearchModal">
+                                    <span class="cbm_icon_x"/>
+                                </button>
+                            </div>
+
+                            <div class="cbm_form_body" style="padding: 20px 0;">
+                                <p style="padding: 0 20px; color: #6b7280; font-size: 13px;">
+                                    Le lot <strong t-esc="state.lotSearchResults[0].lot_name"/><t t-if="state.lotSearchResults[0].expiry_date"> (exp. <t t-esc="state.lotSearchResults[0].expiry_date"/>)</t> existe sur plusieurs produits.
+                                    Sélectionnez le produit correct:
+                                </p>
+
+                                <div style="padding: 12px 0; max-height: 400px; overflow-y: auto;">
+                                    <t t-foreach="state.lotSearchResults" t-as="product" t-key="product.id">
+                                        <button class="cbm_lot_product_item"
+                                                t-att-class="'cbm_lot_product_item' + (state.selectedLotProduct and state.selectedLotProduct.id === product.id ? ' selected' : '')"
+                                                t-on-click="() => this.selectLotProduct(product)">
+                                            <div class="cbm_lot_product_info">
+                                                <div class="cbm_lot_product_name" t-esc="product.name"/>
+                                                <div class="cbm_lot_product_meta">
+                                                    <span class="cbm_lot_barcode" t-if="product.barcode" t-esc="'Code: ' + product.barcode"/>
+                                                    <span class="cbm_lot_uom" t-esc="product.uom_name"/>
+                                                </div>
+                                            </div>
+                                            <div class="cbm_lot_checkbox">
+                                                <t t-if="state.selectedLotProduct and state.selectedLotProduct.id === product.id">
+                                                    <span class="cbm_icon_check"/>
+                                                </t>
+                                            </div>
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <div class="cbm_form_actions">
+                                <button class="cbm_btn cbm_btn_secondary" t-on-click="closeLotSearchModal">Annuler</button>
+                                <button class="cbm_btn cbm_btn_primary" t-on-click="confirmLotSelection" t-att-disabled="not state.selectedLotProduct">
+                                    Sélectionner
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Delete Confirmation Modal -->
                     <div t-if="state.deleteConfirmLineId" class="cbm_inventory_form_modal">
                         <div class="cbm_form_backdrop" t-on-click="cancelDelete"/>

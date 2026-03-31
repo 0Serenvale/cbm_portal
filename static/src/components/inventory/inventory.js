@@ -38,6 +38,11 @@ export class InventoryCount extends Component {
             cameraOpen: false,
             cameraStream: null,
 
+            // Lot disambiguation (multiple products with same lot)
+            lotSearchResults: [],
+            lotSearchModalOpen: false,
+            selectedLotProduct: null,
+
             // Table search
             tableSearchQuery: '',
 
@@ -506,6 +511,77 @@ export class InventoryCount extends Component {
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur lors du scan caméra"), 'danger');
             }
+        }
+    }
+
+    // ============================================================
+    // LOT NUMBER SEARCH (Multiple Products Same Lot)
+    // ============================================================
+
+    async searchByLot(lotName) {
+        if (!lotName || !lotName.trim()) {
+            return;
+        }
+
+        try {
+            this.state.barcodeLoading = true;
+
+            const results = await this.rpc('/cbm/inventory/search_lot', {
+                lot_name: lotName.trim(),
+                location_id: this.state.locationId,
+            });
+
+            this.state.barcodeLoading = false;
+
+            if (!results || results.length === 0) {
+                if (this.props.showToast) {
+                    this.props.showToast(_t("Lot non trouvé"), 'warning');
+                }
+                return;
+            }
+
+            if (results.length === 1) {
+                // Only one product with this lot - add directly
+                await this.addLineFromBarcode(results[0]);
+            } else {
+                // Multiple products with same lot - show disambiguation modal
+                this.state.lotSearchResults = results;
+                this.state.lotSearchModalOpen = true;
+                console.log('[INVENTORY] Found', results.length, 'products with lot', lotName);
+            }
+
+        } catch (error) {
+            console.error("[INVENTORY] Lot search failed:", error);
+            this.state.barcodeLoading = false;
+            if (this.props.showToast) {
+                this.props.showToast(_t("Erreur lors de la recherche"), 'danger');
+            }
+        }
+    }
+
+    selectLotProduct(product) {
+        this.state.selectedLotProduct = product;
+    }
+
+    async confirmLotSelection() {
+        if (!this.state.selectedLotProduct) {
+            return;
+        }
+
+        const product = this.state.selectedLotProduct;
+        this.closeLotSearchModal();
+
+        await this.addLineFromBarcode(product);
+    }
+
+    closeLotSearchModal() {
+        this.state.lotSearchModalOpen = false;
+        this.state.lotSearchResults = [];
+        this.state.selectedLotProduct = null;
+
+        // Re-focus barcode input
+        if (this.barcodeInputRef.el) {
+            setTimeout(() => this.barcodeInputRef.el.focus(), 100);
         }
     }
 

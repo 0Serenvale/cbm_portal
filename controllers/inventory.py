@@ -246,6 +246,65 @@ class InventoryController(http.Controller):
             _logger.error("[CBM INVENTORY] search_barcode error: %s", str(e))
             return {'found': False}
 
+    @http.route('/cbm/inventory/search_lot', type='json', auth='user')
+    def search_lot(self, lot_name, location_id, limit=10):
+        """Search products by lot number.
+
+        When multiple products have the same lot number (e.g., Sonde CH 10, 12, 14, 16),
+        return all matching products so user can select the correct one.
+
+        Args:
+            lot_name: Lot number/name to search for
+            location_id: stock.location ID (for reference qty only)
+            limit: Max results (default 10)
+
+        Returns:
+            list: [{id, name, barcode, uom_name, qty_system, lot_id, lot_name}]
+        """
+        try:
+            StockLot = request.env['stock.production.lot']
+            StockQuant = request.env['stock.quant']
+            Product = request.env['product.product']
+
+            # Find all lots matching the lot_name
+            lots = StockLot.search([
+                ('name', '=', lot_name),
+            ], limit=limit)
+
+            if not lots:
+                return []
+
+            result = []
+            for lot in lots:
+                product = lot.product_id
+
+                if not product.active:
+                    continue
+
+                # Get total quantity across all locations
+                quants = StockQuant.search([
+                    ('product_id', '=', product.id),
+                    ('lot_id', '=', False),
+                ])
+                qty_system = sum(q.quantity for q in quants)
+
+                result.append({
+                    'id': product.id,
+                    'name': product.name,
+                    'barcode': product.barcode or '',
+                    'uom_name': product.uom_id.name if product.uom_id else 'U',
+                    'qty_system': qty_system,
+                    'lot_id': lot.id,
+                    'lot_name': lot.name,
+                    'expiry_date': str(lot.expiration_date) if lot.expiration_date else False,
+                })
+
+            return result
+
+        except Exception as e:
+            _logger.error("[CBM INVENTORY] search_lot error: %s", str(e))
+            return []
+
     @http.route('/cbm/inventory/get_lines', type='json', auth='user')
     def get_lines(self, session_id):
         """Return only current user's team lines.
