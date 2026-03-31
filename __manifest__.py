@@ -57,10 +57,13 @@ Features:
         'report/accountability_warning_report.xml',
         'report/timeoff_request_report.xml',
         'report/document_ack_receipt_report.xml',
+        'report/inventory_team_report.xml',
+        'report/inventory_final_report.xml',
         'views/cashier_session_views.xml',
         'views/kiosk_access_log_views.xml',
         'views/clinic_workstation_views.xml',
         'data/default_tiles.xml',
+        'data/inventory_tile.xml',
         'data/sync_users_action.xml',
         'data/mail_templates.xml',
         'data/cashier_session_sequence.xml',
@@ -76,6 +79,7 @@ Features:
         'views/drug_openmrs_concept_views.xml',
         'views/drug_sync_menu.xml',
         'views/clinic_prescription_views.xml',
+        'views/clinic_inventory_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -100,6 +104,10 @@ Features:
             # Accountability component (must load BEFORE cbm_kiosk.js which imports it)
             'clinic_staff_portal/static/src/components/accountability/accountability.js',
             'clinic_staff_portal/static/src/components/accountability/accountability.xml',
+            # Inventory component (must load BEFORE cbm_kiosk.js which imports it)
+            'clinic_staff_portal/static/src/components/inventory/inventory.js',
+            'clinic_staff_portal/static/src/components/inventory/inventory.xml',
+            'clinic_staff_portal/static/src/scss/cbm_inventory.scss',
             'clinic_staff_portal/static/src/js/cbm_global_service.js',
             'clinic_staff_portal/static/src/js/cbm_kiosk.js',
             'clinic_staff_portal/static/src/js/cbm_brain_patch.js',
