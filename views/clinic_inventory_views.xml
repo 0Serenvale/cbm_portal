@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View (List) -->
+    <record id="clinic_inventory_view_tree" model="ir.ui.view">
+        <field name="name">clinic.inventory.tree</field>
+        <field name="model">clinic.inventory</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="location_id"/>
+                <field name="state" decoration-success="state == 'approved'"
+                                   decoration-warning="state == 'pending_approval'"
+                                   decoration-info="state == 'active'"
+                                   decoration-muted="state == 'cancelled'"/>
+                <field name="responsible_id"/>
+                <field name="team_count" string="Teams"/>
+                <field name="line_count" string="Lines"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="clinic_inventory_view_form" model="ir.ui.view">
+        <field name="name">clinic.inventory.form</field>
+        <field name="model">clinic.inventory</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_start" type="object" string="Start Counting"
+                            class="oe_highlight"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_submit" type="object" string="Submit for Approval"
+                            class="oe_highlight"
+                            attrs="{'invisible': [('state', '!=', 'active')]}"/>
+                    <button name="action_approve" type="object" string="Approve &amp; Apply to Stock"
+                            class="oe_highlight"
+                            attrs="{'invisible': [('state', '!=', 'pending_approval')]}"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            attrs="{'invisible': [('state', 'in', ['approved', 'cancelled'])]}"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,pending_approval,approved"
+                           readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Session name (e.g., Inventory April 2026)..."/>
+                        </h1>
+                    </div>
+                    <!-- Session Info -->
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="location_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="responsible_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <!-- Notes -->
+                    <field name="notes" placeholder="Additional notes about this inventory session..."/>
+                    <!-- Teams Tab -->
+                    <notebook>
+                        <page string="Teams" name="teams">
+                            <field name="team_ids" context="{'default_inventory_id': id}">
+                                <tree editable="bottom">
+                                    <field name="name" placeholder="Team name (e.g., Team A)..."/>
+                                    <field name="user_ids" widget="many2many_tags"
+                                           options="{'no_create': True}"
+                                           placeholder="Select users..."/>
+                                    <field name="line_count" string="Count Lines" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <!-- Lines Tab (Read-only, for manager review) -->
+                        <page string="Count Lines" name="lines">
+                            <field name="line_ids" readonly="1">
+                                <tree>
+                                    <field name="team_id"/>
+                                    <field name="product_id"/>
+                                    <field name="lot_id"/>
+                                    <field name="expiry_date"/>
+                                    <field name="qty_counted" string="Qty Counted"/>
+                                    <field name="qty_system" string="Qty System"
+                                           decoration-warning="variance != 0"
+                                           decoration-danger="variance &lt; 0"/>
+                                    <field name="variance" string="Variance"
+                                           decoration-warning="variance != 0"
+                                           decoration-danger="variance &lt; 0"/>
+                                    <field name="uom_id" string="UoM"/>
+                                    <field name="note"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <!-- Stats Tab (Manager summary) -->
+                        <page string="Summary" name="summary"
+                              attrs="{'invisible': [('state', '=', 'draft')]}">
+                            <group>
+                                <group>
+                                    <label for="team_count"/>
+                                    <h3><field name="team_count"/></h3>
+                                </group>
+                                <group>
+                                    <label for="line_count"/>
+                                    <h3><field name="line_count"/></h3>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="clinic_inventory_view_search" model="ir.ui.view">
+        <field name="name">clinic.inventory.search</field>
+        <field name="model">clinic.inventory</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="location_id"/>
+                <field name="responsible_id"/>
+                <separator/>
+                <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Active (Counting)" name="filter_active" domain="[('state', '=', 'active')]"/>
+                <filter string="Pending Approval" name="filter_pending" domain="[('state', '=', 'pending_approval')]"/>
+                <filter string="Approved" name="filter_approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Cancelled" name="filter_cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter string="This Month" name="filter_this_month"
+                        domain="[('date', '&gt;=', context_today().replace(day=1)),
+                                 ('date', '&lt;=', context_today())]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Location" name="groupby_location" context="{'group_by': 'location_id'}"/>
+                    <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="groupby_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Window -->
+    <record id="clinic_inventory_action" model="ir.actions.act_window">
+        <field name="name">Inventory Sessions</field>
+        <field name="res_model">clinic.inventory</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="clinic_inventory_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No inventory sessions yet. Create a new physical inventory session.
+            </p>
+        </field>
+    </record>
+
+</odoo>
