@@ -179,9 +179,57 @@ class InventoryController(http.Controller):
 
             qty_system = quant.quantity if quant else 0.0
 
-            # TODO: GS1-128 parsing (extract lot, expiry from barcode if encoded)
-            # For MVP: just return product + qty, no lot/expiry auto-extraction
-            # In production, decode barcode: lot in (10), expiry in (17) AI
+            # Parse GS1-128 encoded barcode (if present)
+            lot_id = False
+            lot_name = ''
+            expiry_date = False
+
+            if barcode:
+                # GS1-128 format: AI(10) = lot number, AI(17) = expiry date
+                # Example: )g101ABC123g171200131
+                # Lot extraction: look for 10-prefixed data
+                if '10' in barcode:
+                    try:
+                        idx = barcode.find('10')
+                        if idx >= 0:
+                            # Extract lot number (next chars until next AI or end)
+                            start = idx + 2
+                            end = len(barcode)
+                            # Look for next AI marker (digits followed by parenthesis or end)
+                            for i in range(start, len(barcode)):
+                                if i > start and barcode[i:i+1].isalpha() and barcode[i-1:i].isdigit():
+                                    end = i
+                                    break
+                            lot_name = barcode[start:end].strip()
+                    except:
+                        pass
+
+                # Expiry extraction: look for 17-prefixed data (YYMMDD format)
+                if '17' in barcode and not expiry_date:
+                    try:
+                        idx = barcode.find('17')
+                        if idx >= 0:
+                            start = idx + 2
+                            end = min(start + 6, len(barcode))
+                            date_str = barcode[start:end]
+                            if len(date_str) == 6 and date_str.isdigit():
+                                yy = int(date_str[0:2])
+                                mm = int(date_str[2:4])
+                                dd = int(date_str[4:6])
+                                # Convert YY to YYYY (assume 00-50 = 2000-2050, 51-99 = 1951-1999)
+                                yyyy = 2000 + yy if yy <= 50 else 1900 + yy
+                                expiry_date = f"{yyyy}-{mm:02d}-{dd:02d}"
+                    except:
+                        pass
+
+            # If lot_name extracted, try to link to stock.production.lot
+            if lot_name:
+                lot = StockLot.search([
+                    ('product_id', '=', product.id),
+                    ('name', '=', lot_name),
+                ], limit=1)
+                if lot:
+                    lot_id = lot.id
 
             return {
                 'found': True,
@@ -189,9 +237,9 @@ class InventoryController(http.Controller):
                 'name': product.name,
                 'uom_name': product.uom_id.name if product.uom_id else 'U',
                 'qty_system': qty_system,
-                'lot_id': False,
-                'lot_name': '',
-                'expiry_date': False,
+                'lot_id': lot_id,
+                'lot_name': lot_name,
+                'expiry_date': expiry_date,
             }
 
         except Exception as e:
@@ -208,7 +256,7 @@ class InventoryController(http.Controller):
             session_id: clinic.inventory ID
 
         Returns:
-            list: [{id, product_id, product_name, lot_name, expiry_date, qty_counted, uom_name, note}]
+            list: [{id, product_id, product_name, barcode, lot_name, expiry_date, qty_counted, uom_name, note}]
         """
         try:
             user = request.env.user
@@ -246,6 +294,7 @@ class InventoryController(http.Controller):
                     'id': line.id,
                     'product_id': line.product_id.id,
                     'product_name': line.product_id.name,
+                    'barcode': line.product_id.barcode or '',
                     'lot_id': line.lot_id.id if line.lot_id else False,
                     'lot_name': line.lot_id.name if line.lot_id else '',
                     'expiry_date': str(line.expiry_date) if line.expiry_date else False,

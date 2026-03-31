@@ -578,6 +578,80 @@
     }
 }
 
+// ============================================================
+// INLINE QTY EDITING
+// ============================================================
+
+.cbm_qty_display {
+    display: inline-block;
+    padding: 8px 12px;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #1f2937;
+    transition: all 0.2s;
+    user-select: none;
+
+    &:hover {
+        background: #f0fdf4;
+        border-color: #d1fae5;
+        color: #047857;
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+.cbm_qty_inline_input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #059669;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    background: white;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    transition: all 0.2s;
+
+    &:focus {
+        border-color: #047857;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+    }
+
+    &:disabled {
+        background: #f3f4f6;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    // Number input spinners
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    &[type='number'] {
+        -moz-appearance: textfield;
+    }
+}
+
+.cbm_qty_saving_spinner {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+
+    .spinner-border-sm {
+        color: #059669;
+        width: 12px;
+        height: 12px;
+    }
+}
+
 .cbm_action_btn {
     background: none;
     border: none;
@@ -590,14 +664,6 @@
     transition: all 0.2s;
     margin: 0 4px;
 
-    &.cbm_action_edit {
-        color: #0084d4;
-
-        &:hover {
-            background: rgba(0, 132, 212, 0.1);
-        }
-    }
-
     &.cbm_action_delete {
         color: #dc2626;
 
@@ -606,7 +672,6 @@
         }
     }
 
-    .cbm_icon_pencil,
     .cbm_icon_trash {
         font-size: 16px;
     }

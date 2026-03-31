@@ -48,7 +48,7 @@
 
                 <!-- Counting Interface -->
                 <div t-else="" class="cbm_inventory_container">
-                    <!-- Search/Barcode Input Section -->
+                    <!-- Barcode Scanner Input Section -->
                     <div class="cbm_inventory_search_section">
                         <div class="cbm_search_box">
                             <div class="cbm_search_input_wrapper">
@@ -59,126 +59,7 @@
                                        t-ref="barcodeInput"
                                        t-on-keydown="onBarcodeInput"
                                        autocomplete="off"/>
-                            </div>
-                            <div class="cbm_search_divider">OU</div>
-                            <div class="cbm_search_input_wrapper cbm_product_search">
-                                <span class="cbm_icon_search"/>
-                                <input type="text"
-                                       class="cbm_search_input"
-                                       placeholder="Rechercher un produit..."
-                                       t-model="state.searchQuery"
-                                       t-on-input="onSearchInput"
-                                       t-on-keydown="onSearchKeydown"
-                                       t-ref="searchInput"
-                                       autocomplete="off"/>
-                                <span t-if="state.searchLoading" class="spinner-border spinner-border-sm"/>
-                            </div>
-                        </div>
-
-                        <!-- Search Results Dropdown -->
-                        <div t-if="state.searchDropdownOpen and state.searchResults.length > 0" class="cbm_search_dropdown">
-                            <div class="cbm_search_results">
-                                <t t-foreach="state.searchResults" t-as="result" t-key="result.id">
-                                    <div t-att-class="'cbm_search_result_item' + (state.selectedResultIndex === result_index ? ' highlighted' : '')"
-                                         t-on-click="() => this.selectProduct(result)">
-                                        <div class="cbm_result_info">
-                                            <span class="cbm_result_name" t-esc="result.name"/>
-                                            <span class="cbm_result_barcode" t-if="result.barcode" t-esc="'Code: ' + result.barcode"/>
-                                        </div>
-                                        <div class="cbm_result_meta">
-                                            <span class="cbm_result_uom" t-esc="result.uom_name"/>
-                                            <span class="cbm_result_qty" t-esc="'Stock: ' + result.qty_system.toFixed(2)"/>
-                                        </div>
-                                    </div>
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Edit/Add Form (When product selected) -->
-                    <div t-if="state.editingLine" class="cbm_inventory_form_modal">
-                        <div class="cbm_form_backdrop" t-on-click="cancelEdit"/>
-                        <div class="cbm_form_card">
-                            <div class="cbm_form_header">
-                                <h3>
-                                    <t t-if="state.editingLineId">Modifier la ligne</t>
-                                    <t t-else="">Ajouter un produit</t>
-                                </h3>
-                                <button class="cbm_form_close" t-on-click="cancelEdit">
-                                    <span class="cbm_icon_x"/>
-                                </button>
-                            </div>
-
-                            <div class="cbm_form_body">
-                                <!-- Product Info (Read-only) -->
-                                <div class="cbm_form_field cbm_form_field_readonly">
-                                    <label>Produit</label>
-                                    <div class="cbm_form_value" t-esc="state.editingLine.product_name"/>
-                                </div>
-
-                                <!-- System Qty Reference -->
-                                <div class="cbm_form_field cbm_form_field_readonly">
-                                    <label>Stock système</label>
-                                    <div class="cbm_form_value" t-esc="'${qty} ${uom}'.format(qty=state.editingLine.qty_system.toFixed(2), uom=state.editingLine.uom_name)"/>
-                                </div>
-
-                                <!-- Qty Counted Input -->
-                                <div class="cbm_form_field">
-                                    <label for="qty_counted">Quantité comptée</label>
-                                    <div class="cbm_qty_input_group">
-                                        <input type="number"
-                                               id="qty_counted"
-                                               class="cbm_qty_input"
-                                               placeholder="0.00"
-                                               step="0.01"
-                                               min="0"
-                                               t-att-value="state.editingLine.qty_counted"
-                                               t-on-change="(e) => this.onEditFormInput('qty_counted', e)"
-                                               autofocus="true"/>
-                                        <span class="cbm_qty_unit" t-esc="state.editingLine.uom_name"/>
-                                    </div>
-                                </div>
-
-                                <!-- Lot Selection -->
-                                <div class="cbm_form_field">
-                                    <label for="lot_name">Lot/Série (optionnel)</label>
-                                    <input type="text"
-                                           id="lot_name"
-                                           class="cbm_text_input"
-                                           placeholder="Ex: LOT-2026-001"
-                                           t-att-value="state.editingLine.lot_name"
-                                           t-on-change="(e) => this.onEditFormInput('lot_name', e)"/>
-                                </div>
-
-                                <!-- Expiry Date -->
-                                <div class="cbm_form_field">
-                                    <label for="expiry_date">Date d'expiration (optionnel)</label>
-                                    <input type="date"
-                                           id="expiry_date"
-                                           class="cbm_date_input"
-                                           t-att-value="state.editingLine.expiry_date"
-                                           t-on-change="(e) => this.onEditFormInput('expiry_date', e)"/>
-                                </div>
-
-                                <!-- Notes -->
-                                <div class="cbm_form_field">
-                                    <label for="note">Remarques (optionnel)</label>
-                                    <input type="text"
-                                           id="note"
-                                           class="cbm_text_input"
-                                           placeholder="Notes sur ce comptage..."
-                                           t-att-value="state.editingLine.note"
-                                           t-on-change="(e) => this.onEditFormInput('note', e)"/>
-                                </div>
-                            </div>
-
-                            <div class="cbm_form_actions">
-                                <button class="cbm_btn cbm_btn_secondary" t-on-click="cancelEdit">Annuler</button>
-                                <button class="cbm_btn cbm_btn_primary" t-on-click="saveLine" t-att-disabled="state.savingLine">
-                                    <span t-if="state.savingLine" class="spinner-border spinner-border-sm me-2"/>
-                                    <t t-if="state.editingLineId">Modifier</t>
-                                    <t t-else="">Ajouter</t>
-                                </button>
+                                <span t-if="state.barcodeLoading" class="spinner-border spinner-border-sm"/>
                             </div>
                         </div>
                     </div>
@@ -211,7 +92,7 @@
                         <div t-elif="state.lines.length === 0" class="cbm_lines_empty">
                             <span class="cbm_icon_inbox"/>
                             <p>Aucun produit comptabilisé pour le moment.</p>
-                            <p class="cbm_lines_empty_hint">Utilisez la barre de recherche ci-dessus pour commencer.</p>
+                            <p class="cbm_lines_empty_hint">Scannez un code-barres ci-dessus pour commencer.</p>
                         </div>
 
                         <div t-else="" class="cbm_lines_table">
@@ -221,7 +102,7 @@
                                         <th class="cbm_col_product">Produit</th>
                                         <th class="cbm_col_lot">Lot</th>
                                         <th class="cbm_col_expiry">Expiry</th>
-                                        <th class="cbm_col_qty">Qty</th>
+                                        <th class="cbm_col_qty">Quantité</th>
                                         <th class="cbm_col_uom">UoM</th>
                                         <th class="cbm_col_actions">Actions</th>
                                     </tr>
@@ -235,14 +116,33 @@
                                                 <t t-if="line.expiry_date" t-esc="line.expiry_date"/>
                                                 <t t-else="">-</t>
                                             </td>
-                                            <td class="cbm_col_qty" t-esc="line.qty_counted.toFixed(2)"/>
+                                            <!-- Inline Qty Field -->
+                                            <td class="cbm_col_qty">
+                                                <t t-if="state.editingLineId === line.id">
+                                                    <!-- Edit mode: input field -->
+                                                    <input type="number"
+                                                           class="cbm_qty_inline_input"
+                                                           t-att-data-line-id="line.id"
+                                                           t-model="state.editingLineQty"
+                                                           t-on-change="onQtyChange"
+                                                           t-on-blur="() => this.onQtyBlur(line.id)"
+                                                           step="0.01"
+                                                           min="0"
+                                                           placeholder="0.00"
+                                                           t-att-disabled="state.savingLineId === line.id"/>
+                                                    <span t-if="state.savingLineId === line.id" class="cbm_qty_saving_spinner">
+                                                        <span class="spinner-border spinner-border-sm"/>
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <!-- Display mode: click to edit -->
+                                                    <span class="cbm_qty_display" t-on-click="() => this.onQtyStartEdit(line.id, line.qty_counted)">
+                                                        <t t-esc="line.qty_counted.toFixed(2)"/>
+                                                    </span>
+                                                </t>
+                                            </td>
                                             <td class="cbm_col_uom" t-esc="line.uom_name"/>
                                             <td class="cbm_col_actions">
-                                                <button class="cbm_action_btn cbm_action_edit"
-                                                        t-on-click="() => this.editLine(line)"
-                                                        title="Modifier">
-                                                    <span class="cbm_icon_pencil"/>
-                                                </button>
                                                 <button class="cbm_action_btn cbm_action_delete"
                                                         t-on-click="() => this.confirmDelete(line.id)"
                                                         title="Supprimer">

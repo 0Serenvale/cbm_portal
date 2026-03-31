@@ -1,10 +1,13 @@
 /** @odoo-module **/
 /**
  * InventoryCount Component - Physical Inventory Counting for CBM Portal
- * Allows staff to count stock, search products by barcode/name, and view/edit lines
+ * Mobile-first inline editing with barcode scanner auto-add
+ * - Scan barcode → auto-adds product row to table
+ * - Edit qty inline → auto-saves on change
+ * - All data pre-loaded from database, user only edits quantity
  */
 
-import { Component, useState, useRef, onMounted } from "@odoo/owl";
+import { Component, useState, useRef } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 
@@ -13,7 +16,6 @@ export class InventoryCount extends Component {
 
     setup() {
         this.rpc = useService("rpc");
-        this.searchInputRef = useRef("searchInput");
         this.barcodeInputRef = useRef("barcodeInput");
 
         this.state = useState({
@@ -27,24 +29,20 @@ export class InventoryCount extends Component {
             teamId: null,
             teamName: '',
 
-            // Lines
+            // Lines (all data pre-loaded from DB)
             linesLoading: false,
-            lines: [],  // [{id, product_id, product_name, lot_id, lot_name, expiry_date, qty_counted, uom_name, note}]
+            lines: [],  // [{id, product_id, product_name, lot_id, lot_name, expiry_date, qty_counted, qty_system, uom_name, barcode}]
 
-            // Search
-            searchQuery: '',
-            searchResults: [],
-            searchLoading: false,
-            selectedResultIndex: -1,
-            searchDropdownOpen: false,
+            // Barcode input
+            barcodeLoading: false,
 
-            // Add/Edit form
-            editingLine: null,  // {product_id, product_name, lot_id, lot_name, expiry_date, qty_counted, note, uom_name} or null
-            editingLineId: null,  // line_id if updating, null if creating
+            // Inline editing state
+            editingLineId: null,  // line_id currently being edited
+            editingLineQty: '',   // temp qty value during edit
+            savingLineId: null,   // line_id being saved
 
-            // Submission
-            savingLine: false,
-            deleteConfirmLineId: null,  // line_id pending deletion
+            // Delete confirmation
+            deleteConfirmLineId: null,
         });
 
         this.loadSession();
@@ -83,6 +81,13 @@ export class InventoryCount extends Component {
             await this.loadLines();
             this.state.sessionLoading = false;
 
+            // Focus barcode input
+            setTimeout(() => {
+                if (this.barcodeInputRef.el) {
+                    this.barcodeInputRef.el.focus();
+                }
+            }, 100);
+
         } catch (error) {
             console.error("[INVENTORY] Failed to load session:", error);
             this.state.sessionFound = false;
@@ -117,40 +122,8 @@ export class InventoryCount extends Component {
     }
 
     // ============================================================
-    // SEARCH & PRODUCT SELECTION
+    // BARCODE SCANNING
     // ============================================================
-
-    async onSearchInput(event) {
-        const query = event.target.value || '';
-        this.state.searchQuery = query;
-        this.state.selectedResultIndex = -1;
-
-        if (!query.trim()) {
-            this.state.searchResults = [];
-            this.state.searchDropdownOpen = false;
-            return;
-        }
-
-        try {
-            this.state.searchLoading = true;
-            this.state.searchDropdownOpen = true;
-
-            const results = await this.rpc('/cbm/inventory/search_product', {
-                query: query,
-                location_id: this.state.locationId,
-                limit: 10,
-            });
-
-            this.state.searchResults = results || [];
-            console.log('[INVENTORY] Search results:', this.state.searchResults.length);
-            this.state.searchLoading = false;
-
-        } catch (error) {
-            console.error("[INVENTORY] Search failed:", error);
-            this.state.searchLoading = false;
-            this.state.searchResults = [];
-        }
-    }
 
     async onBarcodeInput(event) {
         if (event.key !== 'Enter') {
@@ -163,176 +136,173 @@ export class InventoryCount extends Component {
         }
 
         try {
-            this.state.searchLoading = true;
+            this.state.barcodeLoading = true;
 
             const result = await this.rpc('/cbm/inventory/search_barcode', {
                 barcode: barcode,
                 location_id: this.state.locationId,
             });
 
-            this.state.searchLoading = false;
+            this.state.barcodeLoading = false;
 
             if (!result.found) {
                 if (this.props.showToast) {
                     this.props.showToast(_t("Produit non trouvé"), 'warning');
                 }
                 event.target.value = '';
+                // Re-focus for next scan
+                setTimeout(() => event.target.focus(), 100);
                 return;
             }
 
-            // Found product - open form for this product
-            this.selectProduct({
-                id: result.id,
-                name: result.name,
-                barcode: barcode,
-                uom_name: result.uom_name,
-                qty_system: result.qty_system,
-            });
+            // Each scan creates a NEW row (no deduplication)
+            // User can delete accidental double-scans manually
+            // This allows staff to record exact counting flow
+            await this.addLineFromBarcode(result);
 
             event.target.value = '';
+            // Re-focus for next scan
+            setTimeout(() => event.target.focus(), 100);
 
         } catch (error) {
-            console.error("[INVENTORY] Barcode search failed:", error);
-            this.state.searchLoading = false;
-        }
-    }
-
-    onSearchKeydown(event) {
-        const filtered = this.state.searchResults;
-
-        if (event.key === 'ArrowDown') {
-            event.preventDefault();
-            this.state.selectedResultIndex = Math.min(
-                this.state.selectedResultIndex + 1,
-                filtered.length - 1
-            );
-        } else if (event.key === 'ArrowUp') {
-            event.preventDefault();
-            this.state.selectedResultIndex = Math.max(
-                this.state.selectedResultIndex - 1,
-                -1
-            );
-        } else if (event.key === 'Enter') {
-            event.preventDefault();
-            if (this.state.selectedResultIndex >= 0 &&
-                this.state.selectedResultIndex < filtered.length) {
-                const selected = filtered[this.state.selectedResultIndex];
-                this.selectProduct(selected);
+            console.error("[INVENTORY] Barcode scan failed:", error);
+            this.state.barcodeLoading = false;
+            if (this.props.showToast) {
+                this.props.showToast(_t("Erreur lors du scan"), 'danger');
             }
-        } else if (event.key === 'Escape') {
-            event.preventDefault();
-            this.state.searchDropdownOpen = false;
-            this.state.searchQuery = '';
-            this.state.searchResults = [];
-            this.state.selectedResultIndex = -1;
         }
     }
 
-    selectProduct(product) {
-        // Clear search
-        this.state.searchQuery = '';
-        this.state.searchResults = [];
-        this.state.selectedResultIndex = -1;
-        this.state.searchDropdownOpen = false;
+    async addLineFromBarcode(product) {
+        // Create new line with qty=1
+        try {
+            const result = await this.rpc('/cbm/inventory/save_line', {
+                session_id: this.state.sessionId,
+                product_id: product.id,
+                lot_id: product.lot_id || false,
+                expiry_date: product.expiry_date || false,
+                qty_counted: 1,
+                note: '',
+                line_id: false,  // Create new
+            });
 
-        // Open form for this product
-        this.state.editingLine = {
-            product_id: product.id,
-            product_name: product.name,
-            lot_id: null,
-            lot_name: '',
-            expiry_date: null,
-            qty_counted: '',
-            note: '',
-            uom_name: product.uom_name || 'U',
-            qty_system: product.qty_system || 0,
-        };
-        this.state.editingLineId = null;
+            if (!result.success) {
+                if (this.props.showToast) {
+                    this.props.showToast(result.error || _t("Erreur lors de l'ajout"), 'danger');
+                }
+                return;
+            }
+
+            // Reload lines to get new row
+            await this.loadLines();
+
+            // Auto-focus qty field of newly added product
+            setTimeout(() => {
+                const newLine = this.state.lines.find(l => l.product_id === product.id);
+                if (newLine) {
+                    this.onQtyStartEdit(newLine.id, newLine.qty_counted);
+                }
+            }, 50);
+
+        } catch (error) {
+            console.error("[INVENTORY] Add line from barcode failed:", error);
+            if (this.props.showToast) {
+                this.props.showToast(_t("Erreur de connexion"), 'danger');
+            }
+        }
     }
 
     // ============================================================
-    // LINE EDIT/SAVE
+    // INLINE QTY EDITING & AUTO-SAVE
     // ============================================================
 
-    editLine(line) {
-        // Copy line for editing
-        this.state.editingLine = {
-            product_id: line.product_id,
-            product_name: line.product_name,
-            lot_id: line.lot_id,
-            lot_name: line.lot_name,
-            expiry_date: line.expiry_date,
-            qty_counted: line.qty_counted.toString(),
-            note: line.note,
-            uom_name: line.uom_name,
-        };
-        this.state.editingLineId = line.id;
+    onQtyStartEdit(lineId, currentQty) {
+        this.state.editingLineId = lineId;
+        this.state.editingLineQty = currentQty.toString();
+
+        // Auto-focus input after next render
+        setTimeout(() => {
+            const input = document.querySelector(`input[data-line-id="${lineId}"]`);
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }, 10);
     }
 
-    onEditFormInput(field, event) {
-        if (!this.state.editingLine) {
-            return;
-        }
-        const value = event.target.value;
-        this.state.editingLine[field] = value;
+    onQtyChange(event) {
+        this.state.editingLineQty = event.target.value;
     }
 
-    cancelEdit() {
-        this.state.editingLine = null;
-        this.state.editingLineId = null;
+    async onQtyBlur(lineId) {
+        // Save when user leaves qty field
+        await this.saveQtyInline(lineId);
     }
 
-    async saveLine() {
-        if (!this.state.editingLine || !this.state.sessionId) {
+    async saveQtyInline(lineId) {
+        if (!lineId || !this.state.sessionId) {
+            this.state.editingLineId = null;
             return;
         }
 
-        const qtyCountedVal = parseFloat(this.state.editingLine.qty_counted);
-        if (isNaN(qtyCountedVal) || qtyCountedVal < 0) {
+        const line = this.state.lines.find(l => l.id === lineId);
+        if (!line) {
+            this.state.editingLineId = null;
+            return;
+        }
+
+        const newQty = parseFloat(this.state.editingLineQty);
+        if (isNaN(newQty) || newQty < 0) {
             if (this.props.showToast) {
                 this.props.showToast(_t("Quantité invalide"), 'warning');
             }
+            this.state.editingLineId = null;
             return;
         }
 
         try {
-            this.state.savingLine = true;
+            this.state.savingLineId = lineId;
 
             const result = await this.rpc('/cbm/inventory/save_line', {
                 session_id: this.state.sessionId,
-                product_id: this.state.editingLine.product_id,
-                lot_id: this.state.editingLine.lot_id || false,
-                expiry_date: this.state.editingLine.expiry_date || false,
-                qty_counted: qtyCountedVal,
-                note: this.state.editingLine.note || '',
-                line_id: this.state.editingLineId || false,
+                product_id: line.product_id,
+                lot_id: line.lot_id || false,
+                expiry_date: line.expiry_date || false,
+                qty_counted: newQty,
+                note: line.note || '',
+                line_id: lineId,
             });
 
             if (!result.success) {
                 if (this.props.showToast) {
                     this.props.showToast(result.error || _t("Erreur lors de l'enregistrement"), 'danger');
                 }
-                this.state.savingLine = false;
+                this.state.savingLineId = null;
+                this.state.editingLineId = null;
                 return;
             }
 
-            // Success - reload lines
-            if (this.props.showToast) {
-                this.props.showToast(_t("Ligne enregistrée"), 'success');
+            console.log('[INVENTORY] Line saved:', lineId, 'qty=', newQty);
+
+            // Update local state
+            line.qty_counted = newQty;
+
+            // Close edit mode
+            this.state.editingLineId = null;
+            this.state.savingLineId = null;
+
+            // Keep focus on barcode for next scan
+            if (this.barcodeInputRef.el) {
+                this.barcodeInputRef.el.focus();
             }
 
-            this.state.editingLine = null;
-            this.state.editingLineId = null;
-            this.state.savingLine = false;
-
-            await this.loadLines();
-
         } catch (error) {
-            console.error("[INVENTORY] Save line failed:", error);
+            console.error("[INVENTORY] Save qty failed:", error);
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur de connexion"), 'danger');
             }
-            this.state.savingLine = false;
+            this.state.savingLineId = null;
+            this.state.editingLineId = null;
         }
     }
 
