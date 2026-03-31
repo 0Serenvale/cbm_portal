@@ -13,10 +13,11 @@ import { _t } from "@web/core/l10n/translation";
 import { TimeOffForm, TimeoffRequests } from "../components/timeoff/timeoff";
 import { DocumentsViewer } from "../components/documents/documents";
 import { AccountabilityDashboard } from "../components/accountability/accountability";
+import { InventoryCount } from "../components/inventory/inventory";
 
 class CBMKiosk extends Component {
     static template = "clinic_staff_portal.CBMKiosk";
-    static components = { TimeOffForm, TimeoffRequests, DocumentsViewer, AccountabilityDashboard };
+    static components = { TimeOffForm, TimeoffRequests, DocumentsViewer, AccountabilityDashboard, InventoryCount };
     
     setup() {
         this.rpc = useService("rpc");
@@ -307,6 +308,9 @@ class CBMKiosk extends Component {
             workstationName: '',
             activityStatus: 'active',  // 'active' | 'idle'
             dualSessionWarning: '',
+
+            // Inventory Session (for inventory counting)
+            inventorySession: null,  // Populated on goToInventory()
         });
         
         onWillStart(async () => {
@@ -3725,6 +3729,12 @@ class CBMKiosk extends Component {
             return;
         }
 
+        // Intercept inventory tile - route to inventory counting component
+        if (tile.icon === 'clipboard-document-list' || tile.name.toLowerCase().includes('inventaire')) {
+            this.goToInventory();
+            return;
+        }
+
         // Handle client actions (Discuss, etc.) - open in new tab
         if (tile.type === 'client_action' && tile.client_action_tag) {
             // Build URL for client action and open in new tab
@@ -3952,6 +3962,11 @@ class CBMKiosk extends Component {
 
     goToTimeoffRequests() {
         this.state.currentState = 'timeoff_requests';
+    }
+
+    goToInventory() {
+        this.state.currentState = 'inventory';
+        // Session is self-contained in InventoryCount component
     }
 
     async loadTimeOffHistory() {
