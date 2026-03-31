@@ -2363,6 +2363,11 @@
                 <TimeoffRequests onNavigateHome.bind="goHome" showToast.bind="showToast"/>
             </div>
 
+            <!-- INVENTORY COUNTING -->
+            <div t-elif="state.currentState === 'inventory'" class="cbm_page">
+                <InventoryCount onNavigateHome.bind="goHome" showToast.bind="showToast"/>
+            </div>
+
             <!-- CASHIER WORKSTATION - SPLIT VIEW -->
             <div t-elif="state.currentState === 'cashier'" t-att-class="'cbm_cashier_workstation' + (state.cashierLightMode ? ' cbm-light-mode' : '')">
                 <!-- HEADER: Fixed at top, spans full width -->
