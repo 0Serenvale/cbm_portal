@@ -39,3 +39,9 @@ access_product_product_portal_user,product.product portal user,product.model_pro
 access_product_template_portal_user,product.template portal user,product.model_product_template,group_clinic_portal_user,1,0,0,0
 access_sale_order_portal_user,sale.order portal user,sale.model_sale_order,group_clinic_portal_user,1,0,0,0
 access_sale_order_line_portal_user,sale.order.line portal user,sale.model_sale_order_line,group_clinic_portal_user,1,0,0,0
+access_clinic_inventory_user,clinic.inventory user,model_clinic_inventory,group_clinic_portal_user,1,0,0,0
+access_clinic_inventory_manager,clinic.inventory manager,model_clinic_inventory,group_clinic_portal_manager,1,1,1,1
+access_clinic_inventory_team_user,clinic.inventory.team user,model_clinic_inventory_team,group_clinic_portal_user,1,0,0,0
+access_clinic_inventory_team_manager,clinic.inventory.team manager,model_clinic_inventory_team,group_clinic_portal_manager,1,1,1,1
+access_clinic_inventory_line_user,clinic.inventory.line user,model_clinic_inventory_line,group_clinic_portal_user,1,0,1,0
+access_clinic_inventory_line_manager,clinic.inventory.line manager,model_clinic_inventory_line,group_clinic_portal_manager,1,1,1,1
