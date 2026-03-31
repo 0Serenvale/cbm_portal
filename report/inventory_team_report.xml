@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Per-Team Inventory Report Template -->
+    <template id="report_inventory_team">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="session">
+                <!-- Find current user's team for this session -->
+                <t t-set="current_user_team" t-value="session.team_ids.filtered(lambda t: request.env.user in t.user_ids)[0] if session.team_ids.filtered(lambda t: request.env.user in t.user_ids) else False"/>
+
+                <t t-if="current_user_team">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: 'Segoe UI', Roboto, sans-serif;">
+
+                            <!-- Header -->
+                            <div style="border-bottom: 2px solid #059669; padding-bottom: 12px; margin-bottom: 24px;">
+                                <h2 style="margin: 0; font-size: 20px; color: #065f46;">RAPPORT DE COMPTAGE D'INVENTAIRE</h2>
+                                <p style="margin: 4px 0 0; font-size: 12px; color: #6b7280;">
+                                    Équipe : <strong t-esc="current_user_team.name"/>
+                                </p>
+                            </div>
+
+                            <!-- Session Info -->
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px;">
+                                <tr style="background: #f0fdf4;">
+                                    <td style="padding: 10px 14px; font-weight: 600; width: 35%; border: 1px solid #d1fae5;">Num. Session</td>
+                                    <td style="padding: 10px 14px; border: 1px solid #d1fae5;"><span t-esc="session.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #d1fae5;">Date</td>
+                                    <td style="padding: 10px 14px; border: 1px solid #d1fae5;">
+                                        <span t-field="session.date" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                    </td>
+                                </tr>
+                                <tr style="background: #f0fdf4;">
+                                    <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #d1fae5;">Localisation</td>
+                                    <td style="padding: 10px 14px; border: 1px solid #d1fae5;"><span t-field="session.location_id"/></td>
+                                </tr>
+                            </table>
+
+                            <!-- Count Lines Table -->
+                            <div style="margin-bottom: 24px;">
+                                <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 12px; color: #374151;">Produits Comptés</h3>
+                                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                    <thead>
+                                        <tr style="background: #f3f4f6; border-bottom: 2px solid #374151;">
+                                            <th style="padding: 10px 14px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb;">Produit</th>
+                                            <th style="padding: 10px 14px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb;">Lot/Série</th>
+                                            <th style="padding: 10px 14px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb;">Date Expiry</th>
+                                            <th style="padding: 10px 14px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb;">Qty Comptée</th>
+                                            <th style="padding: 10px 14px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb;">UoM</th>
+                                            <th style="padding: 10px 14px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb;">Remarques</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="session.line_ids.filtered(lambda l: l.team_id.id == current_user_team.id)" t-as="line">
+                                            <tr t-if="line_index % 2 == 0" style="background: #f9fafb;">
+                                                <td style="padding: 10px 14px; border: 1px solid #e5e7eb;"><span t-esc="line.product_id.name"/></td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb;">
+                                                    <span t-esc="line.lot_id.name if line.lot_id else '-'"/>
+                                                </td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb;">
+                                                    <span t-if="line.expiry_date" t-field="line.expiry_date" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600;">
+                                                    <span t-esc="'{:.2f}'.format(line.qty_counted)"/>
+                                                </td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb;">
+                                                    <span t-esc="line.uom_id.name"/>
+                                                </td>
+                                                <td style="padding: 10px 14px; border: 1px solid #e5e7eb; font-size: 11px; color: #6b7280;">
+                                                    <span t-esc="line.note or '-'"/>
+                                                </td>
+                                            </tr>
+                                            <tr t-else="">
+                                                <td style="padding: 10px 14px; border: 1px solid #e5e7eb;"><span t-esc="line.product_id.name"/></td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb;">
+                                                    <span t-esc="line.lot_id.name if line.lot_id else '-'"/>
+                                                </td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb;">
+                                                    <span t-if="line.expiry_date" t-field="line.expiry_date" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600;">
+                                                    <span t-esc="'{:.2f}'.format(line.qty_counted)"/>
+                                                </td>
+                                                <td style="padding: 10px 14px; text-align: center; border: 1px solid #e5e7eb;">
+                                                    <span t-esc="line.uom_id.name"/>
+                                                </td>
+                                                <td style="padding: 10px 14px; border: 1px solid #e5e7eb; font-size: 11px; color: #6b7280;">
+                                                    <span t-esc="line.note or '-'"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+
+                                <!-- No lines message -->
+                                <div t-if="not session.line_ids.filtered(lambda l: l.team_id.id == current_user_team.id)"
+                                     style="padding: 20px; background: #fef3c7; border: 1px solid #fcd34d; border-radius: 4px; color: #92400e;">
+                                    <p style="margin: 0; font-size: 13px;">Aucun produit comptabilisé pour cette équipe.</p>
+                                </div>
+                            </div>
+
+                            <!-- Summary Stats -->
+                            <div style="margin-bottom: 24px; background: #f0fdf4; padding: 16px; border-radius: 4px; border: 1px solid #d1fae5;">
+                                <p style="margin: 0; font-size: 13px;">
+                                    <strong>Total lignes :</strong> <t t-esc="len(session.line_ids.filtered(lambda l: l.team_id.id == current_user_team.id))"/>
+                                </p>
+                            </div>
+
+                            <!-- Team Signature -->
+                            <div style="margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 24px;">
+                                <h4 style="font-size: 13px; margin: 0 0 24px; color: #374151;">SIGNATURE DE L'ÉQUIPE</h4>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="width: 50%; vertical-align: top; padding-right: 24px;">
+                                            <p style="font-size: 12px; font-weight: 600; margin: 0 0 4px;">
+                                                Responsable de l'équipe :
+                                            </p>
+                                            <p style="font-size: 11px; color: #6b7280; margin: 0 0 40px;">
+                                                <t t-esc="current_user_team.name"/>
+                                            </p>
+                                            <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
+                                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Date</p>
+                                        </td>
+                                        <td style="width: 50%; vertical-align: top; padding-left: 24px; border-left: 1px solid #e5e7eb;">
+                                            <p style="font-size: 12px; font-weight: 600; margin: 0 0 4px;">
+                                                Signature du responsable du comptage :
+                                            </p>
+                                            <p style="font-size: 11px; color: #6b7280; margin: 0 0 40px;">&#160;</p>
+                                            <div style="border-bottom: 1px solid #374151; margin-bottom: 6px;"/>
+                                            <p style="font-size: 11px; color: #6b7280; margin: 0;">Date</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Footer -->
+                            <div style="margin-top: 40px; font-size: 11px; color: #9ca3af;">
+                                <p style="margin: 0;">
+                                    Imprimé le <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')"/>
+                                    par <t t-esc="user.name"/>
+                                </p>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Action -->
+    <record id="action_report_inventory_team" model="ir.actions.report">
+        <field name="name">Rapport Comptage Équipe</field>
+        <field name="model">clinic.inventory</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic_staff_portal.report_inventory_team</field>
+        <field name="report_file">clinic_staff_portal.report_inventory_team</field>
+        <field name="print_report_name">'Inventory_Team_%s' % (object.name or object.id)</field>
+    </record>
+</odoo>

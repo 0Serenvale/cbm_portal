@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Final Reconciliation Report (All Teams) -->
+    <template id="report_inventory_final">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="session">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Segoe UI', Roboto, sans-serif;">
+
+                        <!-- Header -->
+                        <div style="border-bottom: 2px solid #1e3a8a; padding-bottom: 12px; margin-bottom: 24px;">
+                            <h2 style="margin: 0; font-size: 20px; color: #1e40af;">RÉCONCILIATION D'INVENTAIRE - RAPPORT FINAL</h2>
+                            <p style="margin: 4px 0 0; font-size: 12px; color: #6b7280;">
+                                Session : <strong t-esc="session.name"/>
+                            </p>
+                        </div>
+
+                        <!-- Session Info -->
+                        <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px;">
+                            <tr style="background: #eff6ff;">
+                                <td style="padding: 10px 14px; font-weight: 600; width: 35%; border: 1px solid #bfdbfe;">Date de Session</td>
+                                <td style="padding: 10px 14px; border: 1px solid #bfdbfe;">
+                                    <span t-field="session.date" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #bfdbfe;">Localisation</td>
+                                <td style="padding: 10px 14px; border: 1px solid #bfdbfe;"><span t-field="session.location_id"/></td>
+                            </tr>
+                            <tr style="background: #eff6ff;">
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #bfdbfe;">Responsable</td>
+                                <td style="padding: 10px 14px; border: 1px solid #bfdbfe;"><span t-field="session.responsible_id"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; font-weight: 600; border: 1px solid #bfdbfe;">État</td>
+                                <td style="padding: 10px 14px; border: 1px solid #bfdbfe;">
+                                    <t t-if="session.state == 'approved'">
+                                        <span style="background: #16a34a; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                            Approuvé
+                                        </span>
+                                    </t>
+                                    <t t-else="">
+                                        <span t-esc="dict(session._fields['state'].selection).get(session.state, session.state)"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Reconciliation Table (Dynamic columns per team) -->
+                        <div style="margin-bottom: 24px; overflow-x: auto;">
+                            <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 12px; color: #374151;">Réconciliation par Équipe</h3>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed;">
+                                <thead>
+                                    <tr style="background: #f3f4f6; border-bottom: 2px solid #374151;">
+                                        <th style="padding: 8px 10px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; width: 15%;">Produit</th>
+                                        <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 10%;">Lot</th>
+                                        <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 10%;">Expiry</th>
+
+                                        <!-- Dynamic team columns -->
+                                        <t t-foreach="session.team_ids" t-as="team">
+                                            <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 8%;">
+                                                <t t-esc="team.name"/>
+                                            </th>
+                                        </t>
+
+                                        <!-- System and Variance columns -->
+                                        <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 10%;">Qty Système</th>
+                                        <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 8%;">Variance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Group lines by product/lot/expiry -->
+                                    <t t-set="grouped_lines" t-value="{}"/>
+                                    <t t-foreach="session.line_ids" t-as="line">
+                                        <t t-set="key" t-value="(line.product_id.id, line.lot_id.id if line.lot_id else False, line.expiry_date)"/>
+                                        <t t-if="key not in grouped_lines">
+                                            <t t-set="grouped_lines" t-value="{**grouped_lines, key: {'product': line.product_id, 'lot': line.lot_id, 'expiry': line.expiry_date, 'qty_system': line.qty_system, 'variance': line.variance, 'lines_by_team': {}}}"/>
+                                        </t>
+                                        <t t-set="grouped_lines[key]['lines_by_team'][line.team_id.id]" t-value="line"/>
+                                    </t>
+
+                                    <!-- Render grouped table -->
+                                    <t t-set="row_index" t-value="0"/>
+                                    <t t-foreach="grouped_lines.items()" t-as="item">
+                                        <t t-set="key" t-value="item[0]"/>
+                                        <t t-set="group" t-value="item[1]"/>
+                                        <t t-set="variance_val" t-value="group['variance']"/>
+                                        <t t-set="row_style" t-value="'background: #f9fafb;' if row_index % 2 == 0 else ''"/>
+
+                                        <!-- Variance color coding -->
+                                        <t t-set="variance_bg" t-value="'#dcfce7' if variance_val == 0 else '#fee2e2' if variance_val &lt; 0 else '#fef3c7'"/>
+                                        <t t-set="variance_text" t-value="'#166534' if variance_val == 0 else '#991b1b' if variance_val &lt; 0 else '#92400e'"/>
+
+                                        <tr t-attf-style="{{ row_style }}">
+                                            <td style="padding: 8px 10px; border: 1px solid #e5e7eb;">
+                                                <span t-esc="group['product'].name"/>
+                                            </td>
+                                            <td style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-size: 10px;">
+                                                <span t-esc="group['lot'].name if group['lot'] else '-'"/>
+                                            </td>
+                                            <td style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-size: 10px;">
+                                                <span t-if="group['expiry']" t-field="group['expiry']" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                                <span t-else="">-</span>
+                                            </td>
+
+                                            <!-- Team columns (counted qty) -->
+                                            <t t-foreach="session.team_ids" t-as="team">
+                                                <td style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600;">
+                                                    <t t-if="team.id in group['lines_by_team']">
+                                                        <span t-esc="'{:.2f}'.format(group['lines_by_team'][team.id].qty_counted)"/>
+                                                    </t>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                            </t>
+
+                                            <!-- System Qty -->
+                                            <td style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600; background: #f0f9ff;">
+                                                <span t-esc="'{:.2f}'.format(group['qty_system'])"/>
+                                            </td>
+
+                                            <!-- Variance (color-coded) -->
+                                            <td t-attf-style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600; background: {{ variance_bg }}; color: {{ variance_text }};">
+                                                <span t-esc="'{:+.2f}'.format(variance_val)"/>
+                                            </td>
+                                        </tr>
+
+                                        <t t-set="row_index" t-value="row_index + 1"/>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- Legend -->
+                            <div style="margin-top: 12px; font-size: 11px;">
+                                <p style="margin: 4px 0;">
+                                    <span style="background: #dcfce7; padding: 2px 8px; border-radius: 3px; margin-right: 12px;">Variance = 0 (équilibré)</span>
+                                    <span style="background: #fee2e2; padding: 2px 8px; border-radius: 3px; margin-right: 12px;">Variance &lt; 0 (sous-comptabilisé)</span>
+                                    <span style="background: #fef3c7; padding: 2px 8px; border-radius: 3px;">Variance &gt; 0 (sur-comptabilisé)</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Summary Stats -->
+                        <div style="margin-top: 24px; background: #eff6ff; padding: 16px; border-radius: 4px; border: 1px solid #bfdbfe;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                <tr>
+                                    <td style="padding: 4px 0; width: 33%;">
+                                        <strong>Total équipes :</strong> <t t-esc="len(session.team_ids)"/>
+                                    </td>
+                                    <td style="padding: 4px 0; width: 33%;">
+                                        <strong>Total lignes :</strong> <t t-esc="len(session.line_ids)"/>
+                                    </td>
+                                    <td style="padding: 4px 0; width: 33%;">
+                                        <strong>Total produits uniques :</strong> <t t-esc="len(set((line.product_id.id, line.lot_id.id if line.lot_id else False, line.expiry_date) for line in session.line_ids))"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Approval Section (if approved) -->
+                        <t t-if="session.state == 'approved'">
+                            <div style="margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 24px;">
+                                <h4 style="font-size: 13px; margin: 0 0 12px; color: #374151;">APPROBATION</h4>
+                                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                    <tr>
+                                        <td style="padding: 8px 0; width: 50%;">
+                                            <strong>Approuvé par :</strong>
+                                        </td>
+                                        <td style="padding: 8px 0; width: 50%;">
+                                            <span t-field="session.responsible_id"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- Footer -->
+                        <div style="margin-top: 40px; font-size: 11px; color: #9ca3af;">
+                            <p style="margin: 0;">
+                                Imprimé le <t t-esc="datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')"/>
+                                par <t t-esc="user.name"/>
+                            </p>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Action -->
+    <record id="action_report_inventory_final" model="ir.actions.report">
+        <field name="name">Rapport de Réconciliation Finale</field>
+        <field name="model">clinic.inventory</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic_staff_portal.report_inventory_final</field>
+        <field name="report_file">clinic_staff_portal.report_inventory_final</field>
+        <field name="print_report_name">'Inventory_Final_%s' % (object.name or object.id)</field>
+    </record>
+</odoo>
