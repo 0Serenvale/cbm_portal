@@ -110,14 +110,13 @@ class InventoryController(http.Controller):
 
             result = []
             for product in products:
-                # Get quantity at location
-                quant = StockQuant.search([
+                # Get total quantity across all locations (for reference)
+                # Search is NOT location-restricted
+                quants = StockQuant.search([
                     ('product_id', '=', product.id),
-                    ('location_id', '=', location_id),
-                    ('lot_id', '=', False),  # Unspecified lot only for summary
-                ], limit=1)
-
-                qty_system = quant.quantity if quant else 0.0
+                    ('lot_id', '=', False),
+                ])
+                qty_system = sum(q.quantity for q in quants)
 
                 result.append({
                     'id': product.id,
@@ -170,14 +169,15 @@ class InventoryController(http.Controller):
             if not product:
                 return {'found': False}
 
-            # Get quantity at location
-            quant = StockQuant.search([
+            # NOTE: qty_system is informational only, shown for reference
+            # Search is NOT location-restricted - user can scan any product
+            # Restriction is post-approval: adjustment is locked to assigned location
+            # Get total quantity across all locations (for reference)
+            quants = StockQuant.search([
                 ('product_id', '=', product.id),
-                ('location_id', '=', location_id),
                 ('lot_id', '=', False),
-            ], limit=1)
-
-            qty_system = quant.quantity if quant else 0.0
+            ])
+            qty_system = sum(q.quantity for q in quants)
 
             # Parse GS1-128 encoded barcode (if present)
             lot_id = False
