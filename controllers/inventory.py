@@ -369,6 +369,63 @@ class InventoryController(http.Controller):
             _logger.error("[CBM INVENTORY] delete_line error: %s", str(e))
             return {'success': False, 'error': str(e)[:200]}
 
+    @http.route('/cbm/inventory/submit_draft', type='json', auth='user')
+    def submit_draft(self, session_id):
+        """Submit inventory session as draft (not yet final approval).
+
+        Staff can still edit lines after draft submission.
+        Transition: active → pending_approval
+
+        Args:
+            session_id: clinic.inventory ID
+
+        Returns:
+            dict: {success: bool} or {success: False, error: str}
+        """
+        try:
+            user = request.env.user
+            ClinicInventory = request.env['clinic.inventory']
+            ClinicTeam = request.env['clinic.inventory.team']
+
+            # Verify session exists
+            session = ClinicInventory.browse(session_id)
+            if not session.exists():
+                return {'success': False, 'error': _('Session not found')}
+
+            # Verify user is assigned to this session's team
+            team = ClinicTeam.search([
+                ('inventory_id', '=', session.id),
+                ('user_ids', 'in', user.id),
+            ], limit=1)
+
+            if not team:
+                return {'success': False, 'error': _('Access denied')}
+
+            # Verify session is active (not already submitted)
+            if session.state != 'active':
+                return {'success': False, 'error': _('Session is not active')}
+
+            # Verify there are lines to submit
+            if not session.line_ids:
+                return {'success': False, 'error': _('Cannot submit without counted lines')}
+
+            # Submit for approval
+            session.submit_for_approval()
+
+            _logger.info(
+                "[CBM INVENTORY] User %s submitted session %s as draft",
+                user.name, session.name
+            )
+
+            return {'success': True}
+
+        except ValueError as e:
+            _logger.error("[CBM INVENTORY] submit_draft validation error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+        except Exception as e:
+            _logger.error("[CBM INVENTORY] submit_draft error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+
     @http.route('/cbm/inventory/team_pdf/<int:session_id>', type='http', auth='user')
     def team_pdf(self, session_id, **kwargs):
         """Generate per-team PDF for current user's team.

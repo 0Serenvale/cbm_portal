@@ -840,6 +840,49 @@
 }
 
 // ============================================================
+// FOOTER ACTIONS
+// ============================================================
+
+.cbm_page_footer {
+    display: flex;
+    justify-content: center;
+    padding: 16px 20px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+
+    @media (max-width: 768px) {
+        padding: 12px 16px;
+    }
+}
+
+.cbm_footer_actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+
+    .cbm_btn {
+        flex: 1;
+        min-width: 140px;
+
+        @media (max-width: 600px) {
+            flex: 0 1 auto;
+            min-width: 120px;
+            font-size: 13px;
+            padding: 10px 14px;
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .cbm_page_footer {
+        background: #111827;
+        border-color: #374151;
+    }
+}
+
+// ============================================================
 // NO SESSION STATE
 // ============================================================
 

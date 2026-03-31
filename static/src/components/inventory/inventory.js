@@ -51,6 +51,9 @@ export class InventoryCount extends Component {
             editingLineQty: '',   // temp qty value during edit
             savingLineId: null,   // line_id being saved
 
+            // Draft submission
+            submittingDraft: false,
+
             // Delete confirmation
             deleteConfirmLineId: null,
         });
@@ -538,6 +541,51 @@ export class InventoryCount extends Component {
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur lors du scan caméra"), 'danger');
             }
+        }
+    }
+
+    // ============================================================
+    // DRAFT SUBMISSION
+    // ============================================================
+
+    async submitDraft() {
+        if (!this.state.sessionId || !this.state.lines.length) {
+            return;
+        }
+
+        try {
+            this.state.submittingDraft = true;
+
+            const result = await this.rpc('/cbm/inventory/submit_draft', {
+                session_id: this.state.sessionId,
+            });
+
+            if (!result.success) {
+                if (this.props.showToast) {
+                    this.props.showToast(result.error || _t("Erreur lors de l'enregistrement"), 'danger');
+                }
+                this.state.submittingDraft = false;
+                return;
+            }
+
+            if (this.props.showToast) {
+                this.props.showToast(_t("Session enregistrée comme brouillon"), 'success');
+            }
+
+            console.log('[INVENTORY] Session submitted as draft:', this.state.sessionId);
+            this.state.submittingDraft = false;
+
+            // Go home after successful submission
+            setTimeout(() => {
+                this.props.onNavigateHome();
+            }, 1000);
+
+        } catch (error) {
+            console.error("[INVENTORY] Draft submission failed:", error);
+            if (this.props.showToast) {
+                this.props.showToast(_t("Erreur de connexion"), 'danger');
+            }
+            this.state.submittingDraft = false;
         }
     }
 

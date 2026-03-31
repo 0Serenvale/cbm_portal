@@ -267,6 +267,13 @@
                     <span class="cbm_icon_x me-2"/>
                     Quitter
                 </button>
+                <t t-if="state.sessionFound and state.lines.length > 0">
+                    <button class="cbm_btn cbm_btn_primary" t-on-click="submitDraft" t-att-disabled="state.submittingDraft">
+                        <span t-if="state.submittingDraft" class="spinner-border spinner-border-sm me-2"/>
+                        <span class="cbm_icon_check me-1"/>
+                        Enregistrer comme brouillon
+                    </button>
+                </t>
             </div>
         </div>
     </t>
