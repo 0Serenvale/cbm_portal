@@ -734,6 +734,236 @@
 }
 
 // ============================================================
+// TABLE SEARCH BAR
+// ============================================================
+
+.cbm_inventory_table_controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.cbm_table_search_wrapper {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &:focus-within {
+        background: white;
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    .cbm_icon_search {
+        font-size: 16px;
+        color: #6b7280;
+        flex-shrink: 0;
+    }
+
+    input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 14px;
+        color: #1f2937;
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+    }
+
+    .cbm_table_clear_search {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        color: #9ca3af;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #6b7280;
+        }
+
+        .cbm_icon_x {
+            font-size: 14px;
+        }
+    }
+}
+
+// ============================================================
+// DARK MODE SUPPORT
+// ============================================================
+
+@media (prefers-color-scheme: dark) {
+    .cbm_inventory_search_section {
+        background: linear-gradient(135deg, #064e3b 0%, #1a1f2e 100%);
+        border-color: #047857;
+
+        .cbm_search_input_wrapper {
+            background: #1f2937;
+            border-color: #374151;
+            color: #f3f4f6;
+
+            &:focus-within {
+                border-color: #10b981;
+                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            }
+
+            .cbm_icon_barcode,
+            .cbm_icon_search {
+                color: #d1d5db;
+            }
+
+            input {
+                color: #f3f4f6;
+
+                &::placeholder {
+                    color: #9ca3af;
+                }
+            }
+        }
+    }
+
+    .cbm_inventory_table_controls {
+        .cbm_table_search_wrapper {
+            background: #1f2937;
+            border-color: #374151;
+
+            &:focus-within {
+                background: #111827;
+                border-color: #10b981;
+            }
+
+            .cbm_icon_search {
+                color: #d1d5db;
+            }
+
+            input {
+                color: #f3f4f6;
+
+                &::placeholder {
+                    color: #9ca3af;
+                }
+            }
+
+            .cbm_table_clear_search {
+                color: #9ca3af;
+
+                &:hover {
+                    color: #d1d5db;
+                }
+            }
+        }
+    }
+
+    .cbm_table {
+        thead {
+            background: #1f2937;
+            border-color: #374151;
+
+            th {
+                color: #e5e7eb;
+            }
+        }
+
+        tbody {
+            tr {
+                border-color: #374151;
+
+                &:hover {
+                    background: #111827;
+                }
+
+                td {
+                    color: #f3f4f6;
+                }
+            }
+        }
+    }
+
+    .cbm_qty_display {
+        border-color: transparent;
+
+        &:hover {
+            background: #1f2937;
+            border-color: #10b981;
+            color: #10b981;
+        }
+    }
+
+    .cbm_qty_inline_input {
+        background: #1f2937;
+        border-color: #10b981;
+        color: #f3f4f6;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+
+        &:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        &:disabled {
+            background: #111827;
+        }
+    }
+
+    .cbm_lines_empty {
+        background: #111827;
+        border-color: #374151;
+        color: #9ca3af;
+
+        .cbm_icon_inbox {
+            color: #4b5563;
+        }
+    }
+}
+
+// ============================================================
+// DELETE BUTTON STYLING
+// ============================================================
+
+.cbm_action_btn.cbm_action_delete {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fee2e2;
+    color: #dc2626;
+    transition: all 0.2s;
+
+    &:hover {
+        background: #fca5a5;
+        color: #991b1b;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    .cbm_icon_trash {
+        font-size: 16px;
+    }
+
+    @media (max-width: 640px) {
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+}
+
+// ============================================================
 // RESPONSIVE
 // ============================================================
 
@@ -756,5 +986,10 @@
     .cbm_form_card {
         width: 95%;
         max-width: none;
+    }
+
+    .cbm_action_btn.cbm_action_delete {
+        padding: 12px 16px;
+        font-size: 14px;
     }
 }

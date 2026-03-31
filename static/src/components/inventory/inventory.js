@@ -36,6 +36,9 @@ export class InventoryCount extends Component {
             // Barcode input
             barcodeLoading: false,
 
+            // Table search
+            tableSearchQuery: '',
+
             // Inline editing state
             editingLineId: null,  // line_id currently being edited
             editingLineQty: '',   // temp qty value during edit
@@ -365,6 +368,37 @@ export class InventoryCount extends Component {
 
     goHome() {
         this.props.onNavigateHome();
+    }
+
+    // ============================================================
+    // TABLE SEARCH
+    // ============================================================
+
+    onTableSearchChange(event) {
+        this.state.tableSearchQuery = event.target.value.toLowerCase();
+    }
+
+    clearTableSearch() {
+        this.state.tableSearchQuery = '';
+    }
+
+    getFilteredLines() {
+        if (!this.state.tableSearchQuery) {
+            return this.state.lines;
+        }
+
+        const query = this.state.tableSearchQuery;
+        return this.state.lines.filter(line => {
+            const productName = (line.product_name || '').toLowerCase();
+            const lotName = (line.lot_name || '').toLowerCase();
+            const barcode = (line.barcode || '').toLowerCase();
+
+            return (
+                productName.includes(query) ||
+                lotName.includes(query) ||
+                barcode.includes(query)
+            );
+        });
     }
 }
 

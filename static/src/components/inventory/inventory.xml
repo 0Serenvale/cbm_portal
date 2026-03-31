@@ -84,6 +84,26 @@
                     <div class="cbm_inventory_lines_section">
                         <h3 class="cbm_lines_title">Produits comptés (<t t-esc="state.lines.length"/>)</h3>
 
+                        <!-- Table Search Bar -->
+                        <t t-if="state.lines.length > 0">
+                            <div class="cbm_inventory_table_controls">
+                                <div class="cbm_table_search_wrapper">
+                                    <span class="cbm_icon_search"/>
+                                    <input type="text"
+                                           class="cbm_table_search_input"
+                                           placeholder="Chercher produit, lot, code-barres..."
+                                           t-model="state.tableSearchQuery"
+                                           t-on-input="onTableSearchChange"
+                                           autocomplete="off"/>
+                                    <t t-if="state.tableSearchQuery">
+                                        <button class="cbm_table_clear_search" t-on-click="clearTableSearch" title="Effacer">
+                                            <span class="cbm_icon_x"/>
+                                        </button>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
                         <div t-if="state.linesLoading" class="cbm_lines_loading">
                             <span class="spinner-border spinner-border-sm me-2"/>
                             Chargement des lignes...
@@ -95,7 +115,15 @@
                             <p class="cbm_lines_empty_hint">Scannez un code-barres ci-dessus pour commencer.</p>
                         </div>
 
-                        <div t-else="" class="cbm_lines_table">
+                        <t t-set="filteredLines" t-value="getFilteredLines()"/>
+
+                        <div t-if="state.tableSearchQuery and filteredLines.length === 0" class="cbm_lines_empty">
+                            <span class="cbm_icon_inbox"/>
+                            <p>Aucun résultat pour "<t t-esc="state.tableSearchQuery"/>"</p>
+                            <p class="cbm_lines_empty_hint">Essayez un autre terme de recherche.</p>
+                        </div>
+
+                        <div t-elif="filteredLines.length > 0" class="cbm_lines_table">
                             <table class="cbm_table">
                                 <thead>
                                     <tr>
@@ -104,11 +132,11 @@
                                         <th class="cbm_col_expiry">Expiry</th>
                                         <th class="cbm_col_qty">Quantité</th>
                                         <th class="cbm_col_uom">UoM</th>
-                                        <th class="cbm_col_actions">Actions</th>
+                                        <th class="cbm_col_actions">Supprimer</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <t t-foreach="state.lines" t-as="line" t-key="line.id">
+                                    <t t-foreach="filteredLines" t-as="line" t-key="line.id">
                                         <tr class="cbm_table_row">
                                             <td class="cbm_col_product" t-esc="line.product_name"/>
                                             <td class="cbm_col_lot" t-esc="line.lot_name or '-'"/>
@@ -145,8 +173,9 @@
                                             <td class="cbm_col_actions">
                                                 <button class="cbm_action_btn cbm_action_delete"
                                                         t-on-click="() => this.confirmDelete(line.id)"
-                                                        title="Supprimer">
+                                                        title="Supprimer cette ligne">
                                                     <span class="cbm_icon_trash"/>
+                                                    Supprimer
                                                 </button>
                                             </td>
                                         </tr>
