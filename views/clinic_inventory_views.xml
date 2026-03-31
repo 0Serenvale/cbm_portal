@@ -159,4 +159,11 @@
         </field>
     </record>
 
+    <!-- Menu under Tile Manager for manager access -->
+    <menuitem id="menu_clinic_inventory_sessions"
+        name="Inventory Sessions"
+        parent="clinic_staff_portal.menu_tile_manager"
+        action="clinic_inventory_action"
+        sequence="21"/>
+
 </odoo>

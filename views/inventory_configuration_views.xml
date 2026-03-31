@@ -104,16 +104,11 @@
         </field>
     </record>
 
-    <!-- Menu: Inventory (root parent) -->
-    <menuitem id="menu_clinic_inventory"
-        name="Inventory"
-        sequence="50"/>
-
-    <!-- Menu: Inventory Configuration -->
+    <!-- Menu under Tile Manager app for admin access -->
     <menuitem id="menu_clinic_inventory_config"
-        name="Configuration"
+        name="Inventory Configuration"
+        parent="clinic_staff_portal.menu_tile_manager"
         action="action_clinic_inventory_config"
-        parent="menu_clinic_inventory"
         sequence="20"/>
 
 </odoo>
