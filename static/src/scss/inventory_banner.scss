@@ -1,0 +1,151 @@
+/**
+ * Inventory Warning Banner Styles
+ *
+ * Displays a prominent banner above the CBM Portal dashboard
+ * when inventory is scheduled to start within 7 days.
+ */
+
+.inventory-banner-container {
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    animation: slideDown 0.3s ease-out;
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+.inventory-warning-banner {
+    &.urgency-critical {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        border-left: 4px solid #7f1d1d;
+
+        .inventory-banner-icon {
+            color: #fff;
+        }
+    }
+
+    &.urgency-high {
+        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        border-left: 4px solid #92400e;
+
+        .inventory-banner-icon {
+            color: #fff;
+        }
+    }
+
+    &.urgency-normal {
+        background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+        border-left: 4px solid #713f12;
+
+        .inventory-banner-icon {
+            color: #fff;
+        }
+    }
+}
+
+.inventory-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: #fff;
+}
+
+.inventory-banner-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .icon-warning {
+        width: 24px;
+        height: 24px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+}
+
+.inventory-banner-message {
+    flex: 1;
+    min-width: 0;
+}
+
+.inventory-banner-text {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.inventory-banner-close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 0.25rem;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2.5;
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .inventory-banner-container {
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+    .inventory-banner-content {
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+    }
+
+    .inventory-banner-text {
+        font-size: 0.9rem;
+    }
+
+    .inventory-banner-close {
+        width: 24px;
+        height: 24px;
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+}

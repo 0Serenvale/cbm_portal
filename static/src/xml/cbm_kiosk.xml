@@ -93,7 +93,10 @@
                         </a>
                     </div>
                 </div>
-                
+
+                <!-- Inventory Warning Banner (7 days before scheduled inventory) -->
+                <InventoryBanner/>
+
                 <!-- Main Content with Optional Sidebar -->
                 <div class="cbm_home_layout">
                     <!-- Main Tiles Area -->

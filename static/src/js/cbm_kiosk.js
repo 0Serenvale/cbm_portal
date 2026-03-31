@@ -14,10 +14,11 @@ import { TimeOffForm, TimeoffRequests } from "../components/timeoff/timeoff";
 import { DocumentsViewer } from "../components/documents/documents";
 import { AccountabilityDashboard } from "../components/accountability/accountability";
 import { InventoryCount } from "../components/inventory/inventory";
+import { InventoryBanner } from "../components/inventory/inventory_banner";
 
 class CBMKiosk extends Component {
     static template = "clinic_staff_portal.CBMKiosk";
-    static components = { TimeOffForm, TimeoffRequests, DocumentsViewer, AccountabilityDashboard, InventoryCount };
+    static components = { TimeOffForm, TimeoffRequests, DocumentsViewer, AccountabilityDashboard, InventoryCount, InventoryBanner };
     
     setup() {
         this.rpc = useService("rpc");

@@ -613,6 +613,53 @@ class InventoryController(http.Controller):
             )
 
     # ========================================
+    # CONFIGURATION ENDPOINTS
+    # ========================================
+
+    @http.route('/cbm/inventory/config', type='json', auth='user')
+    def get_inventory_config(self):
+        """Get active inventory configuration for banner display.
+
+        Returns:
+            dict: {
+                id: int,
+                name: str,
+                inventory_start_date: YYYY-MM-DD,
+                duration_days: int,
+                announcement_text: str (custom) or generated_announcement: str (auto),
+                cron_schedule: str,
+                state: str,
+                last_triggered: datetime or False,
+            } or {} if no active config found
+        """
+        try:
+            Config = request.env['clinic.inventory.config'].sudo()
+
+            # Fetch active configuration
+            config = Config.search([
+                ('state', '=', 'active'),
+            ], limit=1)
+
+            if not config:
+                return {}
+
+            return {
+                'id': config.id,
+                'name': config.name,
+                'inventory_start_date': str(config.inventory_start_date),
+                'duration_days': config.duration_days,
+                'announcement_text': config.announcement_text or '',
+                'generated_announcement': config.generated_announcement,
+                'cron_schedule': config.cron_schedule,
+                'state': config.state,
+                'last_triggered': str(config.last_triggered) if config.last_triggered else False,
+            }
+
+        except Exception as e:
+            _logger.error("[CBM INVENTORY CONFIG] get_inventory_config error: %s", str(e))
+            return {}
+
+    # ========================================
     # MANAGER ENDPOINTS
     # ========================================
 

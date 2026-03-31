@@ -23,3 +23,4 @@ from . import drug_dosage_form
 from . import drug_openmrs_concept
 from . import clinic_prescription
 from . import clinic_inventory
+from . import inventory_configuration

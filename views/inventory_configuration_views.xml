@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View: Inventory Configuration -->
+    <record id="view_clinic_inventory_config_form" model="ir.ui.view">
+        <field name="name">clinic.inventory.config.form</field>
+        <field name="model">clinic.inventory.config</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Configuration">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" class="oe_inline" required="1"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Scheduling">
+                            <field name="inventory_start_date" required="1"
+                                help="Date when inventory counting begins"/>
+                            <field name="duration_days" required="1"
+                                help="How many days the inventory will take (2-3 typical)"/>
+                            <field name="inventory_end_date" readonly="1"
+                                help="Auto-calculated: start_date + duration_days - 1"/>
+                        </group>
+
+                        <group string="Configuration">
+                            <field name="cron_schedule" required="1"
+                                help="How often to automatically trigger inventory"/>
+                            <field name="state" required="1"
+                                help="Configuration status: Draft (planning), Active (in use), Completed (finished)"/>
+                            <field name="last_triggered" readonly="1"
+                                help="Timestamp of last cron execution"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Locations">
+                            <field name="location_ids" nolabel="1" colspan="2"
+                                help="Locations where this inventory will be conducted. Leave empty for all."/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Announcement">
+                            <field name="announcement_text" nolabel="1" colspan="2"
+                                help="Text shown in banner. Auto-generated from config if empty."/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Preview">
+                            <field name="generated_announcement" nolabel="1" colspan="2" readonly="1"
+                                help="This is what the announcement banner will display"/>
+                        </group>
+                    </group>
+                </sheet>
+
+                <footer>
+                    <button name="action_preview_announcement" type="object"
+                        string="Preview Announcement" class="btn-info"
+                        help="Show what the announcement banner will look like"/>
+                    <button name="action_trigger_now" type="object"
+                        string="Trigger Now (Test)" class="btn-warning"
+                        help="Manually trigger inventory creation for testing (on trigger dates only)"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button string="Save" class="btn-primary" type="submit"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View: Inventory Configuration List -->
+    <record id="view_clinic_inventory_config_tree" model="ir.ui.view">
+        <field name="name">clinic.inventory.config.tree</field>
+        <field name="model">clinic.inventory.config</field>
+        <field name="arch" type="xml">
+            <tree string="Inventory Configurations">
+                <field name="name"/>
+                <field name="inventory_start_date"/>
+                <field name="duration_days"/>
+                <field name="cron_schedule"/>
+                <field name="state"/>
+                <field name="last_triggered"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action: Inventory Configuration -->
+    <record id="action_clinic_inventory_config" model="ir.actions.act_window">
+        <field name="name">Inventory Configuration</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">clinic.inventory.config</field>
+        <field name="view_mode">form,tree</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'form', 'view_id': ref('view_clinic_inventory_config_form')}), (0, 0, {'view_mode': 'tree', 'view_id': ref('view_clinic_inventory_config_tree')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No inventory configuration found. Create one to schedule quarterly inventory sessions.
+            </p>
+            <p>
+                Define when inventory should be conducted, for how long, which locations to cover, and what announcement to display.
+                The system can automatically trigger inventory sessions on quarterly dates (Jan 1, Apr 1, Jul 1, Oct 1).
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu: Inventory (root parent) -->
+    <menuitem id="menu_clinic_inventory"
+        name="Inventory"
+        sequence="50"/>
+
+    <!-- Menu: Inventory Configuration -->
+    <menuitem id="menu_clinic_inventory_config"
+        name="Configuration"
+        action="action_clinic_inventory_config"
+        parent="menu_clinic_inventory"
+        sequence="20"/>
+
+</odoo>

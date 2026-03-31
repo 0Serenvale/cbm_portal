@@ -71,6 +71,7 @@ Features:
         'data/consumption_ledger_cron.xml',
         'data/document_compliance_cron.xml',
         'data/accountability_cron.xml',
+        'data/inventory_cron.xml',
         'views/consumption_ledger_views.xml',
         'wizard/drug_sync_wizard_views.xml',
         'wizard/openmrs_import_wizard_views.xml',
@@ -80,6 +81,7 @@ Features:
         'views/drug_sync_menu.xml',
         'views/clinic_prescription_views.xml',
         'views/clinic_inventory_views.xml',
+        'views/inventory_configuration_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -107,7 +109,10 @@ Features:
             # Inventory component (must load BEFORE cbm_kiosk.js which imports it)
             'clinic_staff_portal/static/src/components/inventory/inventory.js',
             'clinic_staff_portal/static/src/components/inventory/inventory.xml',
+            'clinic_staff_portal/static/src/components/inventory/inventory_banner.js',
+            'clinic_staff_portal/static/src/components/inventory/inventory_banner.xml',
             'clinic_staff_portal/static/src/scss/cbm_inventory.scss',
+            'clinic_staff_portal/static/src/scss/inventory_banner.scss',
             'clinic_staff_portal/static/src/js/cbm_global_service.js',
             'clinic_staff_portal/static/src/js/cbm_kiosk.js',
             'clinic_staff_portal/static/src/js/cbm_brain_patch.js',
