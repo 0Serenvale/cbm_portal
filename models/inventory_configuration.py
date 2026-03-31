@@ -52,6 +52,16 @@ class InventoryConfiguration(models.Model):
         help='Locations where this inventory will be conducted. Leave empty for all.'
     )
 
+    user_ids = fields.Many2many(
+        'res.users',
+        'clinic_inventory_config_user_rel',
+        'config_id',
+        'user_id',
+        string='Assigned Users',
+        help='Users who will see the Inventory tile on their CBM Portal dashboard. '
+             'The tile is hidden until users are assigned here.'
+    )
+
     announcement_text = fields.Text(
         string='Announcement Text',
         help='Text shown in banner. Auto-generated from config if empty.'
@@ -128,6 +138,61 @@ class InventoryConfiguration(models.Model):
         store=True,
         help='Auto-generated announcement (or custom if provided)'
     )
+
+    # ============================================================
+    # TILE SYNC
+    # ============================================================
+
+    def _get_inventory_tile(self):
+        """Return the inventory tile record."""
+        return self.env.ref(
+            'clinic_staff_portal.tile_inventory',
+            raise_if_not_found=False
+        )
+
+    def _sync_tile_visibility(self):
+        """Sync assigned users to the inventory tile.
+
+        - If user_ids is set: activate tile, set assigned_user_ids
+        - If user_ids is empty: deactivate tile, clear assigned_user_ids
+        """
+        tile = self._get_inventory_tile()
+        if not tile:
+            _logger.warning("[INVENTORY CONFIG] tile_inventory not found, skipping sync")
+            return
+
+        # Collect all users from ALL active configs (in case multiple configs exist)
+        all_configs = self.search([('user_ids', '!=', False)])
+        all_user_ids = all_configs.mapped('user_ids').ids
+
+        if all_user_ids:
+            tile.sudo().write({
+                'active': True,
+                'assigned_user_ids': [(6, 0, all_user_ids)],
+            })
+            _logger.info(
+                "[INVENTORY CONFIG] Tile activated for %d users: %s",
+                len(all_user_ids), all_user_ids
+            )
+        else:
+            tile.sudo().write({
+                'active': False,
+                'assigned_user_ids': [(5, 0, 0)],
+            })
+            _logger.info("[INVENTORY CONFIG] Tile deactivated (no assigned users)")
+
+    @api.model
+    def create(self, vals):
+        record = super().create(vals)
+        if 'user_ids' in vals:
+            record._sync_tile_visibility()
+        return record
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'user_ids' in vals:
+            self._sync_tile_visibility()
+        return result
 
     # ============================================================
     # CONSTRAINTS & METHODS

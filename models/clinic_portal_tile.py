@@ -108,6 +108,16 @@ class ClinicPortalTile(models.Model):
         string='Visible to Groups',
         help='Leave empty to show to all portal users.')
 
+    # User-specific visibility (used by inventory tile — bypasses location rules)
+    assigned_user_ids = fields.Many2many(
+        'res.users',
+        'clinic_portal_tile_user_rel',
+        'tile_id',
+        'user_id',
+        string='Assigned Users',
+        help='If set, only these specific users will see this tile. '
+             'Takes precedence over group_ids. Used for inventory counting assignments.')
+
     # Visual - Heroicon selection
     icon = fields.Selection([
         # === HEALTHCARE / MEDICAL ===

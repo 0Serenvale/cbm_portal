@@ -35,6 +35,15 @@
                     </group>
 
                     <group>
+                        <group string="Assigned Users">
+                            <field name="user_ids" nolabel="1" colspan="2"
+                                widget="many2many_tags"
+                                options="{'no_create': True}"
+                                help="Users who will see the Inventory tile on their CBM Portal dashboard. The tile is hidden until users are assigned here."/>
+                        </group>
+                    </group>
+
+                    <group>
                         <group string="Locations">
                             <field name="location_ids" nolabel="1" colspan="2"
                                 help="Locations where this inventory will be conducted. Leave empty for all."/>

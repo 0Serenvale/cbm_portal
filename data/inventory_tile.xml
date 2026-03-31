@@ -10,6 +10,7 @@
             <field name="icon_color">#ffffff</field>
             <field name="sequence">45</field>
             <field name="description">Comptage physique de l'inventaire et réconciliation des stocks</field>
+            <field name="active" eval="False"/>
         </record>
     </data>
 </odoo>

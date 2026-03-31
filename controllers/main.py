@@ -115,8 +115,13 @@ class CBMKioskController(http.Controller):
 
         result = []
         for tile in tiles:
+            # Check user-specific visibility (assigned_user_ids takes precedence)
+            if tile.assigned_user_ids:
+                if user.id not in tile.assigned_user_ids.ids:
+                    continue  # User not in assigned list, skip this tile
+
             # Check group visibility
-            if tile.group_ids:
+            elif tile.group_ids:
                 # Tile has group restrictions - check if user is in any of those groups
                 user_groups = user.groups_id.ids
                 tile_groups = tile.group_ids.ids
