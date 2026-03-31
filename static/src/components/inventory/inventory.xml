@@ -260,6 +260,31 @@
             </div>
         </div>
 
+        <!-- Done Modal (Submit for Approval or Recount) -->
+        <div t-if="state.doneModalOpen" class="cbm_inventory_form_modal">
+            <div class="cbm_form_backdrop" t-on-click="cancelDoneModal"/>
+            <div class="cbm_form_card cbm_done_card">
+                <div class="cbm_done_icon">
+                    <span class="cbm_icon_inbox"/>
+                </div>
+                <h3>Comptage terminé ?</h3>
+                <p>Vous avez enregistré <strong t-esc="state.lines.length"/> produit(s). Que souhaitez-vous faire ?</p>
+                <div class="cbm_form_actions">
+                    <button class="cbm_btn cbm_btn_secondary" t-on-click="cancelDoneModal">Continuer</button>
+                    <button class="cbm_btn cbm_btn_warning" t-on-click="startRecount" t-att-disabled="state.recounting">
+                        <span t-if="state.recounting" class="spinner-border spinner-border-sm me-2"/>
+                        <span class="cbm_icon_refresh me-1"/>
+                        Recommencer
+                    </button>
+                    <button class="cbm_btn cbm_btn_primary" t-on-click="submitFinal" t-att-disabled="state.submittingFinal">
+                        <span t-if="state.submittingFinal" class="spinner-border spinner-border-sm me-2"/>
+                        <span class="cbm_icon_check me-1"/>
+                        Valider
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div class="cbm_page_footer">
             <div class="cbm_footer_actions">
@@ -268,10 +293,9 @@
                     Quitter
                 </button>
                 <t t-if="state.sessionFound and state.lines.length > 0">
-                    <button class="cbm_btn cbm_btn_primary" t-on-click="submitDraft" t-att-disabled="state.submittingDraft">
-                        <span t-if="state.submittingDraft" class="spinner-border spinner-border-sm me-2"/>
+                    <button class="cbm_btn cbm_btn_primary" t-on-click="openDoneModal">
                         <span class="cbm_icon_check me-1"/>
-                        Enregistrer comme brouillon
+                        Terminer
                     </button>
                 </t>
             </div>

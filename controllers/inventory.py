@@ -426,6 +426,123 @@ class InventoryController(http.Controller):
             _logger.error("[CBM INVENTORY] submit_draft error: %s", str(e))
             return {'success': False, 'error': str(e)[:200]}
 
+    @http.route('/cbm/inventory/submit', type='json', auth='user')
+    def submit(self, session_id):
+        """Submit inventory session for final approval.
+
+        Final submission after counting complete.
+        Transition: active → pending_approval
+
+        Args:
+            session_id: clinic.inventory ID
+
+        Returns:
+            dict: {success: bool} or {success: False, error: str}
+        """
+        try:
+            user = request.env.user
+            ClinicInventory = request.env['clinic.inventory']
+            ClinicTeam = request.env['clinic.inventory.team']
+
+            # Verify session exists
+            session = ClinicInventory.browse(session_id)
+            if not session.exists():
+                return {'success': False, 'error': _('Session not found')}
+
+            # Verify user is assigned to this session's team
+            team = ClinicTeam.search([
+                ('inventory_id', '=', session.id),
+                ('user_ids', 'in', user.id),
+            ], limit=1)
+
+            if not team:
+                return {'success': False, 'error': _('Access denied')}
+
+            # Verify session is active
+            if session.state != 'active':
+                return {'success': False, 'error': _('Session is not active')}
+
+            # Verify there are lines to submit
+            if not session.line_ids:
+                return {'success': False, 'error': _('Cannot submit without counted lines')}
+
+            # Submit for approval
+            session.submit_for_approval()
+
+            _logger.info(
+                "[CBM INVENTORY] User %s submitted session %s for final approval",
+                user.name, session.name
+            )
+
+            return {'success': True}
+
+        except ValueError as e:
+            _logger.error("[CBM INVENTORY] submit validation error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+        except Exception as e:
+            _logger.error("[CBM INVENTORY] submit error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+
+    @http.route('/cbm/inventory/recount', type='json', auth='user')
+    def recount(self, session_id):
+        """Clear all counted lines and restart inventory from scratch.
+
+        Keeps session in 'active' state for re-counting.
+        Deletes all existing lines for this session's team.
+
+        Args:
+            session_id: clinic.inventory ID
+
+        Returns:
+            dict: {success: bool} or {success: False, error: str}
+        """
+        try:
+            user = request.env.user
+            ClinicInventory = request.env['clinic.inventory']
+            ClinicTeam = request.env['clinic.inventory.team']
+            ClinicLine = request.env['clinic.inventory.line']
+
+            # Verify session exists
+            session = ClinicInventory.browse(session_id)
+            if not session.exists():
+                return {'success': False, 'error': _('Session not found')}
+
+            # Verify user is assigned to this session's team
+            team = ClinicTeam.search([
+                ('inventory_id', '=', session.id),
+                ('user_ids', 'in', user.id),
+            ], limit=1)
+
+            if not team:
+                return {'success': False, 'error': _('Access denied')}
+
+            # Verify session is active (can't recount if already submitted)
+            if session.state != 'active':
+                return {'success': False, 'error': _('Cannot recount a submitted session')}
+
+            # Delete all lines for this team
+            lines_to_delete = ClinicLine.search([
+                ('inventory_id', '=', session.id),
+                ('team_id', '=', team.id),
+            ])
+
+            deleted_count = len(lines_to_delete)
+            lines_to_delete.unlink()
+
+            _logger.info(
+                "[CBM INVENTORY] User %s restarted counting for session %s (deleted %d lines)",
+                user.name, session.name, deleted_count
+            )
+
+            return {'success': True}
+
+        except ValueError as e:
+            _logger.error("[CBM INVENTORY] recount validation error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+        except Exception as e:
+            _logger.error("[CBM INVENTORY] recount error: %s", str(e))
+            return {'success': False, 'error': str(e)[:200]}
+
     @http.route('/cbm/inventory/team_pdf/<int:session_id>', type='http', auth='user')
     def team_pdf(self, session_id, **kwargs):
         """Generate per-team PDF for current user's team.

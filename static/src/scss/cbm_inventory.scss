@@ -1292,6 +1292,99 @@
 }
 
 // ============================================================
+// DONE MODAL
+// ============================================================
+
+.cbm_done_card {
+    max-width: 400px;
+
+    .cbm_done_icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 60px;
+        height: 60px;
+        background: #dbeafe;
+        border-radius: 50%;
+        margin: 24px auto;
+        color: #0084d4;
+        font-size: 28px;
+    }
+
+    h3 {
+        text-align: center;
+        color: #1f2937;
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    p {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0 0 24px;
+        line-height: 1.5;
+
+        strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+    }
+
+    .cbm_form_actions {
+        gap: 8px;
+
+        .cbm_btn {
+            flex: 1;
+            min-width: 100px;
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+    }
+}
+
+.cbm_btn_warning {
+    background: #f59e0b;
+    color: white;
+    border: none;
+
+    &:hover:not([disabled]) {
+        background: #d97706;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .cbm_done_card {
+        .cbm_done_icon {
+            background: #1e40af;
+            color: #93c5fd;
+        }
+
+        h3 {
+            color: #f3f4f6;
+        }
+
+        p {
+            color: #d1d5db;
+
+            strong {
+                color: #f3f4f6;
+            }
+        }
+    }
+
+    .cbm_btn_warning {
+        background: #d97706;
+
+        &:hover:not([disabled]) {
+            background: #b45309;
+        }
+    }
+}
+
+// ============================================================
 // DELETE BUTTON STYLING
 // ============================================================
 

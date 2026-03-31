@@ -54,6 +54,11 @@ export class InventoryCount extends Component {
             // Draft submission
             submittingDraft: false,
 
+            // Done modal (submit for approval or recount)
+            doneModalOpen: false,
+            submittingFinal: false,
+            recounting: false,
+
             // Delete confirmation
             deleteConfirmLineId: null,
         });
@@ -586,6 +591,110 @@ export class InventoryCount extends Component {
                 this.props.showToast(_t("Erreur de connexion"), 'danger');
             }
             this.state.submittingDraft = false;
+        }
+    }
+
+    // ============================================================
+    // DONE MODAL (Submit or Recount)
+    // ============================================================
+
+    openDoneModal() {
+        this.state.doneModalOpen = true;
+    }
+
+    cancelDoneModal() {
+        this.state.doneModalOpen = false;
+    }
+
+    async submitFinal() {
+        if (!this.state.sessionId) {
+            return;
+        }
+
+        try {
+            this.state.submittingFinal = true;
+
+            const result = await this.rpc('/cbm/inventory/submit', {
+                session_id: this.state.sessionId,
+            });
+
+            if (!result.success) {
+                if (this.props.showToast) {
+                    this.props.showToast(result.error || _t("Erreur lors de l'enregistrement"), 'danger');
+                }
+                this.state.submittingFinal = false;
+                return;
+            }
+
+            if (this.props.showToast) {
+                this.props.showToast(_t("Comptage enregistré avec succès"), 'success');
+            }
+
+            console.log('[INVENTORY] Session submitted for approval:', this.state.sessionId);
+            this.state.submittingFinal = false;
+            this.state.doneModalOpen = false;
+
+            // Go home after successful submission
+            setTimeout(() => {
+                this.props.onNavigateHome();
+            }, 1000);
+
+        } catch (error) {
+            console.error("[INVENTORY] Final submission failed:", error);
+            if (this.props.showToast) {
+                this.props.showToast(_t("Erreur de connexion"), 'danger');
+            }
+            this.state.submittingFinal = false;
+        }
+    }
+
+    async startRecount() {
+        if (!this.state.sessionId) {
+            return;
+        }
+
+        try {
+            this.state.recounting = true;
+
+            const result = await this.rpc('/cbm/inventory/recount', {
+                session_id: this.state.sessionId,
+            });
+
+            if (!result.success) {
+                if (this.props.showToast) {
+                    this.props.showToast(result.error || _t("Erreur lors du redémarrage"), 'danger');
+                }
+                this.state.recounting = false;
+                return;
+            }
+
+            if (this.props.showToast) {
+                this.props.showToast(_t("Comptage réinitialisé"), 'success');
+            }
+
+            console.log('[INVENTORY] Recount started:', this.state.sessionId);
+
+            // Clear local lines
+            this.state.lines = [];
+            this.state.recounting = false;
+            this.state.doneModalOpen = false;
+
+            // Reload lines (should be empty now)
+            await this.loadLines();
+
+            // Focus barcode input for next scan
+            setTimeout(() => {
+                if (this.barcodeInputRef.el) {
+                    this.barcodeInputRef.el.focus();
+                }
+            }, 100);
+
+        } catch (error) {
+            console.error("[INVENTORY] Recount failed:", error);
+            if (this.props.showToast) {
+                this.props.showToast(_t("Erreur de connexion"), 'danger');
+            }
+            this.state.recounting = false;
         }
     }
 
