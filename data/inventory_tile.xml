@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Inventory Tile -->
+        <record id="tile_inventory" model="clinic.portal.tile">
+            <field name="name">Inventaire</field>
+            <field name="type">action</field>
+            <field name="icon">clipboard-document-list</field>
+            <field name="color">#10B981</field>
+            <field name="icon_color">#ffffff</field>
+            <field name="sequence">45</field>
+            <field name="description">Comptage physique de l'inventaire et réconciliation des stocks</field>
+        </record>
+    </data>
+</odoo>
