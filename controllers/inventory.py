@@ -115,26 +115,21 @@ class InventoryController(http.Controller):
 
     @http.route('/cbm/inventory/search_product', type='json', auth='user')
     def search_product(self, query, location_id, limit=20):
-        """Search products by name or barcode — global catalogue, not filtered by location.
+        """Search products by name or barcode — global catalogue, for reference only.
 
-        Location is only used to look up the reference qty shown in the dropdown.
-        The search itself covers all active storable/consumable products so staff
-        can count any product regardless of whether it has stock at the location.
+        No location filter, no quantity filter. Returns all matching active products.
 
         Args:
             query: Search string (name or barcode)
-            location_id: stock.location ID to fetch reference quantities from
+            location_id: unused, kept for API compatibility
             limit: Max results (default 20)
 
         Returns:
-            list: [{id, name, barcode, uom_name, qty_system, tracking}]
+            list: [{id, name, barcode, uom_name, tracking}]
         """
         try:
-            StockQuant = request.env['stock.quant']
             Product = request.env['product.product']
 
-            # Search active products by name (via template) OR barcode.
-            # No location filter — the search is a global catalogue reference.
             domain = [
                 ('active', '=', True),
                 '|',
@@ -143,30 +138,13 @@ class InventoryController(http.Controller):
             ]
             products = Product.search(domain, limit=limit)
 
-            # Pre-fetch all quants at the location in one query
-            if products:
-                all_quants = StockQuant.search([
-                    ('product_id', 'in', products.ids),
-                    ('location_id', '=', location_id),
-                ])
-                qty_map = {}
-                for q in all_quants:
-                    qty_map[q.product_id.id] = qty_map.get(q.product_id.id, 0) + q.quantity
-            else:
-                qty_map = {}
-
-            result = []
-            for product in products:
-                result.append({
-                    'id': product.id,
-                    'name': product.name,
-                    'barcode': product.barcode or '',
-                    'uom_name': product.uom_id.name if product.uom_id else 'U',
-                    'qty_system': qty_map.get(product.id, 0),
-                    'tracking': product.tracking,
-                })
-
-            return result
+            return [{
+                'id': p.id,
+                'name': p.name,
+                'barcode': p.barcode or '',
+                'uom_name': p.uom_id.name if p.uom_id else 'U',
+                'tracking': p.tracking,
+            } for p in products]
 
         except Exception as e:
             _logger.error("[CBM INVENTORY] search_product error: %s", str(e))
@@ -174,52 +152,35 @@ class InventoryController(http.Controller):
 
     @http.route('/cbm/inventory/search_lot', type='json', auth='user')
     def search_lot(self, lot_name, location_id, limit=10):
-        """Search products by lot number (partial match).
+        """Search lots by name — global catalogue, for reference only.
 
-        Returns all lots matching the search term with their product info.
-        Multiple products can share the same lot number.
+        No location filter, no quantity filter.
 
         Args:
             lot_name: Lot number/name to search for (partial match)
-            location_id: stock.location ID (for reference qty only)
+            location_id: unused, kept for API compatibility
             limit: Max results (default 10)
 
         Returns:
-            list: [{id, name, barcode, uom_name, qty_system, lot_id, lot_name, expiry_date, tracking}]
+            list: [{id, name, barcode, uom_name, lot_id, lot_name, expiry_date, tracking}]
         """
         try:
             StockLot = request.env['stock.lot']
-            StockQuant = request.env['stock.quant']
 
-            # Find lots matching the lot_name (partial match for dropdown)
             lots = StockLot.search([
                 ('name', 'ilike', lot_name),
             ], limit=limit)
 
-            if not lots:
-                return []
-
             result = []
             for lot in lots:
                 product = lot.product_id
-
                 if not product.active:
                     continue
-
-                # Get quantity at the session location for this lot
-                quants = StockQuant.search([
-                    ('product_id', '=', product.id),
-                    ('lot_id', '=', lot.id),
-                    ('location_id', '=', location_id),
-                ])
-                qty_system = sum(q.quantity for q in quants)
-
                 result.append({
                     'id': product.id,
                     'name': product.name,
                     'barcode': product.barcode or '',
                     'uom_name': product.uom_id.name if product.uom_id else 'U',
-                    'qty_system': qty_system,
                     'lot_id': lot.id,
                     'lot_name': lot.name,
                     'expiry_date': _lot_expiry_str(lot),
@@ -244,48 +205,28 @@ class InventoryController(http.Controller):
             location_id: stock.location ID
 
         Returns:
-            list: [{lot_id, lot_name, expiry_date, qty_system}]
+            list: [{lot_id, lot_name, expiry_date}]
         """
         try:
-            StockQuant = request.env['stock.quant']
             Product = request.env['product.product'].browse(product_id)
-
             if not Product.exists():
                 return []
 
-            # Get all lots registered for this product (regardless of stock level)
-            # Staff may be counting product that has been consumed — show all known lots
-            StockLot = request.env['stock.lot']
-            lots = StockLot.search([
+            lots = request.env['stock.lot'].search([
                 ('product_id', '=', product_id),
             ], limit=50, order='name')
 
-            # Build lot → qty mapping from quants at this location
-            quants = StockQuant.search([
-                ('product_id', '=', product_id),
-                ('location_id', '=', location_id),
-                ('lot_id', '!=', False),
-            ])
-            qty_by_lot = {}
-            for quant in quants:
-                qty_by_lot[quant.lot_id.id] = qty_by_lot.get(quant.lot_id.id, 0) + quant.quantity
+            result = [{
+                'lot_id': lot.id,
+                'lot_name': lot.name,
+                'expiry_date': _lot_expiry_str(lot),
+            } for lot in lots]
 
-            result = []
-            for lot in lots:
-                result.append({
-                    'lot_id': lot.id,
-                    'lot_name': lot.name,
-                    'expiry_date': _lot_expiry_str(lot),
-                    'qty_system': qty_by_lot.get(lot.id, 0),
-                })
-
-            # Also allow "No lot" option so staff can add product without lot
-            # (for uncounted lots or new stock)
+            # "No lot" option for products without a specific lot
             result.append({
                 'lot_id': False,
                 'lot_name': _('(Sans lot / Nouveau)'),
                 'expiry_date': False,
-                'qty_system': 0,
             })
 
             return result

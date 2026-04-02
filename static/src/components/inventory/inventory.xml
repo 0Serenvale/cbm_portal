@@ -182,7 +182,7 @@
                                     <div>
                                         <div class="cbm_inv_item_name" t-esc="product.name"/>
                                         <div class="cbm_inv_item_meta">
-                                            <t t-esc="product.qty_system"/> <t t-esc="product.uom_name"/> en stock
+                                            <t t-esc="product.uom_name"/>
                                             <t t-if="product.tracking !== 'none'"> · <strong>Lot</strong></t>
                                         </div>
                                     </div>
@@ -396,8 +396,7 @@
                                                                 <div>
                                                                     <div class="cbm_inv_item_name" t-esc="lot.lot_name"/>
                                                                     <div class="cbm_inv_item_meta">
-                                                                        <t t-if="lot.expiry_date">Exp: <t t-esc="lot.expiry_date"/> · </t>
-                                                                        Qté: <t t-esc="lot.qty_system"/>
+                                                                        <t t-if="lot.expiry_date">Exp: <t t-esc="lot.expiry_date"/></t>
                                                                     </div>
                                                                 </div>
                                                                 <span class="cbm_inv_item_badge">Choisir</span>
