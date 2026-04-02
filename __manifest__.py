@@ -1,6 +1,6 @@
 {
     'name': 'CBM Portal',
-    'version': '16.0.3.5.0',
+    'version': '16.0.3.6.0',
     'category': 'Inventory/Inventory',
     'summary': 'Kiosk-style interface for clinic staff stock operations',
     'description': """
