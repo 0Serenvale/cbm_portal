@@ -89,17 +89,21 @@
             <t t-if="!state.sessionLoading &amp;&amp; state.sessionFound &amp;&amp; !state.userSubmitted">
 
                 <!-- Dual Search Section -->
+                <!-- stitch: grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-12 -->
                 <div class="cbm_inv_search_section">
 
                     <!-- Barcode / Lot Scanner -->
                     <div class="cbm_inv_search_group">
-                        <span class="cbm_inv_search_label">Entrée Rapide</span>
+                        <!-- stitch: text-[10px] md:text-label-sm font-bold text-on-surface-variant uppercase tracking-widest ml-1 -->
+                        <label class="cbm_inv_search_label">Entrée Rapide</label>
+                        <!-- stitch: relative group bg-surface-container-lowest rounded-xl ring-1 ring-black/5 -->
                         <div class="cbm_inv_search_box">
                             <span class="cbm_inv_search_icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z"/>
                                 </svg>
                             </span>
+                            <!-- stitch: w-full pl-12 pr-4 py-4 md:py-5 text-base md:text-lg font-bold -->
                             <input type="text"
                                    t-ref="barcodeInput"
                                    placeholder="Scanner un code-barres..."
@@ -147,7 +151,7 @@
 
                     <!-- Product Name Search -->
                     <div class="cbm_inv_search_group">
-                        <span class="cbm_inv_search_label">Recherche Catalogue</span>
+                        <label class="cbm_inv_search_label">Recherche Catalogue</label>
                         <div class="cbm_inv_search_box">
                             <span class="cbm_inv_search_icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -249,196 +253,265 @@
                     </div>
                 </div>
 
-                <!-- Lines Section -->
-                <div class="cbm_inv_lines_header">
-                    <div>
-                        <h3 class="cbm_inv_lines_title">Produits comptés (<t t-esc="state.lines.length"/>)</h3>
-                        <t t-if="state.sessionFound">
-                            <p class="cbm_inv_lines_subtitle">Validation en cours pour le secteur <t t-esc="state.locationName"/></p>
-                        </t>
-                    </div>
-                    <button t-if="state.sessionFound" class="cbm_inv_pdf_btn" t-on-click="printTeamPDF">
-                        <span class="cbm_icon_printer cbm_icon_sm"/>Imprimer PDF
-                    </button>
-                </div>
+                <!-- Product Table Section -->
+                <!-- stitch: <section class="space-y-6"> -->
+                <section class="cbm_inv_section">
 
-                <!-- Table Filter -->
-                <t t-if="state.lines.length > 0">
-                    <div class="cbm_inv_filter_box">
-                        <span class="cbm_inv_filter_icon">
-                            <span class="cbm_icon_search" style="width:1rem;height:1rem;"/>
-                        </span>
-                        <input type="text"
-                               t-ref="tableFilter"
-                               placeholder="Filtrer par produit, lot, code-barres..."
-                               t-on-input="onTableSearchChange"
-                               autocomplete="off"/>
-                        <button t-if="state.tableSearchQuery" class="cbm_inv_filter_clear" t-on-click="clearTableSearch">
-                            <span class="cbm_icon_x" style="width:0.875rem;height:0.875rem;"/>
+                    <!-- Section Header: title + PDF button -->
+                    <!-- stitch: flex flex-col sm:flex-row justify-between items-start sm:items-end border-none pb-4 gap-4 -->
+                    <div class="cbm_inv_lines_header">
+                        <div>
+                            <!-- stitch: text-headline-sm md:text-headline-md font-bold text-on-surface tracking-tight -->
+                            <h3 class="cbm_inv_lines_title">Produits comptés (<t t-esc="state.lines.length"/>)</h3>
+                            <t t-if="state.sessionFound">
+                                <!-- stitch: text-xs md:text-sm text-on-surface-variant -->
+                                <p class="cbm_inv_lines_subtitle">Validation en cours pour le secteur <t t-esc="state.locationName"/></p>
+                            </t>
+                        </div>
+                        <!-- stitch: flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 bg-surface-container-high
+                                     hover:bg-surface-container-highest text-primary font-bold rounded-xl
+                                     transition-all active:scale-95 text-sm md:text-base -->
+                        <button t-if="state.sessionFound" class="cbm_inv_pdf_btn" t-on-click="printTeamPDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.125rem;height:1.125rem;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/>
+                            </svg>
+                            Imprimer PDF
                         </button>
                     </div>
-                </t>
 
-                <!-- Loading / Empty States -->
-                <div t-if="state.linesLoading" class="text-center py-4">
-                    <span class="spinner-border spinner-border-sm me-2"/>Chargement...
-                </div>
-
-                <div t-elif="state.lines.length === 0" class="cbm_empty_cart">
-                    <span class="cbm_icon_clipboard cbm_icon_3x cbm_icon_muted"/>
-                    <p>Aucun produit comptabilisé.</p>
-                    <p style="opacity:0.7;">Scannez un code-barres ou recherchez un produit ci-dessus.</p>
-                </div>
-
-                <t t-set="filteredLines" t-value="getFilteredLines()"/>
-
-                <div t-if="state.tableSearchQuery &amp;&amp; filteredLines.length === 0 &amp;&amp; state.lines.length > 0" class="cbm_empty_cart">
-                    <p>Aucun résultat pour "<t t-esc="state.tableSearchQuery"/>"</p>
-                </div>
-
-                <!-- Lines Table -->
-                <div t-elif="filteredLines.length > 0" class="cbm_inv_table_wrap">
-                    <table class="cbm_inv_table">
-                        <thead>
-                            <tr>
-                                <th>Produit</th>
-                                <th>Lot</th>
-                                <th class="d-none d-sm-table-cell">Expiration</th>
-                                <th class="text-center">Quantité</th>
-                                <th class="d-none d-md-table-cell">UoM</th>
-                                <th style="width:3rem;"/>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="filteredLines" t-as="line" t-key="line.id">
-                                <tr>
-                                    <!-- Product -->
-                                    <td>
-                                        <span class="cbm_inv_product_name" t-esc="line.product_name"/>
-                                    </td>
-
-                                    <!-- Lot -->
-                                    <td class="cbm_inv_lot_cell">
-                                        <button t-att-class="'cbm_inv_lot_btn' + (line.lot_name ? ' has-lot' : '')"
-                                                t-on-mousedown="(ev) => { ev.preventDefault(); this.startEditLot(line, ev); }">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:0.875rem;height:0.875rem;">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
-                                            </svg>
-                                            <t t-if="line.lot_name" t-esc="line.lot_name"/>
-                                            <t t-else="">Choisir</t>
-                                        </button>
-
-                                        <!-- Lot picker dropdown — anchored to the button above, Odoo many2one style -->
-                                        <t t-if="state.lotPickerOpenLineId === line.id">
-                                            <div class="cbm_lot_picker_clickaway" t-on-click="closeLotPicker"/>
-                                            <div class="cbm_lot_picker_menu">
-                                                <div class="cbm_lot_picker_search_wrap">
-                                                    <input type="text"
-                                                           class="cbm_lot_picker_input"
-                                                           placeholder="Rechercher un lot..."
-                                                           t-on-input="onLotPickerSearch"
-                                                           autocomplete="off"/>
-                                                </div>
-                                                <div t-if="state.lotPickerLoading" class="cbm_lot_picker_loading">
-                                                    <span class="spinner-border spinner-border-sm me-1"/>Chargement...
-                                                </div>
-                                                <t t-if="!state.lotPickerLoading">
-                                                    <t t-set="filteredLots" t-value="getFilteredLots()"/>
-                                                    <div t-if="filteredLots.length === 0" class="cbm_lot_picker_empty">
-                                                        Aucun lot trouvé
-                                                    </div>
-                                                    <t t-foreach="filteredLots" t-as="lot" t-key="lot.lot_id || ('no_lot_' + lot_index)">
-                                                        <div class="cbm_inv_dropdown_item" t-on-click="() => this.selectLot(lot)">
-                                                            <div>
-                                                                <div class="cbm_inv_item_name" t-esc="lot.lot_name"/>
-                                                                <div class="cbm_inv_item_meta">
-                                                                    <t t-if="lot.expiry_date">Exp: <t t-esc="lot.expiry_date"/> · </t>
-                                                                    Qté: <t t-esc="lot.qty_system"/>
-                                                                </div>
-                                                            </div>
-                                                            <span class="cbm_inv_item_badge">Choisir</span>
-                                                        </div>
-                                                    </t>
-                                                </t>
-                                            </div>
-                                        </t>
-                                    </td>
-
-                                    <!-- Expiry -->
-                                    <td class="d-none d-sm-table-cell">
-                                        <t t-if="state.editingExpiryLineId === line.id">
-                                            <input type="date" class="cbm_inline_date"
-                                                   t-att-value="state.editingExpiryValue"
-                                                   t-on-change="onExpiryChange"
-                                                   t-on-blur="() => this.saveExpiry(line.id)"/>
-                                        </t>
-                                        <t t-else="">
-                                            <span t-att-class="'cbm_inv_expiry_cell' + (!line.expiry_date ? ' empty' : '')"
-                                                  t-on-click="() => this.startEditExpiry(line.id, line.expiry_date)">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
-                                                </svg>
-                                                <t t-if="line.expiry_date" t-esc="line.expiry_date"/>
-                                                <t t-else="">Ajouter</t>
-                                            </span>
-                                        </t>
-                                    </td>
-
-                                    <!-- Quantity -->
-                                    <td class="text-center">
-                                        <input type="number" class="cbm_inline_qty"
-                                               t-att-value="line.qty_counted.toFixed(2)"
-                                               t-on-focus="(ev) => ev.target.select()"
-                                               t-on-change="(ev) => this.onQtyChanged(line.id, ev.target.value)"
-                                               step="0.01" min="0"
-                                               t-att-disabled="state.savingLineId === line.id"/>
-                                    </td>
-
-                                    <!-- UoM -->
-                                    <td class="d-none d-md-table-cell">
-                                        <span class="cbm_inv_uom_badge" t-esc="line.uom_name"/>
-                                    </td>
-
-                                    <!-- Delete -->
-                                    <td class="text-center">
-                                        <button class="cbm_inv_delete_btn" t-on-click="() => this.confirmDelete(line.id)" title="Supprimer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Bento: Tip + Accuracy -->
-                <div class="cbm_inv_bento">
-                    <div class="cbm_inv_tip_card">
-                        <div class="cbm_inv_tip_header">
-                            <span class="cbm_icon_clipboard cbm_icon_2x"/>
-                            <h4>Conseil d'inventaire</h4>
+                    <!-- Table Filter (not in stitch, kept as useful extra above the table) -->
+                    <t t-if="state.lines.length > 0">
+                        <div class="cbm_inv_filter_box">
+                            <span class="cbm_inv_filter_icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1rem;height:1rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+                                </svg>
+                            </span>
+                            <input type="text"
+                                   t-ref="tableFilter"
+                                   placeholder="Filtrer par produit, lot, code-barres..."
+                                   t-on-input="onTableSearchChange"
+                                   autocomplete="off"/>
+                            <button t-if="state.tableSearchQuery" class="cbm_inv_filter_clear" t-on-click="clearTableSearch">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:0.875rem;height:0.875rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
                         </div>
-                        <p>Pensez à vérifier les scellés sur les cartons complets avant de valider la quantité. Les lots expirant dans moins de 3 mois sont automatiquement signalés.</p>
+                    </t>
+
+                    <!-- Loading / Empty States -->
+                    <div t-if="state.linesLoading" class="text-center py-4">
+                        <span class="spinner-border spinner-border-sm me-2"/>Chargement...
                     </div>
-                    <div class="cbm_inv_accuracy_card">
-                        <div class="cbm_inv_accuracy_value">—</div>
-                        <div class="cbm_inv_accuracy_label">Taux de précision disponible après validation du comptage.</div>
+
+                    <div t-elif="state.lines.length === 0" class="cbm_empty_cart">
+                        <span class="cbm_icon_clipboard cbm_icon_3x cbm_icon_muted"/>
+                        <p>Aucun produit comptabilisé.</p>
+                        <p style="opacity:0.7;">Scannez un code-barres ou recherchez un produit ci-dessus.</p>
                     </div>
-                </div>
+
+                    <t t-set="filteredLines" t-value="getFilteredLines()"/>
+
+                    <div t-if="state.tableSearchQuery &amp;&amp; filteredLines.length === 0 &amp;&amp; state.lines.length > 0" class="cbm_empty_cart">
+                        <p>Aucun résultat pour "<t t-esc="state.tableSearchQuery"/>"</p>
+                    </div>
+
+                    <!-- Lines Table -->
+                    <!-- stitch: overflow-x-auto lg:overflow-x-visible bg-surface-container-low rounded-xl -->
+                    <div t-elif="filteredLines.length > 0" class="cbm_inv_table_wrap">
+                        <table class="cbm_inv_table">
+                            <thead>
+                                <!-- stitch: bg-surface-container-high/50 -->
+                                <tr>
+                                    <!-- stitch: px-3 md:px-6 py-4 md:py-5 text-[10px] md:text-label-sm font-extrabold uppercase tracking-wider -->
+                                    <th class="cbm_th_product">Produit</th>
+                                    <th class="cbm_th_other">Lot</th>
+                                    <th class="cbm_th_other cbm_col_sm">Expiration</th>
+                                    <th class="cbm_th_other cbm_col_center">Quantité</th>
+                                    <th class="cbm_th_other cbm_col_md">UOM</th>
+                                    <th class="cbm_th_action"/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="filteredLines" t-as="line" t-key="line.id">
+                                    <!-- stitch: group hover:bg-surface-container-lowest transition-all duration-150 -->
+                                    <tr>
+                                        <!-- Product: stitch px-3 md:px-6 py-4 md:py-6 -->
+                                        <td class="cbm_td_product">
+                                            <!-- stitch: flex items-center gap-2 md:gap-3 -->
+                                            <div class="cbm_inv_product_cell">
+                                                <!-- stitch: hidden xs:flex w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary-container items-center justify-center text-primary-dim -->
+                                                <div class="cbm_inv_product_icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.169.659 1.59L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 1-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/>
+                                                    </svg>
+                                                </div>
+                                                <!-- stitch: font-bold text-on-surface text-sm md:text-lg leading-tight -->
+                                                <span class="cbm_inv_product_name" t-esc="line.product_name"/>
+                                            </div>
+                                        </td>
+
+                                        <!-- Lot: stitch px-2 md:px-6 py-4 md:py-6 -->
+                                        <td class="cbm_td_other cbm_inv_lot_cell">
+                                            <!-- stitch: flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5
+                                                         rounded-lg border-2 border-dashed border-outline-variant
+                                                         text-on-surface-variant text-[10px] md:text-sm font-medium
+                                                         hover:border-primary hover:text-primary whitespace-nowrap -->
+                                            <button t-att-class="'cbm_inv_lot_btn' + (line.lot_name ? ' has-lot' : '')"
+                                                    t-on-mousedown="(ev) => { ev.preventDefault(); this.startEditLot(line, ev); }">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+                                                </svg>
+                                                <t t-if="line.lot_name" t-esc="line.lot_name"/>
+                                                <t t-else="">
+                                                    <!-- stitch: hidden xs:inline → Sélectionner, xs:hidden → Choisir -->
+                                                    <span class="cbm_inv_lot_label_long">Sélectionner</span>
+                                                    <span class="cbm_inv_lot_label_short">Choisir</span>
+                                                </t>
+                                            </button>
+
+                                            <!-- Lot picker dropdown -->
+                                            <t t-if="state.lotPickerOpenLineId === line.id">
+                                                <div class="cbm_lot_picker_clickaway" t-on-click="closeLotPicker"/>
+                                                <div class="cbm_lot_picker_menu">
+                                                    <div class="cbm_lot_picker_search_wrap">
+                                                        <input type="text"
+                                                               class="cbm_lot_picker_input"
+                                                               placeholder="Rechercher un lot..."
+                                                               t-on-input="onLotPickerSearch"
+                                                               autocomplete="off"/>
+                                                    </div>
+                                                    <div t-if="state.lotPickerLoading" class="cbm_lot_picker_loading">
+                                                        <span class="spinner-border spinner-border-sm me-1"/>Chargement...
+                                                    </div>
+                                                    <t t-if="!state.lotPickerLoading">
+                                                        <t t-set="filteredLots" t-value="getFilteredLots()"/>
+                                                        <div t-if="filteredLots.length === 0" class="cbm_lot_picker_empty">
+                                                            Aucun lot trouvé
+                                                        </div>
+                                                        <t t-foreach="filteredLots" t-as="lot" t-key="lot.lot_id || ('no_lot_' + lot_index)">
+                                                            <div class="cbm_inv_dropdown_item" t-on-click="() => this.selectLot(lot)">
+                                                                <div>
+                                                                    <div class="cbm_inv_item_name" t-esc="lot.lot_name"/>
+                                                                    <div class="cbm_inv_item_meta">
+                                                                        <t t-if="lot.expiry_date">Exp: <t t-esc="lot.expiry_date"/> · </t>
+                                                                        Qté: <t t-esc="lot.qty_system"/>
+                                                                    </div>
+                                                                </div>
+                                                                <span class="cbm_inv_item_badge">Choisir</span>
+                                                            </div>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                        </td>
+
+                                        <!-- Expiry: stitch hidden sm:table-cell px-2 md:px-6 py-4 md:py-6 -->
+                                        <td class="cbm_td_other cbm_col_sm">
+                                            <t t-if="state.editingExpiryLineId === line.id">
+                                                <input type="date" class="cbm_inline_date"
+                                                       t-att-value="state.editingExpiryValue"
+                                                       t-on-change="onExpiryChange"
+                                                       t-on-blur="() => this.saveExpiry(line.id)"/>
+                                            </t>
+                                            <t t-else="">
+                                                <!-- stitch: flex items-center gap-1 md:gap-2 text-on-surface font-medium text-xs md:text-base -->
+                                                <span t-att-class="'cbm_inv_expiry_cell' + (!line.expiry_date ? ' empty' : '')"
+                                                      t-on-click="() => this.startEditExpiry(line.id, line.expiry_date)">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
+                                                    </svg>
+                                                    <t t-if="line.expiry_date" t-esc="line.expiry_date"/>
+                                                    <t t-else="">Ajouter</t>
+                                                </span>
+                                            </t>
+                                        </td>
+
+                                        <!-- Quantity: stitch px-2 md:px-6 py-4 md:py-6 -->
+                                        <!-- stitch: <div class="flex justify-center"> wraps input -->
+                                        <td class="cbm_td_other">
+                                            <div class="cbm_inv_qty_wrap">
+                                                <!-- stitch: w-16 md:w-24 text-center px-1 md:px-2 py-1.5 md:py-2
+                                                             bg-white border-none rounded-lg text-sm md:text-headline-sm
+                                                             font-bold text-primary ring-1 ring-black/5
+                                                             focus:ring-2 focus:ring-primary shadow-sm -->
+                                                <input type="number" class="cbm_inline_qty"
+                                                       t-att-value="line.qty_counted.toFixed(2)"
+                                                       t-on-focus="(ev) => ev.target.select()"
+                                                       t-on-change="(ev) => this.onQtyChanged(line.id, ev.target.value)"
+                                                       step="0.01" min="0"
+                                                       t-att-disabled="state.savingLineId === line.id"/>
+                                            </div>
+                                        </td>
+
+                                        <!-- UOM: stitch hidden md:table-cell px-2 md:px-6 py-4 md:py-6 -->
+                                        <td class="cbm_td_other cbm_col_md">
+                                            <!-- stitch: px-2 md:px-3 py-0.5 md:py-1 bg-secondary-container
+                                                         text-on-secondary-container rounded-full text-[10px]
+                                                         font-extrabold uppercase -->
+                                            <span class="cbm_inv_uom_badge" t-esc="line.uom_name"/>
+                                        </td>
+
+                                        <!-- Delete: stitch px-2 md:px-6 py-4 md:py-6 text-right -->
+                                        <td class="cbm_td_action">
+                                            <!-- stitch: p-1.5 md:p-2 text-outline-variant
+                                                         hover:text-error hover:bg-error/5 rounded-full -->
+                                            <button class="cbm_inv_delete_btn" t-on-click="() => this.confirmDelete(line.id)" title="Supprimer">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Bento: Tip + Accuracy -->
+                    <!-- stitch: grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12 -->
+                    <div class="cbm_inv_bento">
+                        <!-- stitch: col-span-2 p-6 md:p-8 bg-surface-container-low rounded-xl flex flex-col justify-center -->
+                        <div class="cbm_inv_tip_card">
+                            <!-- stitch: flex items-center gap-4 mb-4 -->
+                            <div class="cbm_inv_tip_header">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="cbm_inv_tip_icon">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"/>
+                                </svg>
+                                <h4>Conseil d'inventaire</h4>
+                            </div>
+                            <p>Pensez à vérifier les scellés sur les cartons complets avant de valider la quantité. Les lots expirant dans moins de 3 mois sont automatiquement signalés.</p>
+                        </div>
+                        <!-- stitch: bg-primary p-6 md:p-8 rounded-xl text-on-primary flex flex-col justify-between overflow-hidden relative -->
+                        <div class="cbm_inv_accuracy_card">
+                            <div class="cbm_inv_accuracy_value">—</div>
+                            <div class="cbm_inv_accuracy_label">Taux de précision disponible après validation du comptage.</div>
+                        </div>
+                    </div>
+
+                </section>
 
             </t>
         </div>
         </div>
 
         <!-- Fixed Footer (only during counting, not on status page) -->
+        <!-- stitch: fixed bottom-0 p-4 md:p-6 bg-gradient-to-t from-surface to-transparent -->
         <div class="cbm_page_footer" t-if="state.sessionFound &amp;&amp; !state.userSubmitted">
+            <!-- stitch: max-w-6xl mx-auto flex justify-between items-center
+                         bg-white/80 backdrop-blur-xl p-3 md:p-4 rounded-2xl
+                         shadow-2xl shadow-on-surface/5 border border-white/20 -->
             <div class="cbm_inv_footer_inner">
+                <!-- stitch: px-4 md:px-8 py-3 md:py-4 text-sm md:text-base
+                             text-on-surface-variant hover:text-on-surface font-bold active:scale-95 -->
                 <button class="cbm_inv_footer_cancel" t-on-click="goHome">Annuler</button>
                 <div class="cbm_inv_footer_right">
+                    <!-- stitch: hidden lg:block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mr-4 -->
                     <span class="cbm_inv_footer_hint">Prêt pour soumission</span>
+                    <!-- stitch: px-6 md:px-10 py-3 md:py-4 bg-primary hover:bg-primary-dim text-on-primary
+                                 rounded-xl text-sm md:text-base font-bold shadow-lg shadow-primary/20 active:scale-95 -->
                     <button class="cbm_inv_footer_submit" t-on-click="openDoneModal">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:1.25rem;height:1.25rem;">
                             <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd"/>
