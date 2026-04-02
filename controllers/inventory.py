@@ -59,9 +59,9 @@ class InventoryController(http.Controller):
             ClinicInventory = request.env['clinic.inventory']
             ClinicTeam = request.env['clinic.inventory.team']
 
-            # Find active sessions
+            # Find active or pending sessions (staff sees status page if pending)
             sessions = ClinicInventory.search([
-                ('state', '=', 'active'),
+                ('state', 'in', ['active', 'pending_approval']),
             ])
 
             if not sessions:
@@ -76,18 +76,34 @@ class InventoryController(http.Controller):
 
                 if teams:
                     team = teams[0]
+                    user_submitted = user in team.submitted_user_ids
+
+                    # Count user's lines for summary
+                    ClinicLine = request.env['clinic.inventory.line']
+                    user_lines = ClinicLine.search([
+                        ('inventory_id', '=', session.id),
+                        ('team_id', '=', team.id),
+                        ('user_id', '=', user.id),
+                    ])
+                    line_count = len(user_lines)
+                    product_count = len(set(user_lines.mapped('product_id').ids))
+
                     _logger.info(
-                        "[CBM INVENTORY] User %s found session %s, team %s",
-                        user.name, session.name, team.name
+                        "[CBM INVENTORY] User %s found session %s, team %s (submitted=%s)",
+                        user.name, session.name, team.name, user_submitted
                     )
                     return {
                         'found': True,
                         'session_id': session.id,
                         'session_name': session.name,
+                        'session_state': session.state,
                         'location_id': session.location_id.id,
                         'location_name': session.location_id.name,
                         'team_id': team.id,
                         'team_name': team.name,
+                        'user_submitted': user_submitted,
+                        'line_count': line_count,
+                        'product_count': product_count,
                     }
 
             _logger.info("[CBM INVENTORY] User %s not assigned to any active session", user.name)
@@ -307,11 +323,12 @@ class InventoryController(http.Controller):
                 )
                 return []
 
-            # Get only this team's lines, ordered by product name then lot name
+            # Get only this user's lines, ordered by product name then lot name
             lines = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
-            ], order='product_id.name, lot_id.name')
+                ('user_id', '=', user.id),
+            ], order='product_id, lot_id')
 
             result = []
             for line in lines:
@@ -380,10 +397,15 @@ class InventoryController(http.Controller):
             if expiry_date:
                 expiry_date_val = str(expiry_date)[:10]  # trim time if datetime string
 
+            # Reject save if user already submitted their count
+            if user in team.submitted_user_ids:
+                return {'success': False, 'error': _('You already submitted your count. Wait for manager review.')}
+
             # Prepare values
             vals = {
                 'inventory_id': session.id,
                 'team_id': team.id,
+                'user_id': user.id,
                 'product_id': product_id,
                 'lot_id': lot_id if lot_id else False,
                 'expiry_date': expiry_date_val,
@@ -392,22 +414,23 @@ class InventoryController(http.Controller):
             }
 
             if line_id:
-                # Update existing line (must belong to user's team)
+                # Update existing line (must belong to current user)
                 line = ClinicLine.browse(line_id)
                 if not line.exists():
                     return {'success': False, 'error': _('Line not found')}
-                if line.team_id.id != team.id:
-                    return {'success': False, 'error': _('Cannot edit another team\'s line')}
+                if line.user_id.id != user.id:
+                    return {'success': False, 'error': _('Cannot edit another user\'s line')}
 
-                line.write(vals)
+                # sudo(): portal user has perm_write=0, ownership verified above
+                line.sudo().write(vals)
                 _logger.info(
                     "[CBM INVENTORY] User %s updated line %s for team %s",
                     user.name, line.id, team.name
                 )
                 return {'success': True, 'line_id': line.id}
             else:
-                # Create new line
-                line = ClinicLine.create(vals)
+                # Create new line (sudo: consistent with write path)
+                line = ClinicLine.sudo().create(vals)
                 _logger.info(
                     "[CBM INVENTORY] User %s created line %s for team %s",
                     user.name, line.id, team.name
@@ -436,12 +459,17 @@ class InventoryController(http.Controller):
             if not line.exists():
                 return {'success': False, 'error': _('Line not found')}
 
-            # Verify user belongs to the line's team
-            if not line.team_id.user_ids.filtered(lambda u: u.id == user.id):
-                return {'success': False, 'error': _('Cannot delete another team\'s line')}
+            # Verify user owns this line
+            if line.user_id.id != user.id:
+                return {'success': False, 'error': _('Cannot delete another user\'s line')}
+
+            # Reject delete if user already submitted
+            if user in line.team_id.submitted_user_ids:
+                return {'success': False, 'error': _('Cannot delete after submission')}
 
             team_name = line.team_id.name
-            line.unlink()
+            # sudo(): portal user has perm_unlink=0, ownership verified above
+            line.sudo().unlink()
 
             _logger.info(
                 "[CBM INVENTORY] User %s deleted line %s from team %s",
@@ -456,28 +484,28 @@ class InventoryController(http.Controller):
 
     @http.route(['/cbm/inventory/submit', '/cbm/inventory/submit_draft'], type='json', auth='user')
     def submit(self, session_id):
-        """Submit inventory session for final approval.
+        """Submit current user's count for their team.
 
-        Final submission after counting complete.
-        Transition: active → pending_approval
+        Per-user submission: adds user to team.submitted_user_ids.
+        If all users in all teams have submitted, session auto-transitions
+        to pending_approval with system qty refreshed.
 
         Args:
             session_id: clinic.inventory ID
 
         Returns:
-            dict: {success: bool} or {success: False, error: str}
+            dict: {success, all_submitted} or {success: False, error: str}
         """
         try:
             user = request.env.user
             ClinicInventory = request.env['clinic.inventory']
             ClinicTeam = request.env['clinic.inventory.team']
+            ClinicLine = request.env['clinic.inventory.line']
 
-            # Verify session exists
             session = ClinicInventory.browse(session_id)
             if not session.exists():
                 return {'success': False, 'error': _('Session not found')}
 
-            # Verify user is assigned to this session's team
             team = ClinicTeam.search([
                 ('inventory_id', '=', session.id),
                 ('user_ids', 'in', user.id),
@@ -486,28 +514,32 @@ class InventoryController(http.Controller):
             if not team:
                 return {'success': False, 'error': _('Access denied')}
 
-            # Verify session is active
             if session.state != 'active':
                 return {'success': False, 'error': _('Session is not active')}
 
-            # Verify this team has lines to submit
-            ClinicLine = request.env['clinic.inventory.line']
-            team_lines = ClinicLine.search([
+            # Check user already submitted — return current session state
+            if user in team.submitted_user_ids:
+                return {'success': True, 'all_submitted': session.state == 'pending_approval'}
+
+            # Verify user has lines
+            user_lines = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
+                ('user_id', '=', user.id),
             ], limit=1)
-            if not team_lines:
+            if not user_lines:
                 return {'success': False, 'error': _('Cannot submit without counted lines')}
 
-            # Submit for approval
-            session.action_submit()
+            # Per-user submit — may auto-complete session
+            # sudo(): writes to team.submitted_user_ids and session.state
+            all_submitted = session.sudo().action_user_submit(user, team)
 
             _logger.info(
-                "[CBM INVENTORY] User %s submitted session %s for final approval",
-                user.name, session.name
+                "[CBM INVENTORY] User %s submitted count (all_done=%s)",
+                user.name, all_submitted
             )
 
-            return {'success': True}
+            return {'success': True, 'all_submitted': all_submitted}
 
         except ValueError as e:
             _logger.error("[CBM INVENTORY] submit validation error: %s", str(e))
@@ -553,14 +585,20 @@ class InventoryController(http.Controller):
             if session.state != 'active':
                 return {'success': False, 'error': _('Cannot recount a submitted session')}
 
-            # Delete all lines for this team
+            # Reject recount if user already submitted
+            if user in team.submitted_user_ids:
+                return {'success': False, 'error': _('Cannot recount after submission')}
+
+            # Delete only current user's lines (not other team members')
             lines_to_delete = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
+                ('user_id', '=', user.id),
             ])
 
             deleted_count = len(lines_to_delete)
-            lines_to_delete.unlink()
+            # sudo(): portal user has perm_unlink=0, ownership verified by user_id filter
+            lines_to_delete.sudo().unlink()
 
             _logger.info(
                 "[CBM INVENTORY] User %s restarted counting for session %s (deleted %d lines)",

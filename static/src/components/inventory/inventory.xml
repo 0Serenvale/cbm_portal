@@ -37,8 +37,55 @@
                 </p>
             </div>
 
+            <!-- Status Page (post-submit) -->
+            <div t-if="!state.sessionLoading &amp;&amp; state.sessionFound &amp;&amp; state.userSubmitted" class="cbm_inv_status_page">
+                <div class="cbm_inv_status_card">
+                    <div class="cbm_inv_status_icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                        </svg>
+                    </div>
+                    <h3 class="cbm_inv_status_title">Comptage soumis avec succes</h3>
+                    <p class="cbm_inv_status_message">
+                        <t t-if="state.sessionState === 'active'">
+                            En attente des autres membres de l'equipe.
+                        </t>
+                        <t t-elif="state.sessionState === 'pending_approval'">
+                            En attente de validation du responsable.
+                        </t>
+                    </p>
+
+                    <div class="cbm_inv_status_summary">
+                        <div class="cbm_inv_status_stat">
+                            <span class="cbm_inv_status_stat_value" t-esc="state.productCount"/>
+                            <span class="cbm_inv_status_stat_label">Produits</span>
+                        </div>
+                        <div class="cbm_inv_status_stat">
+                            <span class="cbm_inv_status_stat_value" t-esc="state.lineCount"/>
+                            <span class="cbm_inv_status_stat_label">Lignes</span>
+                        </div>
+                    </div>
+
+                    <div class="cbm_inv_status_meta">
+                        <span t-esc="state.teamName"/>
+                        <span class="cbm_inv_status_sep"/>
+                        <span t-esc="state.locationName"/>
+                    </div>
+
+                    <div class="cbm_inv_status_actions">
+                        <button class="cbm_btn_outline" t-on-click="printTeamPDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.125rem;height:1.125rem;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                            </svg>
+                            Telecharger PDF
+                        </button>
+                        <button class="cbm_btn_primary" t-on-click="goHome">Retour</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Counting Interface -->
-            <t t-if="!state.sessionLoading &amp;&amp; state.sessionFound">
+            <t t-if="!state.sessionLoading &amp;&amp; state.sessionFound &amp;&amp; !state.userSubmitted">
 
                 <!-- Dual Search Section -->
                 <div class="cbm_inv_search_section">
@@ -384,8 +431,8 @@
             </t>
         </div>
 
-        <!-- Fixed Footer -->
-        <div class="cbm_page_footer" t-if="state.sessionFound">
+        <!-- Fixed Footer (only during counting, not on status page) -->
+        <div class="cbm_page_footer" t-if="state.sessionFound &amp;&amp; !state.userSubmitted">
             <button class="cbm_btn_secondary" t-on-click="goHome">Annuler</button>
             <button class="cbm_btn_primary cbm_inv_submit_btn" t-on-click="openDoneModal">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:1.25rem;height:1.25rem;">

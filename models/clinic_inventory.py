@@ -167,6 +167,7 @@ class ClinicInventory(models.Model):
         - expiry: date or False
         - qty_system: current system stock (refreshed live)
         - lines_by_team: {team_id: clinic.inventory.line}
+        - lines_by_user: {(team_id, user_id): clinic.inventory.line}
         - variance: average counted - system qty
         """
         self.ensure_one()
@@ -188,9 +189,15 @@ class ClinicInventory(models.Model):
                     'expiry': line.expiry_date,
                     'qty_system': quant.quantity if quant else 0.0,
                     'lines_by_team': {},
+                    'lines_by_user': {},
                     'counts': [],
                 }
-            grouped[key]['lines_by_team'][line.team_id.id] = line
+            # Collect all lines per team (multiple users may count same product)
+            team_id = line.team_id.id
+            if team_id not in grouped[key]['lines_by_team']:
+                grouped[key]['lines_by_team'][team_id] = []
+            grouped[key]['lines_by_team'][team_id].append(line)
+            grouped[key]['lines_by_user'][(team_id, line.user_id.id)] = line
             grouped[key]['counts'].append(line.qty_counted)
 
         # Compute variance as average_counted - system
@@ -204,6 +211,52 @@ class ClinicInventory(models.Model):
         # Sort by product name
         result.sort(key=lambda d: d['product'].name)
         return result
+
+    def get_intra_team_discrepancies(self):
+        """Find products where users in the same team counted differently.
+
+        Returns a list of dicts for each discrepancy:
+        - team: clinic.inventory.team record
+        - product: product.product record
+        - lot: stock.lot record or False
+        - user_counts: [(user, qty_counted), ...]
+        - max_diff: absolute difference between highest and lowest count
+        """
+        self.ensure_one()
+        discrepancies = []
+
+        for team in self.team_ids:
+            if len(team.user_ids) < 2:
+                continue
+
+            # Group team's lines by (product_id, lot_id)
+            grouped = {}
+            for line in self.line_ids.filtered(lambda l: l.team_id.id == team.id):
+                key = (line.product_id.id, line.lot_id.id if line.lot_id else False)
+                if key not in grouped:
+                    grouped[key] = {
+                        'product': line.product_id,
+                        'lot': line.lot_id,
+                        'user_counts': [],
+                    }
+                grouped[key]['user_counts'].append((line.user_id, line.qty_counted))
+
+            for data in grouped.values():
+                if len(data['user_counts']) < 2:
+                    continue
+                counts = [uc[1] for uc in data['user_counts']]
+                max_diff = max(counts) - min(counts)
+                if max_diff > 0:
+                    discrepancies.append({
+                        'team': team,
+                        'product': data['product'],
+                        'lot': data['lot'],
+                        'user_counts': data['user_counts'],
+                        'max_diff': max_diff,
+                    })
+
+        discrepancies.sort(key=lambda d: (d['team'].name, d['product'].name))
+        return discrepancies
 
     def action_start(self):
         """Start inventory counting (draft → active). Tile appears for team users."""
@@ -220,7 +273,11 @@ class ClinicInventory(models.Model):
         return True
 
     def action_submit(self):
-        """Submit for approval (active → pending_approval)."""
+        """Submit for approval (active → pending_approval).
+
+        Called directly from backend button. For staff portal per-user
+        submission, use action_user_submit() instead.
+        """
         self.ensure_one()
         if self.state != 'active':
             raise UserError(_('Only active inventories can be submitted for approval'))
@@ -229,6 +286,58 @@ class ClinicInventory(models.Model):
         self.write({'state': 'pending_approval'})
         _logger.info("[Inventory] Session %s submitted for approval", self.id)
         return True
+
+    def action_user_submit(self, user, team):
+        """Record a single user's submission within their team.
+
+        Adds user to team.submitted_user_ids. If all users in all teams
+        have submitted, auto-transitions session to pending_approval.
+
+        Args:
+            user: res.users record
+            team: clinic.inventory.team record
+        """
+        self.ensure_one()
+        if self.state != 'active':
+            raise UserError(_('Session is not active'))
+
+        # Add user to submitted list
+        if user not in team.submitted_user_ids:
+            team.write({'submitted_user_ids': [(4, user.id)]})
+            _logger.info(
+                "[Inventory] User %s submitted count for team %s in session %s",
+                user.name, team.name, self.name
+            )
+
+        # Check if all users in all teams have submitted
+        all_submitted = True
+        for t in self.team_ids:
+            for u in t.user_ids:
+                if u not in t.submitted_user_ids:
+                    all_submitted = False
+                    break
+            if not all_submitted:
+                break
+
+        if all_submitted:
+            self._auto_complete()
+
+        return all_submitted
+
+    def _auto_complete(self):
+        """All users submitted — refresh system qty and transition to pending_approval."""
+        self.ensure_one()
+        # Force recomputation of stored computed fields (direct call doesn't persist)
+        Line = self.env['clinic.inventory.line']
+        self.env.add_to_compute(Line._fields['qty_system'], self.line_ids)
+        self.env.add_to_compute(Line._fields['variance'], self.line_ids)
+        self.flush_recordset()
+        self.line_ids.flush_recordset()
+        self.write({'state': 'pending_approval'})
+        _logger.info(
+            "[Inventory] Session %s auto-completed — all users submitted",
+            self.name
+        )
 
     def action_approve(self):
         """Approve and apply to stock (pending_approval → approved)."""
@@ -239,6 +348,25 @@ class ClinicInventory(models.Model):
         self.write({'state': 'approved'})
         self._sync_tile_visibility()
         _logger.info("[Inventory] Session %s approved by %s", self.id, self.env.user.name)
+        return True
+
+    def action_request_recount(self):
+        """Manager requests recount (pending_approval → active).
+
+        Clears submitted_user_ids on all teams so staff can re-enter
+        counting UI. Existing lines are preserved for editing.
+        """
+        self.ensure_one()
+        if self.state != 'pending_approval':
+            raise UserError(_('Can only request recount on pending inventories'))
+        for team in self.team_ids:
+            team.write({'submitted_user_ids': [(5, 0, 0)]})
+        self.write({'state': 'active'})
+        self._sync_tile_visibility()
+        _logger.info(
+            "[Inventory] Session %s sent back for recount by %s",
+            self.name, self.env.user.name
+        )
         return True
 
     def action_cancel(self):
@@ -301,8 +429,10 @@ class ClinicInventory(models.Model):
         StockQuant = self.env['stock.quant'].sudo().with_context(inventory_mode=True)
 
         # --- Step 1: Refresh qty_system on all lines ---
-        self.line_ids._compute_qty_system()
-        self.line_ids._compute_variance()
+        Line = self.env['clinic.inventory.line']
+        self.env.add_to_compute(Line._fields['qty_system'], self.line_ids)
+        self.env.add_to_compute(Line._fields['variance'], self.line_ids)
+        self.line_ids.flush_recordset()
 
         # --- Step 2: Aggregate lines by (product_id, lot_id) ---
         # If multiple teams counted the same product+lot, average their counts
@@ -457,6 +587,14 @@ class ClinicInventoryTeam(models.Model):
         'user_id',
         string='Assigned Users',
     )
+    submitted_user_ids = fields.Many2many(
+        'res.users',
+        'clinic_inventory_team_submitted_rel',
+        'team_id',
+        'user_id',
+        string='Submitted Users',
+        help='Users who have finished counting and clicked Valider',
+    )
 
     line_count = fields.Integer('Line Count', compute='_compute_line_count', store=False)
 
@@ -504,6 +642,12 @@ class ClinicInventoryLine(models.Model):
         required=True,
         index=True,
         ondelete='cascade',
+    )
+    user_id = fields.Many2one(
+        'res.users',
+        'Counted By',
+        required=True,
+        index=True,
     )
     product_id = fields.Many2one(
         'product.product',

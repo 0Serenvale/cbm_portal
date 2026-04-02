@@ -783,6 +783,116 @@ $ambient-shadow-sm: 0 8px 20px rgba($pc-on-surface, 0.05);
 }
 
 // ============================================================
+// STATUS PAGE (post-submit)
+// ============================================================
+
+.cbm_inv_status_page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    padding: 2rem;
+}
+
+.cbm_inv_status_card {
+    text-align: center;
+    max-width: 28rem;
+    width: 100%;
+}
+
+.cbm_inv_status_icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background: $pc-primary-container;
+    margin: 0 auto 1.5rem;
+
+    svg {
+        width: 2.5rem;
+        height: 2.5rem;
+        color: $pc-primary;
+    }
+}
+
+.cbm_inv_status_title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: $pc-on-surface;
+    margin: 0 0 0.75rem;
+}
+
+.cbm_inv_status_message {
+    font-size: 1rem;
+    color: $pc-on-surface-variant;
+    margin: 0 0 2rem;
+    line-height: 1.5;
+}
+
+.cbm_inv_status_summary {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.cbm_inv_status_stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.cbm_inv_status_stat_value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: $pc-primary;
+    line-height: 1;
+}
+
+.cbm_inv_status_stat_label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $pc-on-surface-variant;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cbm_inv_status_meta {
+    font-size: 0.875rem;
+    color: $pc-on-surface-variant;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.cbm_inv_status_sep {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: $pc-outline-variant;
+    flex-shrink: 0;
+}
+
+.cbm_inv_status_actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
+// ============================================================
 // FOOTER SUBMIT BUTTON (Precision Curator style)
 // ============================================================
 

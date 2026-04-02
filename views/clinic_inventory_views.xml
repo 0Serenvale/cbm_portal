@@ -38,6 +38,9 @@
                     <button name="action_approve" type="object" string="Approve &amp; Apply to Stock"
                             class="oe_highlight"
                             attrs="{'invisible': [('state', '!=', 'pending_approval')]}"/>
+                    <button name="action_request_recount" type="object" string="Request Recount"
+                            class="btn-warning"
+                            attrs="{'invisible': [('state', '!=', 'pending_approval')]}"/>
                     <button name="action_cancel" type="object" string="Cancel"
                             attrs="{'invisible': [('state', 'in', ['approved', 'cancelled'])]}"/>
                     <field name="state" widget="statusbar"
@@ -76,6 +79,8 @@
                                     <field name="user_ids" widget="many2many_tags"
                                            options="{'no_create': True}"
                                            placeholder="Select users..."/>
+                                    <field name="submitted_user_ids" widget="many2many_tags"
+                                           string="Submitted" readonly="1"/>
                                     <field name="line_count" string="Lines" readonly="1"/>
                                 </tree>
                             </field>
@@ -86,6 +91,7 @@
                             <field name="line_ids" readonly="1">
                                 <tree>
                                     <field name="team_id"/>
+                                    <field name="user_id" string="Counted By"/>
                                     <field name="product_id"/>
                                     <field name="lot_id"/>
                                     <field name="expiry_date"/>

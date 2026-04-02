@@ -30,10 +30,14 @@ export class InventoryCount extends Component {
             sessionFound: false,
             sessionId: null,
             sessionName: '',
+            sessionState: '',
             locationId: null,
             locationName: '',
             teamId: null,
             teamName: '',
+            userSubmitted: false,
+            lineCount: 0,
+            productCount: 0,
 
             // Lines
             linesLoading: false,
@@ -118,19 +122,28 @@ export class InventoryCount extends Component {
             this.state.sessionFound = true;
             this.state.sessionId = result.session_id;
             this.state.sessionName = result.session_name;
+            this.state.sessionState = result.session_state || 'active';
             this.state.locationId = result.location_id;
             this.state.locationName = result.location_name;
             this.state.teamId = result.team_id;
             this.state.teamName = result.team_name;
+            this.state.userSubmitted = result.user_submitted || false;
+            this.state.lineCount = result.line_count || 0;
+            this.state.productCount = result.product_count || 0;
 
-            await this.loadLines();
+            // Only load lines and focus input if user hasn't submitted
+            if (!this.state.userSubmitted) {
+                await this.loadLines();
+            }
             this.state.sessionLoading = false;
 
-            setTimeout(() => {
-                if (this.barcodeInputRef.el) {
-                    this.barcodeInputRef.el.focus();
-                }
-            }, 100);
+            if (!this.state.userSubmitted) {
+                setTimeout(() => {
+                    if (this.barcodeInputRef.el) {
+                        this.barcodeInputRef.el.focus();
+                    }
+                }, 100);
+            }
 
         } catch (error) {
             console.error("[INVENTORY] Failed to load session:", error);
@@ -835,9 +848,16 @@ export class InventoryCount extends Component {
                 this.props.showToast(_t("Comptage enregistré avec succès"), 'success');
             }
 
+            // Transition to status page instead of navigating home
             this.state.submittingFinal = false;
             this.state.doneModalOpen = false;
-            setTimeout(() => this.props.onNavigateHome(), 1000);
+            this.state.userSubmitted = true;
+            this.state.lineCount = this.state.lines.length;
+            this.state.productCount = new Set(this.state.lines.map(l => l.product_id)).size;
+
+            if (result.all_submitted) {
+                this.state.sessionState = 'pending_approval';
+            }
 
         } catch (error) {
             console.error("[INVENTORY] Submit failed:", error);
