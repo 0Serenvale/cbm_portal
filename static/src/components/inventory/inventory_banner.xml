@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
 
     <!-- Inventory Warning Banner -->
-    <t t-name="clinic_staff_portal.InventoryBanner">
+    <t t-name="clinic_staff_portal.InventoryBanner" owl="1">
         <div t-if="state.show" t-attf-class="{{ getBannerClass() }}" class="inventory-banner-container">
             <div class="inventory-banner-content">
                 <!-- Icon -->

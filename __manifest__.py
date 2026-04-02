@@ -81,7 +81,6 @@ Features:
         'views/drug_sync_menu.xml',
         'views/clinic_prescription_views.xml',
         'views/clinic_inventory_views.xml',
-        'views/inventory_configuration_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

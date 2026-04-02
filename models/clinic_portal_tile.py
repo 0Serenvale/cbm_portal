@@ -245,19 +245,24 @@ class ClinicPortalTile(models.Model):
     def _compute_visibility(self):
         """Compute if tile is visible to current user based on their locations"""
         user = self.env.user
-        
+
         # Get user's allowed locations (from serenvale_stock_access_control)
         user_locations = []
         if hasattr(user, 'allowed_location_ids') and user.allowed_location_ids:
             user_locations = user.allowed_location_ids.ids
-        
+
         for tile in self:
             # Child tiles are NEVER visible on main dashboard
             # They appear inside their parent folder
             if tile.parent_id:
                 tile.is_visible_to_user = False
                 continue
-            
+
+            # assigned_user_ids takes precedence: only those users see the tile
+            if tile.assigned_user_ids:
+                tile.is_visible_to_user = user.id in tile.assigned_user_ids.ids
+                continue
+
             if not tile.limit_location_ids:
                 # No limit = visible to everyone
                 tile.is_visible_to_user = True
@@ -273,28 +278,29 @@ class ClinicPortalTile(models.Model):
     def _search_is_visible_to_user(self, operator, value):
         """Enable searching/filtering by visibility"""
         user = self.env.user
-        
+
         # Get user's allowed locations
         user_locations = []
         if hasattr(user, 'allowed_location_ids') and user.allowed_location_ids:
             user_locations = user.allowed_location_ids.ids
-        
-        if not user_locations:
-            # No restrictions = all tiles visible
-            if operator == '=' and value:
-                return []
-            else:
-                return [('id', '=', False)]
-        
+
         # Find tiles visible to this user
-        all_tiles = self.sudo().search([])
+        all_tiles = self.sudo().search([('parent_id', '=', False)])
         visible_ids = []
         for tile in all_tiles:
+            # assigned_user_ids takes precedence
+            if tile.assigned_user_ids:
+                if user.id in tile.assigned_user_ids.ids:
+                    visible_ids.append(tile.id)
+                continue
+
             if not tile.limit_location_ids:
+                visible_ids.append(tile.id)
+            elif not user_locations:
                 visible_ids.append(tile.id)
             elif set(tile.limit_location_ids.ids) & set(user_locations):
                 visible_ids.append(tile.id)
-        
+
         if operator == '=' and value:
             return [('id', 'in', visible_ids)]
         else:

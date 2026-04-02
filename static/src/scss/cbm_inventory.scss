@@ -1,136 +1,662 @@
 // Inventory Component Styles
-// Extends CBM Kiosk styles for inventory counting interface
+// Design System: "The Precision Curator"
+// See: stitch/blueprint_ledger/DESIGN.md
+//
+// Rules:
+// - NO 1px solid borders for sectioning — use tonal background shifts
+// - Ghost border only: rgba(167, 180, 186, 0.15) when accessibility demands it
+// - Tonal layers: surface (#f7fafc) → surface-container-low (#eff4f7) → surface-container-lowest (#fff)
+// - Ambient shadows only: 20-40px blur, 4-8% opacity, tinted on-surface (#283439)
+// - No drop shadows (0 4px 10px black)
+// - Gridless table: no row dividers, tonal hover only
+// - Typography: Manrope for headlines/titles, Inter for body/labels
 
 // ============================================================
-// SEARCH SECTION
+// DESIGN SYSTEM TOKENS (matching stitch color palette)
+// ============================================================
+// These supplement the kiosk CSS variables with Precision Curator tokens.
+// The kiosk variables are used where they match; stitch tokens fill the gaps.
+
+$pc-surface:               #f7fafc;
+$pc-surface-low:           #eff4f7;
+$pc-surface-high:          #dfeaef;
+$pc-surface-highest:       #d7e5eb;
+$pc-surface-lowest:        #ffffff;
+$pc-primary:               #455f88;
+$pc-primary-dim:           #39537c;
+$pc-primary-container:     #d6e3ff;
+$pc-on-surface:            #283439;
+$pc-on-surface-variant:    #546166;
+$pc-outline-variant:       #a7b4ba;
+$pc-secondary-container:   #d8e3fa;
+$pc-on-secondary-container: #475265;
+$pc-error:                 #9f403d;
+$pc-error-container:       #fe8983;
+
+// Ghost border (accessibility fallback)
+$ghost-border: rgba($pc-outline-variant, 0.15);
+
+// Ambient shadow (never pure black)
+$ambient-shadow: 0 20px 40px rgba($pc-on-surface, 0.06);
+$ambient-shadow-sm: 0 8px 20px rgba($pc-on-surface, 0.05);
+
+// ============================================================
+// DUAL SEARCH SECTION
 // ============================================================
 
-.cbm_inventory_search_section {
-    padding: 20px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #f8f9fa 100%);
-    border-radius: 8px;
-    margin-bottom: 24px;
-    border: 1px solid #d1fae5;
-}
+.cbm_inv_search_section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
 
-.cbm_search_box {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-
-    @media (max-width: 600px) {
-        flex-direction: column;
-        gap: 12px;
-
-        .cbm_search_divider {
-            display: none;
-        }
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 }
 
-.cbm_search_input_wrapper {
+.cbm_inv_search_group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+// Section label — uppercase micro label (label-sm / Inter)
+.cbm_inv_search_label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: $pc-on-surface-variant;
+    margin-left: 0.125rem;
+}
+
+// Search box: surface-container-lowest, ghost border, no hard line
+.cbm_inv_search_box {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 200px;
-    padding: 12px 16px;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+    background: $pc-surface-lowest;
+    border: 1px solid $ghost-border;
+    border-radius: 0.75rem;
+    box-shadow: $ambient-shadow-sm;
+    transition: border-color 0.2s, box-shadow 0.2s;
 
     &:focus-within {
-        border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        border-color: rgba($pc-primary, 0.4);
+        box-shadow: 0 0 0 3px rgba($pc-primary-container, 0.5), $ambient-shadow-sm;
     }
 
-    .cbm_icon_barcode,
-    .cbm_icon_search {
-        font-size: 18px;
-        color: #6b7280;
+    .cbm_inv_search_icon {
+        position: absolute;
+        left: 1rem;
+        display: flex;
+        align-items: center;
+        color: $pc-primary;
+        pointer-events: none;
+        z-index: 1;
+
+        svg { width: 1.25rem; height: 1.25rem; }
+    }
+
+    input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        // headline-md per design spec — large enough to read at arm's length on a tablet
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: $pc-on-surface;
+        border-radius: 0.75rem;
+        outline: none;
+
+        &::placeholder {
+            color: $pc-outline-variant;
+            font-weight: 400;
+            font-size: 0.9375rem;
+        }
+
+        &:disabled { opacity: 0.6; }
+    }
+
+}
+
+// Search dropdown — floating card, does NOT push layout
+.cbm_inv_dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 300;
+    background: $pc-surface-lowest;
+    border: 1px solid $ghost-border;
+    border-radius: 0.75rem;
+    box-shadow: $ambient-shadow;
+    margin-top: 0.375rem;
+    max-height: 20rem;
+    overflow-y: auto;
+
+    .cbm_inv_dropdown_item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        // Spacing creates separation — no divider lines per Precision Curator spec
+        padding: 0.875rem 1rem;
+        cursor: pointer;
+        transition: background 0.12s;
+
+        &:hover { background: $pc-surface-low; }
+        &.selected { background: $pc-surface-high; }
+    }
+
+    .cbm_inv_item_name {
+        font-weight: 600;
+        font-size: 1rem;
+        color: $pc-on-surface;
+        line-height: 1.3;
+    }
+
+    .cbm_inv_item_meta {
+        font-size: 0.875rem;
+        color: $pc-on-surface-variant;
+        margin-top: 0.2rem;
+    }
+
+    .cbm_inv_item_badge {
+        font-size: 0.875rem;
+        font-weight: 700;
+        padding: 0.3rem 0.75rem;
+        background: $pc-primary-container;
+        color: $pc-primary;
+        border-radius: 2rem;
+        flex-shrink: 0;
+        margin-left: 1rem;
+        white-space: nowrap;
+    }
+}
+
+// ============================================================
+// LOT PICKER DROPDOWN (anchored, Odoo many2one style)
+// ============================================================
+
+// The lot cell needs position:relative so the menu anchors to it
+.cbm_inv_lot_cell {
+    position: relative;
+}
+
+// Invisible full-screen click-away layer (no visual backdrop)
+.cbm_lot_picker_clickaway {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 199;
+}
+
+// Dropdown menu — anchored below the lot button
+.cbm_lot_picker_menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 200;
+    min-width: 18rem;
+    max-width: 26rem;
+    max-height: 20rem;
+    overflow-y: auto;
+    background: $pc-surface-lowest;
+    border: 1px solid $ghost-border;
+    border-radius: 0.625rem;
+    box-shadow: $ambient-shadow;
+    margin-top: 0.25rem;
+}
+
+.cbm_lot_picker_search_wrap {
+    position: sticky;
+    top: 0;
+    background: $pc-surface-lowest;
+    padding: 0.5rem;
+    border-bottom: 1px solid $ghost-border;
+    z-index: 1;
+}
+
+.cbm_lot_picker_input {
+    width: 100%;
+    border: 1px solid $ghost-border;
+    border-radius: 0.375rem;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.875rem;
+    background: $pc-surface-low;
+    color: $pc-on-surface;
+    outline: none;
+
+    &::placeholder { color: $pc-outline-variant; }
+    &:focus {
+        border-color: rgba($pc-primary, 0.4);
+        box-shadow: 0 0 0 3px rgba($pc-primary-container, 0.4);
+    }
+}
+
+.cbm_lot_picker_loading,
+.cbm_lot_picker_empty {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    color: $pc-on-surface-variant;
+    text-align: center;
+}
+
+// ============================================================
+// LINES SECTION HEADER
+// ============================================================
+
+.cbm_inv_lines_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1.25rem;
+    gap: 1rem;
+
+    @media (max-width: 480px) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.cbm_inv_lines_title {
+    // headline-sm / Manrope
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: $pc-on-surface;
+    margin: 0 0 0.25rem;
+}
+
+.cbm_inv_lines_subtitle {
+    font-size: 1rem;
+    color: $pc-on-surface-variant;
+    margin: 0;
+}
+
+.cbm_inv_pdf_btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5625rem 1rem;
+    background: $pc-surface-high;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $pc-primary;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+
+    &:hover { background: $pc-surface-highest; }
+}
+
+// ============================================================
+// TABLE FILTER
+// ============================================================
+
+.cbm_inv_filter_box {
+    display: flex;
+    align-items: center;
+    background: $pc-surface-lowest;
+    border: 1px solid $ghost-border;
+    border-radius: 0.625rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+
+    .cbm_inv_filter_icon {
+        padding: 0 0.25rem 0 0.875rem;
+        color: $pc-on-surface-variant;
+        display: flex;
+        align-items: center;
         flex-shrink: 0;
     }
 
     input {
         flex: 1;
         border: none;
-        outline: none;
         background: transparent;
-        font-size: 14px;
-        color: #1f2937;
+        padding: 0.625rem 0.75rem;
+        font-size: 0.875rem;
+        color: $pc-on-surface;
+        outline: none;
 
-        &::placeholder {
-            color: #9ca3af;
-        }
+        &::placeholder { color: $pc-outline-variant; }
+    }
+
+    .cbm_inv_filter_clear {
+        background: none;
+        border: none;
+        border-left: 1px solid $ghost-border;
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        color: $pc-on-surface-variant;
+        display: flex;
+        align-items: center;
+
+        &:hover { color: $pc-on-surface; }
     }
 }
 
-.cbm_product_search {
-    flex: 2;
-    min-width: 250px;
-    position: relative;
+// ============================================================
+// GRIDLESS TABLE (Precision Curator spec)
+// ============================================================
 
-    .spinner-border-sm {
-        margin-left: auto;
-        color: #059669;
+.cbm_inv_table_wrap {
+    // surface-container-low wrap, no hard border
+    background: $pc-surface-low;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: $ambient-shadow-sm;
+}
+
+.cbm_inv_table {
+    width: 100%;
+    border-collapse: collapse;
+
+    // Header: surface-container-low (same as wrap, slightly darker on some themes)
+    thead tr {
+        background: $pc-surface-high;
+    }
+
+    thead th {
+        // label-sm / Inter — uppercase metadata
+        padding: 0.875rem 1.25rem;
+        font-size: 0.6875rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: $pc-on-surface-variant;
+        white-space: nowrap;
+        // No bottom border — tonal layering handles it
+    }
+
+    tbody tr {
+        background: $pc-surface-lowest;
+        transition: background 0.12s;
+        // No row dividers — tonal hover is the only visual separator per spec
+        &:hover { background: $pc-surface-low; }
+    }
+
+    tbody td {
+        // Spacing scale 5 per spec (1.1rem ≈ 1rem pad + 0.1)
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        color: $pc-on-surface;
+        vertical-align: middle;
     }
 }
 
-.cbm_search_divider {
-    color: #d1d5db;
+// Product name — bold, on-surface — text-lg per stitch
+.cbm_inv_product_name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: $pc-on-surface;
+    line-height: 1.35;
+}
+
+// Lot button — dashed ghost border, tag icon
+.cbm_inv_lot_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border: 2px dashed rgba($pc-outline-variant, 0.4);
+    border-radius: 0.5rem;
+    background: none;
+    font-size: 0.875rem;
     font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.cbm_barcode_input {
-    font-family: 'Courier New', monospace;
-    letter-spacing: 1px;
-}
-
-// ============================================================
-// CAMERA BUTTON & MODAL
-// ============================================================
-
-.cbm_camera_btn {
-    background: #059669;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 16px;
+    color: $pc-on-surface-variant;
     cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    white-space: nowrap;
+
+    &:hover {
+        border-color: rgba($pc-primary, 0.5);
+        color: $pc-primary;
+        background: rgba($pc-primary-container, 0.25);
+    }
+
+    &.has-lot {
+        border-style: solid;
+        border-color: $ghost-border;
+        color: $pc-on-surface;
+        background: $pc-surface-low;
+    }
+
+    svg { width: 0.875rem; height: 0.875rem; flex-shrink: 0; }
+}
+
+// Expiry cell — calendar icon + text, click-to-edit — text-base per stitch
+.cbm_inv_expiry_cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: $pc-on-surface;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: background 0.12s;
+
+    &:hover { background: $pc-surface-low; }
+
+    &.empty {
+        color: $pc-on-surface-variant;
+        font-style: italic;
+    }
+
+    svg {
+        width: 0.875rem;
+        height: 0.875rem;
+        color: $pc-on-surface-variant;
+        flex-shrink: 0;
+    }
+}
+
+// Date input (appears when editing expiry)
+.cbm_inline_date {
+    border: 1px solid rgba($pc-outline-variant, 0.3);
+    border-radius: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    font-size: 0.875rem;
+    background: $pc-surface-lowest;
+    color: $pc-on-surface;
+    outline: none;
+    max-width: 9rem;
+
+    &:focus {
+        border-color: $pc-primary;
+        box-shadow: 0 0 0 3px rgba($pc-primary-container, 0.5);
+    }
+}
+
+// Qty input — white card, primary text, no spinners — text-headline-sm per stitch
+.cbm_inline_qty {
+    width: 5rem;
+    text-align: center;
+    padding: 0.4375rem 0.5rem;
+    border: 1px solid $ghost-border;
+    border-radius: 0.5rem;
+    background: $pc-surface-lowest;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $pc-primary;
+    box-shadow: 0 1px 4px rgba($pc-on-surface, 0.05);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:focus {
+        border-color: rgba($pc-primary, 0.4);
+        box-shadow: 0 0 0 3px rgba($pc-primary-container, 0.4);
+    }
+
+    // Hide number spinners
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    &[type='number'] { -moz-appearance: textfield; }
+}
+
+// UOM pill — secondary-container, full rounding
+.cbm_inv_uom_badge {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    background: $pc-secondary-container;
+    color: $pc-on-secondary-container;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+// Delete button — ghost, red on hover
+.cbm_inv_delete_btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4375rem;
+    border-radius: 50%;
+    color: $pc-on-surface-variant;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
 
-    &:hover:not([disabled]) {
-        background: #047857;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    &:hover {
+        color: $pc-error;
+        background: rgba($pc-error, 0.06);
     }
 
-    &:active:not([disabled]) {
-        transform: scale(0.98);
-    }
+    svg { width: 1.125rem; height: 1.125rem; }
+}
 
-    &[disabled] {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+// ============================================================
+// BENTO SECTION (Conseil + Accuracy)
+// ============================================================
 
-    .cbm_icon_camera {
-        font-size: 20px;
-    }
+.cbm_inv_bento {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
 
-    @media (max-width: 600px) {
-        padding: 12px 14px;
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
     }
 }
+
+// Tip card: surface-container-low, no border (tonal separation)
+.cbm_inv_tip_card {
+    background: $pc-surface-low;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+
+    .cbm_inv_tip_header {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+
+        h4 {
+            margin: 0;
+            font-family: 'Manrope', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: $pc-on-surface;
+        }
+    }
+
+    p {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: $pc-on-surface-variant;
+        line-height: 1.65;
+    }
+}
+
+// Accuracy card: primary gradient, floating with ambient shadow
+.cbm_inv_accuracy_card {
+    background: linear-gradient(135deg, $pc-primary 0%, $pc-primary-dim 100%);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
+    min-height: 8rem;
+    box-shadow: 0 20px 40px rgba($pc-primary, 0.06);
+
+    // Subtle background circle for depth
+    &::after {
+        content: '';
+        position: absolute;
+        right: -1.5rem;
+        bottom: -1.5rem;
+        width: 7rem;
+        height: 7rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+
+    .cbm_inv_accuracy_value {
+        // display-sm per spec
+        font-size: 2.75rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+        letter-spacing: -0.02em;
+    }
+
+    .cbm_inv_accuracy_label {
+        font-size: 1rem;  // text-base per stitch
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.45;
+        margin-top: 0.5rem;
+    }
+}
+
+// ============================================================
+// CAMERA BUTTON (inside search box)
+// ============================================================
+
+.cbm_inv_camera_btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    border-left: 1px solid $ghost-border;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    color: $pc-on-surface-variant;
+    display: flex;
+    align-items: center;
+    border-radius: 0 0.75rem 0.75rem 0;
+    transition: color 0.15s, background 0.15s;
+
+    &:hover {
+        color: $pc-primary;
+        background: rgba($pc-primary-container, 0.3);
+    }
+
+    svg { width: 1.25rem; height: 1.25rem; }
+}
+
+// ============================================================
+// CAMERA MODAL
+// ============================================================
 
 .cbm_camera_modal {
     position: fixed;
@@ -150,48 +676,35 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba($pc-on-surface, 0.6);
+    backdrop-filter: blur(4px);
     cursor: pointer;
 }
 
 .cbm_camera_container {
     position: relative;
-    background: white;
-    border-radius: 12px;
+    background: $pc-surface-lowest;
+    border-radius: 0.75rem;
     width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
+    max-width: 480px;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: $ambient-shadow;
     display: flex;
     flex-direction: column;
-    animation: slideUp 0.3s ease;
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
 }
 
 .cbm_camera_header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
+    padding: 1rem 1.25rem;
+    background: $pc-surface-low;
 
     h3 {
         margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1f2937;
+        font-size: 1rem;
+        font-weight: 700;
+        color: $pc-on-surface;
     }
 }
 
@@ -199,34 +712,23 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    padding: 0.25rem;
     display: flex;
     align-items: center;
-    color: #9ca3af;
-    transition: color 0.2s;
+    color: $pc-on-surface-variant;
 
-    &:hover {
-        color: #1f2937;
-    }
-
-    .cbm_icon_x {
-        font-size: 20px;
-    }
+    &:hover { color: $pc-on-surface; }
 }
 
 .cbm_camera_body {
     position: relative;
     width: 100%;
-    height: 400px;
-    background: #000;
+    aspect-ratio: 16 / 9;
+    background: $pc-on-surface;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-
-    @media (max-width: 600px) {
-        height: 60vh;
-    }
 }
 
 .cbm_camera_video {
@@ -237,1216 +739,55 @@
 
 .cbm_camera_hint {
     position: absolute;
-    bottom: 20px;
+    bottom: 1rem;
     left: 0;
     right: 0;
     text-align: center;
     color: white;
-    font-size: 14px;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 12px;
-    border-radius: 6px;
-    margin: 0 20px;
+    font-size: 0.875rem;
+    background: rgba($pc-on-surface, 0.5);
+    backdrop-filter: blur(4px);
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    margin: 0 1rem;
 
-    p {
-        margin: 0;
-    }
+    p { margin: 0; }
 }
 
 // ============================================================
-// SEARCH DROPDOWN
+// DELETE / DONE MODAL ICONS
 // ============================================================
 
-.cbm_search_dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.cbm_search_results {
-    padding: 0;
-}
-
-.cbm_search_result_item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f3f4f6;
-    cursor: pointer;
-    transition: background 0.15s ease;
-
-    &:hover,
-    &.highlighted {
-        background: #f0fdf4;
-    }
-
-    &:last-child {
-        border-bottom: none;
-    }
-}
-
-.cbm_result_info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.cbm_result_name {
-    font-weight: 600;
-    color: #1f2937;
-    font-size: 13px;
-}
-
-.cbm_result_barcode {
-    font-size: 11px;
-    color: #9ca3af;
-    font-family: 'Courier New', monospace;
-}
-
-.cbm_result_meta {
-    display: flex;
-    gap: 12px;
-    font-size: 12px;
-    color: #6b7280;
-}
-
-.cbm_result_uom {
-    background: #eff6ff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    color: #1e40af;
-    font-weight: 600;
-}
-
-.cbm_result_qty {
-    color: #047857;
-    font-weight: 600;
-}
-
-// ============================================================
-// EDIT FORM MODAL
-// ============================================================
-
-.cbm_inventory_form_modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.cbm_form_backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    cursor: pointer;
-}
-
-.cbm_form_card {
-    position: relative;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-}
-
-.cbm_form_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #e5e7eb;
-    background: linear-gradient(135deg, #f0fdf4 0%, #f8f9fa 100%);
-    border-radius: 12px 12px 0 0;
-
-    h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1f2937;
-    }
-}
-
-.cbm_form_close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    color: #9ca3af;
-    transition: color 0.2s;
-
-    &:hover {
-        color: #1f2937;
-    }
-
-    .cbm_icon_x {
-        font-size: 20px;
-    }
-}
-
-.cbm_form_body {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.cbm_form_field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    label {
-        font-weight: 600;
-        font-size: 13px;
-        color: #374151;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-}
-
-.cbm_form_field_readonly {
-    label {
-        color: #6b7280;
-    }
-
-    .cbm_form_value {
-        padding: 12px;
-        background: #f9fafb;
-        border-radius: 4px;
-        color: #374151;
-        font-size: 14px;
-        border: 1px solid #e5e7eb;
-    }
-}
-
-.cbm_qty_input_group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.cbm_qty_input {
-    flex: 1;
-    padding: 12px 14px;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #1f2937;
-    transition: border-color 0.2s;
-
-    &:focus {
-        outline: none;
-        border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-    // Number input spinners
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    &[type='number'] {
-        -moz-appearance: textfield;
-    }
-}
-
-.cbm_qty_unit {
-    padding: 8px 12px;
-    background: #f0fdf4;
-    border: 1px solid #d1fae5;
-    border-radius: 4px;
-    font-weight: 600;
-    color: #047857;
-    font-size: 13px;
-    white-space: nowrap;
-}
-
-.cbm_text_input,
-.cbm_date_input {
-    padding: 10px 12px;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
-    font-size: 14px;
-    color: #1f2937;
-    transition: border-color 0.2s;
-
-    &:focus {
-        outline: none;
-        border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-    &::placeholder {
-        color: #9ca3af;
-    }
-}
-
-.cbm_form_actions {
-    display: flex;
-    gap: 12px;
-    padding: 20px;
-    border-top: 1px solid #e5e7eb;
-    background: #f9fafb;
-    border-radius: 0 0 12px 12px;
-    justify-content: flex-end;
-
-    .cbm_btn {
-        padding: 10px 20px;
-        font-size: 13px;
-        font-weight: 600;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        &[disabled] {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-    }
-
-    .cbm_btn_secondary {
-        background: white;
-        color: #374151;
-        border: 2px solid #e5e7eb;
-
-        &:hover:not([disabled]) {
-            background: #f3f4f6;
-            border-color: #d1d5db;
-        }
-    }
-
-    .cbm_btn_primary {
-        background: #059669;
-        color: white;
-
-        &:hover:not([disabled]) {
-            background: #047857;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-        }
-    }
-
-    .cbm_btn_danger {
-        background: #dc2626;
-        color: white;
-
-        &:hover:not([disabled]) {
-            background: #b91c1c;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-        }
-    }
-}
-
-// Confirm modal variant
-.cbm_confirm_card {
-    max-width: 400px;
-
-    .cbm_confirm_icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 60px;
-        height: 60px;
-        background: #fee2e2;
-        border-radius: 50%;
-        margin: 24px auto;
-        color: #dc2626;
-        font-size: 28px;
-    }
-
-    h3 {
-        text-align: center;
-        color: #1f2937;
-        margin: 0 0 8px;
-    }
-
-    p {
-        text-align: center;
-        color: #6b7280;
-        font-size: 13px;
-        margin: 0 0 24px;
-    }
-}
-
-// ============================================================
-// LINES TABLE
-// ============================================================
-
-.cbm_inventory_lines_section {
-    margin-top: 32px;
-}
-
-.cbm_lines_title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0 0 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.cbm_lines_loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    color: #6b7280;
-    font-size: 14px;
-}
-
-.cbm_lines_empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    background: #f9fafb;
-    border: 2px dashed #e5e7eb;
-    border-radius: 8px;
-    color: #6b7280;
-
-    .cbm_icon_inbox {
-        font-size: 48px;
-        color: #d1d5db;
-        margin-bottom: 16px;
-    }
-
-    p {
-        margin: 0;
-        font-size: 14px;
-
-        &.cbm_lines_empty_hint {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-top: 8px;
-        }
-    }
-}
-
-.cbm_lines_table {
-    overflow-x: auto;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-}
-
-.cbm_table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-
-    thead {
-        background: #f9fafb;
-        border-bottom: 2px solid #e5e7eb;
-
-        th {
-            padding: 12px 16px;
-            text-align: left;
-            font-weight: 600;
-            color: #374151;
-            white-space: nowrap;
-
-            &.cbm_col_product {
-                width: 35%;
-            }
-
-            &.cbm_col_lot {
-                width: 15%;
-            }
-
-            &.cbm_col_expiry {
-                width: 12%;
-            }
-
-            &.cbm_col_qty {
-                width: 12%;
-                text-align: center;
-            }
-
-            &.cbm_col_uom {
-                width: 10%;
-                text-align: center;
-            }
-
-            &.cbm_col_actions {
-                width: 10%;
-                text-align: center;
-            }
-        }
-    }
-
-    tbody {
-        tr {
-            border-bottom: 1px solid #f3f4f6;
-            transition: background 0.15s ease;
-
-            &:hover {
-                background: #f9fafb;
-            }
-
-            &:last-child {
-                border-bottom: none;
-            }
-
-            td {
-                padding: 14px 16px;
-                color: #1f2937;
-
-                &.cbm_col_qty,
-                &.cbm_col_uom,
-                &.cbm_col_actions {
-                    text-align: center;
-                }
-            }
-        }
-    }
-}
-
-// ============================================================
-// INLINE QTY EDITING
-// ============================================================
-
-.cbm_qty_display {
-    display: inline-block;
-    padding: 8px 12px;
-    border: 2px solid transparent;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    color: #1f2937;
-    transition: all 0.2s;
-    user-select: none;
-
-    &:hover {
-        background: #f0fdf4;
-        border-color: #d1fae5;
-        color: #047857;
-    }
-
-    &:active {
-        transform: scale(0.98);
-    }
-}
-
-.cbm_qty_inline_input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 2px solid #059669;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f2937;
-    background: white;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    transition: all 0.2s;
-
-    &:focus {
-        border-color: #047857;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
-    }
-
-    &:disabled {
-        background: #f3f4f6;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-
-    // Number input spinners
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    &[type='number'] {
-        -moz-appearance: textfield;
-    }
-}
-
-.cbm_qty_saving_spinner {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 8px;
-
-    .spinner-border-sm {
-        color: #059669;
-        width: 12px;
-        height: 12px;
-    }
-}
-
-.cbm_action_btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 6px 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
-    margin: 0 4px;
-
-    &.cbm_action_delete {
-        color: #dc2626;
-
-        &:hover {
-            background: rgba(220, 38, 38, 0.1);
-        }
-    }
-
-    .cbm_icon_trash {
-        font-size: 16px;
-    }
-}
-
-// ============================================================
-// FOOTER ACTIONS
-// ============================================================
-
-.cbm_page_footer {
+.cbm_confirm_icon {
     display: flex;
     justify-content: center;
-    padding: 16px 20px;
-    background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
-
-    @media (max-width: 768px) {
-        padding: 12px 16px;
-    }
+    align-items: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    background: rgba($pc-error, 0.1);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    color: $pc-error;
 }
 
-.cbm_footer_actions {
+.cbm_done_icon {
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
     justify-content: center;
-    max-width: 100%;
-
-    .cbm_btn {
-        flex: 1;
-        min-width: 140px;
-
-        @media (max-width: 600px) {
-            flex: 0 1 auto;
-            min-width: 120px;
-            font-size: 13px;
-            padding: 10px 14px;
-        }
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .cbm_page_footer {
-        background: #111827;
-        border-color: #374151;
-    }
-}
-
-// ============================================================
-// NO SESSION STATE
-// ============================================================
-
-.cbm_inventory_no_session {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    text-align: center;
-}
-
-.cbm_empty_icon {
-    font-size: 64px;
-    color: #d1d5db;
-    margin-bottom: 24px;
-
-    .cbm_icon_inbox {
-        display: block;
-    }
-}
-
-.cbm_empty_title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0 0 12px;
-}
-
-.cbm_empty_message {
-    color: #6b7280;
-    font-size: 14px;
-    max-width: 400px;
-    margin: 0 0 24px;
-    line-height: 1.5;
+    width: 3.75rem;
+    height: 3.75rem;
+    background: $pc-primary-container;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    color: $pc-primary;
 }
 
 // ============================================================
-// LOADING STATE
+// FOOTER SUBMIT BUTTON (Precision Curator style)
 // ============================================================
 
-.cbm_inventory_loading {
+.cbm_inv_submit_btn {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    color: #6b7280;
-    font-size: 14px;
-
-    .spinner-border-sm {
-        margin-right: 12px;
-        color: #059669;
-    }
-}
-
-// ============================================================
-// TABLE SEARCH BAR
-// ============================================================
-
-.cbm_inventory_table_controls {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.cbm_table_search_wrapper {
-    flex: 1;
-    min-width: 200px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    background: #f9fafb;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &:focus-within {
-        background: white;
-        border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-    }
-
-    .cbm_icon_search {
-        font-size: 16px;
-        color: #6b7280;
-        flex-shrink: 0;
-    }
-
-    input {
-        flex: 1;
-        border: none;
-        outline: none;
-        background: transparent;
-        font-size: 14px;
-        color: #1f2937;
-
-        &::placeholder {
-            color: #9ca3af;
-        }
-    }
-
-    .cbm_table_clear_search {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 4px;
-        color: #9ca3af;
-        transition: color 0.2s;
-
-        &:hover {
-            color: #6b7280;
-        }
-
-        .cbm_icon_x {
-            font-size: 14px;
-        }
-    }
-}
-
-// ============================================================
-// DARK MODE SUPPORT
-// ============================================================
-
-@media (prefers-color-scheme: dark) {
-    .cbm_camera_btn {
-        background: #10b981;
-
-        &:hover:not([disabled]) {
-            background: #059669;
-        }
-    }
-
-    .cbm_camera_container {
-        background: #111827;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-    }
-
-    .cbm_camera_header {
-        border-color: #374151;
-        background: #1f2937;
-
-        h3 {
-            color: #f3f4f6;
-        }
-    }
-
-    .cbm_camera_close {
-        color: #9ca3af;
-
-        &:hover {
-            color: #e5e7eb;
-        }
-    }
-
-    .cbm_inventory_search_section {
-        background: linear-gradient(135deg, #064e3b 0%, #1a1f2e 100%);
-        border-color: #047857;
-
-        .cbm_search_input_wrapper {
-            background: #1f2937;
-            border-color: #374151;
-            color: #f3f4f6;
-
-            &:focus-within {
-                border-color: #10b981;
-                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-            }
-
-            .cbm_icon_barcode,
-            .cbm_icon_search {
-                color: #d1d5db;
-            }
-
-            input {
-                color: #f3f4f6;
-
-                &::placeholder {
-                    color: #9ca3af;
-                }
-            }
-        }
-    }
-
-    .cbm_inventory_table_controls {
-        .cbm_table_search_wrapper {
-            background: #1f2937;
-            border-color: #374151;
-
-            &:focus-within {
-                background: #111827;
-                border-color: #10b981;
-            }
-
-            .cbm_icon_search {
-                color: #d1d5db;
-            }
-
-            input {
-                color: #f3f4f6;
-
-                &::placeholder {
-                    color: #9ca3af;
-                }
-            }
-
-            .cbm_table_clear_search {
-                color: #9ca3af;
-
-                &:hover {
-                    color: #d1d5db;
-                }
-            }
-        }
-    }
-
-    .cbm_table {
-        thead {
-            background: #1f2937;
-            border-color: #374151;
-
-            th {
-                color: #e5e7eb;
-            }
-        }
-
-        tbody {
-            tr {
-                border-color: #374151;
-
-                &:hover {
-                    background: #111827;
-                }
-
-                td {
-                    color: #f3f4f6;
-                }
-            }
-        }
-    }
-
-    .cbm_qty_display {
-        border-color: transparent;
-
-        &:hover {
-            background: #1f2937;
-            border-color: #10b981;
-            color: #10b981;
-        }
-    }
-
-    .cbm_qty_inline_input {
-        background: #1f2937;
-        border-color: #10b981;
-        color: #f3f4f6;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-
-        &:focus {
-            border-color: #059669;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-        }
-
-        &:disabled {
-            background: #111827;
-        }
-    }
-
-    .cbm_lines_empty {
-        background: #111827;
-        border-color: #374151;
-        color: #9ca3af;
-
-        .cbm_icon_inbox {
-            color: #4b5563;
-        }
-    }
-}
-
-// ============================================================
-// LOT PRODUCT SELECTION MODAL
-// ============================================================
-
-.cbm_lot_product_item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    border: none;
-    border-bottom: 1px solid #f3f4f6;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-    text-align: left;
-
-    &:hover {
-        background: #f9fafb;
-    }
-
-    &.selected {
-        background: #f0fdf4;
-        border-left: 4px solid #059669;
-        padding-left: 16px;
-    }
-
-    &:last-child {
-        border-bottom: none;
-    }
-}
-
-.cbm_lot_product_info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.cbm_lot_product_name {
-    font-weight: 600;
-    color: #1f2937;
-    font-size: 14px;
-}
-
-.cbm_lot_product_meta {
-    display: flex;
-    gap: 12px;
-    font-size: 12px;
-    color: #6b7280;
-}
-
-.cbm_lot_barcode {
-    font-family: 'Courier New', monospace;
-    color: #9ca3af;
-}
-
-.cbm_lot_uom {
-    background: #eff6ff;
-    padding: 2px 6px;
-    border-radius: 3px;
-    color: #1e40af;
-    font-weight: 600;
-}
-
-.cbm_lot_checkbox {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #e5e7eb;
-    border-radius: 4px;
-    margin-left: 12px;
-    transition: all 0.2s;
-
-    .cbm_lot_product_item.selected & {
-        background: #059669;
-        border-color: #059669;
-        color: white;
-
-        .cbm_icon_check {
-            font-size: 14px;
-        }
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .cbm_lot_product_item {
-        background: #111827;
-        border-color: #374151;
-
-        &:hover {
-            background: #1f2937;
-        }
-
-        &.selected {
-            background: #064e3b;
-            border-left-color: #10b981;
-        }
-    }
-
-    .cbm_lot_product_name {
-        color: #f3f4f6;
-    }
-
-    .cbm_lot_product_meta {
-        color: #9ca3af;
-    }
-
-    .cbm_lot_barcode {
-        color: #6b7280;
-    }
-
-    .cbm_lot_uom {
-        background: #1e3a8a;
-        color: #93c5fd;
-    }
-
-    .cbm_lot_checkbox {
-        border-color: #374151;
-
-        .cbm_lot_product_item.selected & {
-            background: #10b981;
-            border-color: #10b981;
-        }
-    }
-}
-
-// ============================================================
-// DONE MODAL
-// ============================================================
-
-.cbm_done_card {
-    max-width: 400px;
-
-    .cbm_done_icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 60px;
-        height: 60px;
-        background: #dbeafe;
-        border-radius: 50%;
-        margin: 24px auto;
-        color: #0084d4;
-        font-size: 28px;
-    }
-
-    h3 {
-        text-align: center;
-        color: #1f2937;
-        margin: 0 0 12px;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    p {
-        text-align: center;
-        color: #6b7280;
-        font-size: 14px;
-        margin: 0 0 24px;
-        line-height: 1.5;
-
-        strong {
-            color: #1f2937;
-            font-weight: 600;
-        }
-    }
-
-    .cbm_form_actions {
-        gap: 8px;
-
-        .cbm_btn {
-            flex: 1;
-            min-width: 100px;
-            font-size: 13px;
-            padding: 10px 12px;
-        }
-    }
-}
-
-.cbm_btn_warning {
-    background: #f59e0b;
-    color: white;
-    border: none;
-
-    &:hover:not([disabled]) {
-        background: #d97706;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .cbm_done_card {
-        .cbm_done_icon {
-            background: #1e40af;
-            color: #93c5fd;
-        }
-
-        h3 {
-            color: #f3f4f6;
-        }
-
-        p {
-            color: #d1d5db;
-
-            strong {
-                color: #f3f4f6;
-            }
-        }
-    }
-
-    .cbm_btn_warning {
-        background: #d97706;
-
-        &:hover:not([disabled]) {
-            background: #b45309;
-        }
-    }
-}
-
-// ============================================================
-// DELETE BUTTON STYLING
-// ============================================================
-
-.cbm_action_btn.cbm_action_delete {
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #fee2e2;
-    color: #dc2626;
-    transition: all 0.2s;
-
-    &:hover {
-        background: #fca5a5;
-        color: #991b1b;
-        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
-    }
-
-    &:active {
-        transform: scale(0.98);
-    }
-
-    .cbm_icon_trash {
-        font-size: 16px;
-    }
-
-    @media (max-width: 640px) {
-        padding: 10px 14px;
-        font-size: 15px;
-    }
-}
-
-// ============================================================
-// RESPONSIVE
-// ============================================================
-
-@media (max-width: 768px) {
-    .cbm_search_box {
-        .cbm_search_input_wrapper {
-            flex-basis: 100%;
-        }
-    }
-
-    .cbm_table {
-        font-size: 12px;
-
-        th,
-        td {
-            padding: 10px 12px;
-        }
-    }
-
-    .cbm_form_card {
-        width: 95%;
-        max-width: none;
-    }
-
-    .cbm_action_btn.cbm_action_delete {
-        padding: 12px 16px;
-        font-size: 14px;
-    }
+    gap: 0.5rem;
 }

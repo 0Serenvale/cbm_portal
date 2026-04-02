@@ -47,6 +47,7 @@
                         </table>
 
                         <!-- Reconciliation Table (Dynamic columns per team) -->
+                        <t t-set="recon_data" t-value="session.get_reconciliation_data()"/>
                         <div style="margin-bottom: 24px; overflow-x: auto;">
                             <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 12px; color: #374151;">Réconciliation par Équipe</h3>
                             <table style="width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed;">
@@ -63,27 +64,15 @@
                                             </th>
                                         </t>
 
-                                        <!-- System and Variance columns -->
+                                        <!-- Average, System and Variance columns -->
+                                        <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 8%;">Moy. Comptée</th>
                                         <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 10%;">Qty Système</th>
                                         <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #e5e7eb; width: 8%;">Variance</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Group lines by product/lot/expiry -->
-                                    <t t-set="grouped_lines" t-value="{}"/>
-                                    <t t-foreach="session.line_ids" t-as="line">
-                                        <t t-set="key" t-value="(line.product_id.id, line.lot_id.id if line.lot_id else False, line.expiry_date)"/>
-                                        <t t-if="key not in grouped_lines">
-                                            <t t-set="grouped_lines" t-value="{**grouped_lines, key: {'product': line.product_id, 'lot': line.lot_id, 'expiry': line.expiry_date, 'qty_system': line.qty_system, 'variance': line.variance, 'lines_by_team': {}}}"/>
-                                        </t>
-                                        <t t-set="grouped_lines[key]['lines_by_team'][line.team_id.id]" t-value="line"/>
-                                    </t>
-
-                                    <!-- Render grouped table -->
                                     <t t-set="row_index" t-value="0"/>
-                                    <t t-foreach="grouped_lines.items()" t-as="item">
-                                        <t t-set="key" t-value="item[0]"/>
-                                        <t t-set="group" t-value="item[1]"/>
+                                    <t t-foreach="recon_data" t-as="group">
                                         <t t-set="variance_val" t-value="group['variance']"/>
                                         <t t-set="row_style" t-value="'background: #f9fafb;' if row_index % 2 == 0 else ''"/>
 
@@ -99,7 +88,9 @@
                                                 <span t-esc="group['lot'].name if group['lot'] else '-'"/>
                                             </td>
                                             <td style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-size: 10px;">
-                                                <span t-if="group['expiry']" t-field="group['expiry']" t-options="{'format': 'dd/MM/yyyy'}"/>
+                                                <t t-if="group['expiry']">
+                                                    <span t-esc="group['expiry'].strftime('%d/%m/%Y')"/>
+                                                </t>
                                                 <span t-else="">-</span>
                                             </td>
 
@@ -112,6 +103,11 @@
                                                     <span t-else="">-</span>
                                                 </td>
                                             </t>
+
+                                            <!-- Average Counted -->
+                                            <td style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600; background: #f5f3ff;">
+                                                <span t-esc="'{:.2f}'.format(group['avg_counted'])"/>
+                                            </td>
 
                                             <!-- System Qty -->
                                             <td style="padding: 8px 10px; text-align: center; border: 1px solid #e5e7eb; font-weight: 600; background: #f0f9ff;">
@@ -150,7 +146,7 @@
                                         <strong>Total lignes :</strong> <t t-esc="len(session.line_ids)"/>
                                     </td>
                                     <td style="padding: 4px 0; width: 33%;">
-                                        <strong>Total produits uniques :</strong> <t t-esc="len(set((line.product_id.id, line.lot_id.id if line.lot_id else False, line.expiry_date) for line in session.line_ids))"/>
+                                        <strong>Total produits uniques :</strong> <t t-esc="len(recon_data)"/>
                                     </td>
                                 </tr>
                             </table>

@@ -5,12 +5,12 @@
         <record id="tile_inventory" model="clinic.portal.tile">
             <field name="name">Inventaire</field>
             <field name="type">action</field>
-            <field name="icon">clipboard-document-list</field>
+            <field name="icon">clipboard</field>
             <field name="color">#10B981</field>
             <field name="icon_color">#ffffff</field>
             <field name="sequence">45</field>
             <field name="description">Comptage physique de l'inventaire et réconciliation des stocks</field>
-            <field name="active" eval="False"/>
+            <field name="active" eval="True"/>
         </record>
     </data>
 </odoo>

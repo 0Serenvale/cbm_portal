@@ -13,6 +13,22 @@ from odoo.http import request
 _logger = logging.getLogger(__name__)
 
 
+def _lot_expiry_str(lot):
+    """Safely extract expiry date from lot as YYYY-MM-DD string.
+
+    lot.expiration_date is Datetime (if product_expiry is installed) or missing.
+    Returns date string or False.
+    """
+    try:
+        exp = getattr(lot, 'expiration_date', None)
+        if exp:
+            # Datetime → Date string
+            return str(exp.date()) if hasattr(exp, 'date') else str(exp)[:10]
+    except Exception:
+        pass
+    return False
+
+
 class InventoryController(http.Controller):
     """Controller for inventory operations in CBM Portal."""
 
@@ -99,8 +115,9 @@ class InventoryController(http.Controller):
             StockQuant = request.env['stock.quant']
             Product = request.env['product.product']
 
-            # Search by name or barcode
+            # Search by name or barcode — explicit & wraps the | so active filter applies to both
             domain = [
+                '&',
                 '|',
                 ('name', 'ilike', query),
                 ('barcode', 'ilike', query),
@@ -110,11 +127,10 @@ class InventoryController(http.Controller):
 
             result = []
             for product in products:
-                # Get total quantity across all locations (for reference)
-                # Search is NOT location-restricted
+                # Get total quantity at the session location
                 quants = StockQuant.search([
                     ('product_id', '=', product.id),
-                    ('lot_id', '=', False),
+                    ('location_id', '=', location_id),
                 ])
                 qty_system = sum(q.quantity for q in quants)
 
@@ -124,6 +140,7 @@ class InventoryController(http.Controller):
                     'barcode': product.barcode or '',
                     'uom_name': product.uom_id.name if product.uom_id else 'U',
                     'qty_system': qty_system,
+                    'tracking': product.tracking,  # 'none', 'lot', 'serial'
                 })
 
             return result
@@ -132,29 +149,28 @@ class InventoryController(http.Controller):
             _logger.error("[CBM INVENTORY] search_product error: %s", str(e))
             return []
 
-@http.route('/cbm/inventory/search_lot', type='json', auth='user')
+    @http.route('/cbm/inventory/search_lot', type='json', auth='user')
     def search_lot(self, lot_name, location_id, limit=10):
-        """Search products by lot number.
+        """Search products by lot number (partial match).
 
-        When multiple products have the same lot number (e.g., Sonde CH 10, 12, 14, 16),
-        return all matching products so user can select the correct one.
+        Returns all lots matching the search term with their product info.
+        Multiple products can share the same lot number.
 
         Args:
-            lot_name: Lot number/name to search for
+            lot_name: Lot number/name to search for (partial match)
             location_id: stock.location ID (for reference qty only)
             limit: Max results (default 10)
 
         Returns:
-            list: [{id, name, barcode, uom_name, qty_system, lot_id, lot_name}]
+            list: [{id, name, barcode, uom_name, qty_system, lot_id, lot_name, expiry_date, tracking}]
         """
         try:
             StockLot = request.env['stock.production.lot']
             StockQuant = request.env['stock.quant']
-            Product = request.env['product.product']
 
-            # Find all lots matching the lot_name
+            # Find lots matching the lot_name (partial match for dropdown)
             lots = StockLot.search([
-                ('name', '=', lot_name),
+                ('name', 'ilike', lot_name),
             ], limit=limit)
 
             if not lots:
@@ -167,10 +183,11 @@ class InventoryController(http.Controller):
                 if not product.active:
                     continue
 
-                # Get total quantity across all locations
+                # Get quantity at the session location for this lot
                 quants = StockQuant.search([
                     ('product_id', '=', product.id),
-                    ('lot_id', '=', False),
+                    ('lot_id', '=', lot.id),
+                    ('location_id', '=', location_id),
                 ])
                 qty_system = sum(q.quantity for q in quants)
 
@@ -182,13 +199,76 @@ class InventoryController(http.Controller):
                     'qty_system': qty_system,
                     'lot_id': lot.id,
                     'lot_name': lot.name,
-                    'expiry_date': str(lot.expiration_date) if lot.expiration_date else False,
+                    'expiry_date': _lot_expiry_str(lot),
+                    'tracking': product.tracking,
                 })
 
             return result
 
         except Exception as e:
             _logger.error("[CBM INVENTORY] search_lot error: %s", str(e))
+            return []
+
+    @http.route('/cbm/inventory/get_product_lots', type='json', auth='user')
+    def get_product_lots(self, product_id, location_id):
+        """Return available lots for a product at a location.
+
+        Used when a lot-tracked product is selected from the search dropdown.
+        Staff picks which lot they are counting.
+
+        Args:
+            product_id: product.product ID
+            location_id: stock.location ID
+
+        Returns:
+            list: [{lot_id, lot_name, expiry_date, qty_system}]
+        """
+        try:
+            StockQuant = request.env['stock.quant']
+            Product = request.env['product.product'].browse(product_id)
+
+            if not Product.exists():
+                return []
+
+            # Get all lots registered for this product (regardless of stock level)
+            # Staff may be counting product that has been consumed — show all known lots
+            StockLot = request.env['stock.production.lot']
+            lots = StockLot.search([
+                ('product_id', '=', product_id),
+            ], limit=50, order='name')
+
+            # Build lot → qty mapping from quants at this location
+            quants = StockQuant.search([
+                ('product_id', '=', product_id),
+                ('location_id', '=', location_id),
+                ('lot_id', '!=', False),
+            ])
+            qty_by_lot = {}
+            for quant in quants:
+                qty_by_lot[quant.lot_id.id] = qty_by_lot.get(quant.lot_id.id, 0) + quant.quantity
+
+            result = []
+            for lot in lots:
+                result.append({
+                    'lot_id': lot.id,
+                    'lot_name': lot.name,
+                    'expiry_date': _lot_expiry_str(lot),
+                    'qty_system': qty_by_lot.get(lot.id, 0),
+                })
+
+            # Also allow "No lot" option so staff can add product without lot
+            # (for uncounted lots or new stock)
+            result.append({
+                'lot_id': False,
+                'lot_name': _('(Sans lot / Nouveau)'),
+                'expiry_date': False,
+                'qty_system': 0,
+            })
+
+            return result
+
+        except Exception as e:
+            _logger.error("[CBM INVENTORY] get_product_lots error: %s", str(e))
             return []
 
     @http.route('/cbm/inventory/get_lines', type='json', auth='user')
@@ -227,11 +307,11 @@ class InventoryController(http.Controller):
                 )
                 return []
 
-            # Get only this team's lines
+            # Get only this team's lines, ordered by product name then lot name
             lines = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
-            ], order='product_id, lot_id')
+            ], order='product_id.name, lot_id.name')
 
             result = []
             for line in lines:
@@ -295,13 +375,18 @@ class InventoryController(http.Controller):
             if not team:
                 return {'success': False, 'error': _('Not assigned to this session')}
 
+            # Normalize expiry_date to YYYY-MM-DD (Date field can't accept datetime strings)
+            expiry_date_val = False
+            if expiry_date:
+                expiry_date_val = str(expiry_date)[:10]  # trim time if datetime string
+
             # Prepare values
             vals = {
                 'inventory_id': session.id,
                 'team_id': team.id,
                 'product_id': product_id,
                 'lot_id': lot_id if lot_id else False,
-                'expiry_date': expiry_date if expiry_date else False,
+                'expiry_date': expiry_date_val,
                 'qty_counted': float(qty_counted),
                 'note': note or '',
             }
@@ -369,64 +454,7 @@ class InventoryController(http.Controller):
             _logger.error("[CBM INVENTORY] delete_line error: %s", str(e))
             return {'success': False, 'error': str(e)[:200]}
 
-    @http.route('/cbm/inventory/submit_draft', type='json', auth='user')
-    def submit_draft(self, session_id):
-        """Submit inventory session as draft (not yet final approval).
-
-        Staff can still edit lines after draft submission.
-        Transition: active → pending_approval
-
-        Args:
-            session_id: clinic.inventory ID
-
-        Returns:
-            dict: {success: bool} or {success: False, error: str}
-        """
-        try:
-            user = request.env.user
-            ClinicInventory = request.env['clinic.inventory']
-            ClinicTeam = request.env['clinic.inventory.team']
-
-            # Verify session exists
-            session = ClinicInventory.browse(session_id)
-            if not session.exists():
-                return {'success': False, 'error': _('Session not found')}
-
-            # Verify user is assigned to this session's team
-            team = ClinicTeam.search([
-                ('inventory_id', '=', session.id),
-                ('user_ids', 'in', user.id),
-            ], limit=1)
-
-            if not team:
-                return {'success': False, 'error': _('Access denied')}
-
-            # Verify session is active (not already submitted)
-            if session.state != 'active':
-                return {'success': False, 'error': _('Session is not active')}
-
-            # Verify there are lines to submit
-            if not session.line_ids:
-                return {'success': False, 'error': _('Cannot submit without counted lines')}
-
-            # Submit for approval
-            session.submit_for_approval()
-
-            _logger.info(
-                "[CBM INVENTORY] User %s submitted session %s as draft",
-                user.name, session.name
-            )
-
-            return {'success': True}
-
-        except ValueError as e:
-            _logger.error("[CBM INVENTORY] submit_draft validation error: %s", str(e))
-            return {'success': False, 'error': str(e)[:200]}
-        except Exception as e:
-            _logger.error("[CBM INVENTORY] submit_draft error: %s", str(e))
-            return {'success': False, 'error': str(e)[:200]}
-
-    @http.route('/cbm/inventory/submit', type='json', auth='user')
+    @http.route(['/cbm/inventory/submit', '/cbm/inventory/submit_draft'], type='json', auth='user')
     def submit(self, session_id):
         """Submit inventory session for final approval.
 
@@ -462,12 +490,17 @@ class InventoryController(http.Controller):
             if session.state != 'active':
                 return {'success': False, 'error': _('Session is not active')}
 
-            # Verify there are lines to submit
-            if not session.line_ids:
+            # Verify this team has lines to submit
+            ClinicLine = request.env['clinic.inventory.line']
+            team_lines = ClinicLine.search([
+                ('inventory_id', '=', session.id),
+                ('team_id', '=', team.id),
+            ], limit=1)
+            if not team_lines:
                 return {'success': False, 'error': _('Cannot submit without counted lines')}
 
             # Submit for approval
-            session.submit_for_approval()
+            session.action_submit()
 
             _logger.info(
                 "[CBM INVENTORY] User %s submitted session %s for final approval",
@@ -618,59 +651,38 @@ class InventoryController(http.Controller):
 
     @http.route('/cbm/inventory/config', type='json', auth='user')
     def get_inventory_config(self):
-        """Get active inventory configuration for banner display.
+        """Get active/draft inventory session for banner display.
 
-        Returns active config if user has manager access, otherwise empty dict.
-        Used by InventoryBanner component on dashboard.
+        Available to ALL authenticated users (banner is for all staff).
+        Looks for sessions in draft or active state with a future or current date range.
+        Banner shows 7 days before start and stays until end date passes.
 
         Returns:
-            dict: {
-                id: int,
-                name: str,
-                inventory_start_date: YYYY-MM-DD,
-                duration_days: int,
-                announcement_text: str,
-                generated_announcement: str,
-                cron_schedule: str,
-                state: str,
-                last_triggered: datetime str or None,
-            } or {} if no access or no active config found
+            dict with session data, or {} if nothing upcoming
         """
         try:
-            user = request.env.user
+            ClinicInventory = request.env['clinic.inventory'].sudo()
 
-            # Only managers can see inventory configuration
-            if not user.has_group('clinic_staff_portal.group_clinic_portal_manager'):
-                _logger.warning(
-                    "[CBM INVENTORY CONFIG] Access denied for user %s (not a manager)",
-                    user.name
-                )
-                return {}
+            # Find the next upcoming or currently active session
+            session = ClinicInventory.search([
+                ('state', 'in', ['draft', 'active']),
+            ], order='date asc', limit=1)
 
-            Config = request.env['clinic.inventory.config']
-
-            # Fetch active configuration
-            config = Config.search([
-                ('state', '=', 'active'),
-            ], limit=1)
-
-            if not config:
+            if not session:
                 return {}
 
             return {
-                'id': config.id,
-                'name': config.name,
-                'inventory_start_date': str(config.inventory_start_date),
-                'duration_days': config.duration_days,
-                'announcement_text': config.announcement_text or '',
-                'generated_announcement': config.generated_announcement,
-                'cron_schedule': config.cron_schedule,
-                'state': config.state,
-                'last_triggered': config.last_triggered.isoformat() if config.last_triggered else None,
+                'id': session.id,
+                'name': session.name,
+                'inventory_start_date': str(session.date),
+                'inventory_end_date': str(session.end_date) if session.end_date else str(session.date),
+                'duration_days': session.duration_days,
+                'generated_announcement': session.generated_announcement or '',
+                'state': session.state,
             }
 
         except Exception as e:
-            _logger.error("[CBM INVENTORY CONFIG] get_inventory_config error: %s", str(e))
+            _logger.error("[CBM INVENTORY] get_inventory_config error: %s", str(e))
             return {}
 
     # ========================================
@@ -766,7 +778,6 @@ class InventoryController(http.Controller):
                 return {'success': False, 'error': _('Access denied')}
 
             ClinicInventory = request.env['clinic.inventory']
-            ClinicTeam = request.env['clinic.inventory.team']
 
             session = ClinicInventory.browse(session_id)
             if not session.exists():

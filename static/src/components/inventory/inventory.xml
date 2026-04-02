@@ -2,20 +2,17 @@
 <templates xml:space="preserve">
 
     <t t-name="clinic_staff_portal.InventoryCount" owl="1">
-        <!-- Header -->
+        <!-- Fixed Header -->
         <div class="cbm_page_header">
-            <button class="cbm_back_btn" t-on-click="goHome" title="Retour à l'accueil">
-                <span class="cbm_icon_arrow_left"/>Retour
+            <button class="cbm_back_btn" t-on-click="goHome">
+                <span class="cbm_icon_arrow_left me-2"/>Retour
             </button>
             <div class="cbm_page_title">
                 <h2>Comptage d'Inventaire</h2>
                 <t t-if="state.sessionFound">
-                    <span class="cbm_page_subtitle" t-esc="state.teamName + ' • ' + state.locationName"/>
+                    <span class="cbm_page_subtitle" t-esc="state.teamName + ' — ' + state.locationName"/>
                 </t>
             </div>
-            <button t-if="state.sessionFound" class="cbm_print_btn" t-on-click="printTeamPDF" title="Imprimer le rapport">
-                <span class="cbm_icon_printer"/>
-            </button>
             <button class="cbm_close_btn" t-on-click="goHome">
                 <span class="cbm_icon_x"/>
             </button>
@@ -23,282 +20,379 @@
 
         <!-- Main Content -->
         <div class="cbm_page_body">
-            <div class="cbm_page_content">
-                <!-- Loading State -->
-                <div t-if="state.sessionLoading" class="cbm_inventory_loading">
-                    <span class="spinner-border spinner-border-sm me-2"/>
-                    Chargement de la session...
+
+            <!-- Loading State -->
+            <div t-if="state.sessionLoading" class="text-center py-5">
+                <span class="spinner-border spinner-border-sm me-2"/>
+                Chargement de la session...
+            </div>
+
+            <!-- No Session State -->
+            <div t-elif="!state.sessionFound" class="cbm_empty_cart" style="padding:3rem;">
+                <span class="cbm_icon_clipboard cbm_icon_4x cbm_icon_muted"/>
+                <h3 style="font-size:1.125rem;font-weight:600;margin:1rem 0 0.5rem;">Aucune session active</h3>
+                <p style="color:var(--cbm-color-text-muted);max-width:400px;margin:0 auto;">
+                    Vous n'êtes pas assigné à une session d'inventaire actuellement.
+                    Contactez votre responsable pour commencer le comptage.
+                </p>
+            </div>
+
+            <!-- Counting Interface -->
+            <t t-if="!state.sessionLoading &amp;&amp; state.sessionFound">
+
+                <!-- Dual Search Section -->
+                <div class="cbm_inv_search_section">
+
+                    <!-- Barcode / Lot Scanner -->
+                    <div class="cbm_inv_search_group">
+                        <span class="cbm_inv_search_label">Entrée Rapide</span>
+                        <div class="cbm_inv_search_box">
+                            <span class="cbm_inv_search_icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z"/>
+                                </svg>
+                            </span>
+                            <input type="text"
+                                   t-ref="barcodeInput"
+                                   placeholder="Scanner un code-barres..."
+                                   t-on-input="onBarcodeInputChange"
+                                   t-on-keydown="onBarcodeKeydown"
+                                   t-att-disabled="state.barcodeLoading"
+                                   autocomplete="off"
+                                   inputmode="none"/>
+                            <t t-if="state.cameraSupported">
+                                <button class="cbm_inv_camera_btn" t-on-click="openCamera" title="Scanner avec la caméra">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"/>
+                                    </svg>
+                                </button>
+                            </t>
+                        </div>
+
+                        <!-- Barcode Search Dropdown -->
+                        <div t-if="state.barcodeSearchLoading" class="cbm_inv_dropdown">
+                            <div class="cbm_inv_dropdown_item">
+                                <div class="cbm_skeleton_line cbm_skeleton_long"/>
+                            </div>
+                            <div class="cbm_inv_dropdown_item">
+                                <div class="cbm_skeleton_line cbm_skeleton_long"/>
+                            </div>
+                        </div>
+                        <div t-if="!state.barcodeSearchLoading &amp;&amp; state.barcodeSearchResults.length > 0" class="cbm_inv_dropdown">
+                            <t t-foreach="state.barcodeSearchResults" t-as="item" t-key="item.id + '_' + (item.lot_id || 0)">
+                                <div t-att-class="'cbm_inv_dropdown_item' + (state.selectedBarcodeIndex === item_index ? ' selected' : '')"
+                                     t-on-mousedown="(ev) => { ev.preventDefault(); this.selectBarcodeResult(item); }">
+                                    <div>
+                                        <div class="cbm_inv_item_name" t-esc="item.name"/>
+                                        <div class="cbm_inv_item_meta">
+                                            <t t-if="item.lot_name">Lot: <t t-esc="item.lot_name"/></t>
+                                            <t t-if="item.expiry_date"> · Exp: <t t-esc="item.expiry_date"/></t>
+                                            <t t-if="item.tracking !== 'none' &amp;&amp; !item.lot_name"> · Suivi par lot</t>
+                                        </div>
+                                    </div>
+                                    <span class="cbm_inv_item_badge">+ Ajouter</span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Product Name Search -->
+                    <div class="cbm_inv_search_group">
+                        <span class="cbm_inv_search_label">Recherche Catalogue</span>
+                        <div class="cbm_inv_search_box">
+                            <span class="cbm_inv_search_icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+                                </svg>
+                            </span>
+                            <input type="text"
+                                   t-ref="productSearchInput"
+                                   placeholder="Rechercher un produit par nom..."
+                                   t-on-input="onProductSearch"
+                                   t-on-keydown="onProductSearchKeydown"
+                                   autocomplete="off"/>
+                        </div>
+
+                        <!-- Product Search Dropdown -->
+                        <div t-if="state.productSearchLoading" class="cbm_inv_dropdown">
+                            <div class="cbm_inv_dropdown_item">
+                                <div class="cbm_skeleton_line cbm_skeleton_long"/>
+                            </div>
+                            <div class="cbm_inv_dropdown_item">
+                                <div class="cbm_skeleton_line cbm_skeleton_long"/>
+                            </div>
+                        </div>
+                        <div t-if="!state.productSearchLoading &amp;&amp; state.productSearchResults.length > 0" class="cbm_inv_dropdown">
+                            <t t-foreach="state.productSearchResults" t-as="product" t-key="product.id">
+                                <div t-att-class="'cbm_inv_dropdown_item' + (state.selectedSearchIndex === product_index ? ' selected' : '')"
+                                     t-on-mousedown="(ev) => { ev.preventDefault(); this.selectSearchProduct(product); }">
+                                    <div>
+                                        <div class="cbm_inv_item_name" t-esc="product.name"/>
+                                        <div class="cbm_inv_item_meta">
+                                            <t t-esc="product.qty_system"/> <t t-esc="product.uom_name"/> en stock
+                                            <t t-if="product.tracking !== 'none'"> · <strong>Lot</strong></t>
+                                        </div>
+                                    </div>
+                                    <span class="cbm_inv_item_badge">+ Ajouter</span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- No Session State -->
-                <div t-elif="not state.sessionFound" class="cbm_inventory_no_session">
-                    <div class="cbm_empty_icon">
-                        <span class="cbm_icon_inbox"/>
+                <!-- Camera Modal -->
+                <div t-if="state.cameraOpen" class="cbm_camera_modal">
+                    <div class="cbm_camera_backdrop" t-on-click="closeCamera"/>
+                    <div class="cbm_camera_container">
+                        <div class="cbm_camera_header">
+                            <h3>Scanner un code-barres</h3>
+                            <button class="cbm_camera_close" t-on-click="closeCamera"><span class="cbm_icon_x"/></button>
+                        </div>
+                        <div class="cbm_camera_body">
+                            <video t-ref="cameraVideo" class="cbm_camera_video" playsinline="true" muted="true"/>
+                            <div class="cbm_camera_hint"><p>Pointez la caméra vers un code-barres</p></div>
+                        </div>
                     </div>
-                    <h3 class="cbm_empty_title">Aucune session active</h3>
-                    <p class="cbm_empty_message">
-                        Vous n'êtes pas assigné à une session d'inventaire actuellement.
-                        Contactez votre responsable pour commencer le comptage.
-                    </p>
-                    <button class="cbm_btn cbm_btn_primary" t-on-click="goHome">
-                        <span class="cbm_icon_home me-2"/>
-                        Retour à l'accueil
-                    </button>
                 </div>
 
-                <!-- Counting Interface -->
-                <div t-else="" class="cbm_inventory_container">
-                    <!-- Barcode Scanner Input Section -->
-                    <div class="cbm_inventory_search_section">
-                        <div class="cbm_search_box">
-                            <div class="cbm_search_input_wrapper">
-                                <span class="cbm_icon_barcode"/>
-                                <input type="text"
-                                       class="cbm_barcode_input"
-                                       placeholder="Scanner code-barres ou taper (Entrée)..."
-                                       t-ref="barcodeInput"
-                                       t-on-keydown="onBarcodeInput"
-                                       t-on-input="onBarcodeInputChange"
-                                       autocomplete="off"
-                                       inputmode="none"/>
-                                <span t-if="state.barcodeLoading" class="spinner-border spinner-border-sm"/>
-                            </div>
-                            <button class="cbm_camera_btn" t-on-click="openCamera" title="Ouvrir la caméra" t-att-disabled="state.barcodeLoading">
-                                <span class="cbm_icon_camera"/>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Camera Modal -->
-                    <div t-if="state.cameraOpen" class="cbm_camera_modal">
-                        <div class="cbm_camera_backdrop" t-on-click="closeCamera"/>
-                        <div class="cbm_camera_container">
-                            <div class="cbm_camera_header">
-                                <h3>Scanner un code-barres</h3>
-                                <button class="cbm_camera_close" t-on-click="closeCamera">
-                                    <span class="cbm_icon_x"/>
-                                </button>
-                            </div>
-                            <div class="cbm_camera_body">
-                                <video t-ref="cameraVideo" class="cbm_camera_video" playsinline="true" autoplay="true" muted="true"/>
-                                <div class="cbm_camera_hint">
-                                    <p>Pointez la caméra vers un code-barres</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Lot Disambiguation Modal (Multiple Products Same Lot) -->
-                    <div t-if="state.lotSearchModalOpen" class="cbm_inventory_form_modal">
-                        <div class="cbm_form_backdrop" t-on-click="closeLotSearchModal"/>
-                        <div class="cbm_form_card">
-                            <div class="cbm_form_header">
-                                <h3>Plusieurs produits trouvés</h3>
-                                <button class="cbm_form_close" t-on-click="closeLotSearchModal">
-                                    <span class="cbm_icon_x"/>
-                                </button>
-                            </div>
-
-                            <div class="cbm_form_body" style="padding: 20px 0;">
-                                <p style="padding: 0 20px; color: #6b7280; font-size: 13px;">
-                                    Le lot <strong t-esc="state.lotSearchResults[0].lot_name"/><t t-if="state.lotSearchResults[0].expiry_date"> (exp. <t t-esc="state.lotSearchResults[0].expiry_date"/>)</t> existe sur plusieurs produits.
-                                    Sélectionnez le produit correct:
-                                </p>
-
-                                <div style="padding: 12px 0; max-height: 400px; overflow-y: auto;">
-                                    <t t-foreach="state.lotSearchResults" t-as="product" t-key="product.id">
-                                        <button class="cbm_lot_product_item"
-                                                t-att-class="'cbm_lot_product_item' + (state.selectedLotProduct and state.selectedLotProduct.id === product.id ? ' selected' : '')"
-                                                t-on-click="() => this.selectLotProduct(product)">
-                                            <div class="cbm_lot_product_info">
-                                                <div class="cbm_lot_product_name" t-esc="product.name"/>
-                                                <div class="cbm_lot_product_meta">
-                                                    <span class="cbm_lot_barcode" t-if="product.barcode" t-esc="'Code: ' + product.barcode"/>
-                                                    <span class="cbm_lot_uom" t-esc="product.uom_name"/>
-                                                </div>
-                                            </div>
-                                            <div class="cbm_lot_checkbox">
-                                                <t t-if="state.selectedLotProduct and state.selectedLotProduct.id === product.id">
-                                                    <span class="cbm_icon_check"/>
-                                                </t>
-                                            </div>
-                                        </button>
-                                    </t>
-                                </div>
-                            </div>
-
-                            <div class="cbm_form_actions">
-                                <button class="cbm_btn cbm_btn_secondary" t-on-click="closeLotSearchModal">Annuler</button>
-                                <button class="cbm_btn cbm_btn_primary" t-on-click="confirmLotSelection" t-att-disabled="not state.selectedLotProduct">
-                                    Sélectionner
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Delete Confirmation Modal -->
-                    <div t-if="state.deleteConfirmLineId" class="cbm_inventory_form_modal">
-                        <div class="cbm_form_backdrop" t-on-click="cancelDelete"/>
-                        <div class="cbm_form_card cbm_confirm_card">
+                <!-- Delete Confirmation Modal -->
+                <div t-if="state.deleteConfirmLineId" class="cbm_modal_overlay">
+                    <div class="cbm_modal_content" style="max-width:400px;text-align:center;">
+                        <div style="padding:1.5rem;">
                             <div class="cbm_confirm_icon">
-                                <span class="cbm_icon_trash"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.75rem;height:1.75rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                                </svg>
                             </div>
-                            <h3>Supprimer cette ligne ?</h3>
-                            <p>Cette action ne peut pas être annulée.</p>
-                            <div class="cbm_form_actions">
-                                <button class="cbm_btn cbm_btn_secondary" t-on-click="cancelDelete">Annuler</button>
-                                <button class="cbm_btn cbm_btn_danger" t-on-click="deleteLine">Supprimer</button>
+                            <h3 style="margin:0 0 0.5rem;font-weight:700;font-size:1rem;">Supprimer cette ligne ?</h3>
+                            <p style="color:var(--cbm-color-text-muted);margin:0 0 1.5rem;font-size:0.875rem;">Cette action ne peut pas être annulée.</p>
+                            <div style="display:flex;gap:0.75rem;justify-content:center;">
+                                <button class="cbm_btn_outline" t-on-click="cancelDelete">Annuler</button>
+                                <button class="cbm_btn_danger" t-on-click="deleteLine">Supprimer</button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Lines Table -->
-                    <div class="cbm_inventory_lines_section">
-                        <h3 class="cbm_lines_title">Produits comptés (<t t-esc="state.lines.length"/>)</h3>
-
-                        <!-- Table Search Bar -->
-                        <t t-if="state.lines.length > 0">
-                            <div class="cbm_inventory_table_controls">
-                                <div class="cbm_table_search_wrapper">
-                                    <span class="cbm_icon_search"/>
-                                    <input type="text"
-                                           class="cbm_table_search_input"
-                                           placeholder="Chercher produit, lot, code-barres..."
-                                           t-model="state.tableSearchQuery"
-                                           t-on-input="onTableSearchChange"
-                                           autocomplete="off"/>
-                                    <t t-if="state.tableSearchQuery">
-                                        <button class="cbm_table_clear_search" t-on-click="clearTableSearch" title="Effacer">
-                                            <span class="cbm_icon_x"/>
-                                        </button>
-                                    </t>
-                                </div>
+                <!-- Done Modal -->
+                <div t-if="state.doneModalOpen" class="cbm_modal_overlay">
+                    <div class="cbm_modal_content" style="max-width:400px;text-align:center;">
+                        <div style="padding:1.5rem;">
+                            <div class="cbm_done_icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.75rem;height:1.75rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                </svg>
                             </div>
+                            <h3 style="margin:0 0 0.75rem;font-weight:700;font-size:1rem;">Comptage terminé ?</h3>
+                            <p style="color:var(--cbm-color-text-muted);margin:0 0 1.5rem;line-height:1.5;font-size:0.875rem;">
+                                Vous avez enregistré <strong t-esc="state.lines.length"/> produit(s). Que souhaitez-vous faire ?
+                            </p>
+                            <div style="display:flex;gap:0.5rem;justify-content:center;">
+                                <button class="cbm_btn_outline" t-on-click="cancelDoneModal" style="flex:1;">Continuer</button>
+                                <button class="cbm_btn_warning" t-on-click="startRecount" t-att-disabled="state.recounting" style="flex:1;">
+                                    <span t-if="state.recounting" class="spinner-border spinner-border-sm me-1"/>Recommencer
+                                </button>
+                                <button class="cbm_btn_primary" t-on-click="submitFinal" t-att-disabled="state.submittingFinal" style="flex:1;">
+                                    <span t-if="state.submittingFinal" class="spinner-border spinner-border-sm me-1"/>Valider
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lines Section -->
+                <div class="cbm_inv_lines_header">
+                    <div>
+                        <h3 class="cbm_inv_lines_title">Produits comptés (<t t-esc="state.lines.length"/>)</h3>
+                        <t t-if="state.sessionFound">
+                            <p class="cbm_inv_lines_subtitle">Validation en cours pour le secteur <t t-esc="state.locationName"/></p>
                         </t>
+                    </div>
+                    <button t-if="state.sessionFound" class="cbm_inv_pdf_btn" t-on-click="printTeamPDF">
+                        <span class="cbm_icon_printer cbm_icon_sm"/>Imprimer PDF
+                    </button>
+                </div>
 
-                        <div t-if="state.linesLoading" class="cbm_lines_loading">
-                            <span class="spinner-border spinner-border-sm me-2"/>
-                            Chargement des lignes...
-                        </div>
+                <!-- Table Filter -->
+                <t t-if="state.lines.length > 0">
+                    <div class="cbm_inv_filter_box">
+                        <span class="cbm_inv_filter_icon">
+                            <span class="cbm_icon_search" style="width:1rem;height:1rem;"/>
+                        </span>
+                        <input type="text"
+                               t-ref="tableFilter"
+                               placeholder="Filtrer par produit, lot, code-barres..."
+                               t-on-input="onTableSearchChange"
+                               autocomplete="off"/>
+                        <button t-if="state.tableSearchQuery" class="cbm_inv_filter_clear" t-on-click="clearTableSearch">
+                            <span class="cbm_icon_x" style="width:0.875rem;height:0.875rem;"/>
+                        </button>
+                    </div>
+                </t>
 
-                        <div t-elif="state.lines.length === 0" class="cbm_lines_empty">
-                            <span class="cbm_icon_inbox"/>
-                            <p>Aucun produit comptabilisé pour le moment.</p>
-                            <p class="cbm_lines_empty_hint">Scannez un code-barres ci-dessus pour commencer.</p>
-                        </div>
+                <!-- Loading / Empty States -->
+                <div t-if="state.linesLoading" class="text-center py-4">
+                    <span class="spinner-border spinner-border-sm me-2"/>Chargement...
+                </div>
 
-                        <t t-set="filteredLines" t-value="getFilteredLines()"/>
+                <div t-elif="state.lines.length === 0" class="cbm_empty_cart">
+                    <span class="cbm_icon_clipboard cbm_icon_3x cbm_icon_muted"/>
+                    <p>Aucun produit comptabilisé.</p>
+                    <p style="opacity:0.7;">Scannez un code-barres ou recherchez un produit ci-dessus.</p>
+                </div>
 
-                        <div t-if="state.tableSearchQuery and filteredLines.length === 0" class="cbm_lines_empty">
-                            <span class="cbm_icon_inbox"/>
-                            <p>Aucun résultat pour "<t t-esc="state.tableSearchQuery"/>"</p>
-                            <p class="cbm_lines_empty_hint">Essayez un autre terme de recherche.</p>
-                        </div>
+                <t t-set="filteredLines" t-value="getFilteredLines()"/>
 
-                        <div t-elif="filteredLines.length > 0" class="cbm_lines_table">
-                            <table class="cbm_table">
-                                <thead>
-                                    <tr>
-                                        <th class="cbm_col_product">Produit</th>
-                                        <th class="cbm_col_lot">Lot</th>
-                                        <th class="cbm_col_expiry">Expiry</th>
-                                        <th class="cbm_col_qty">Quantité</th>
-                                        <th class="cbm_col_uom">UoM</th>
-                                        <th class="cbm_col_actions">Supprimer</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="filteredLines" t-as="line" t-key="line.id">
-                                        <tr class="cbm_table_row">
-                                            <td class="cbm_col_product" t-esc="line.product_name"/>
-                                            <td class="cbm_col_lot" t-esc="line.lot_name or '-'"/>
-                                            <td class="cbm_col_expiry">
+                <div t-if="state.tableSearchQuery &amp;&amp; filteredLines.length === 0 &amp;&amp; state.lines.length > 0" class="cbm_empty_cart">
+                    <p>Aucun résultat pour "<t t-esc="state.tableSearchQuery"/>"</p>
+                </div>
+
+                <!-- Lines Table -->
+                <div t-elif="filteredLines.length > 0" class="cbm_inv_table_wrap">
+                    <table class="cbm_inv_table">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Lot</th>
+                                <th class="d-none d-sm-table-cell">Expiration</th>
+                                <th class="text-center">Quantité</th>
+                                <th class="d-none d-md-table-cell">UoM</th>
+                                <th style="width:3rem;"/>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="filteredLines" t-as="line" t-key="line.id">
+                                <tr>
+                                    <!-- Product -->
+                                    <td>
+                                        <span class="cbm_inv_product_name" t-esc="line.product_name"/>
+                                    </td>
+
+                                    <!-- Lot -->
+                                    <td class="cbm_inv_lot_cell">
+                                        <button t-att-class="'cbm_inv_lot_btn' + (line.lot_name ? ' has-lot' : '')"
+                                                t-on-click="(ev) => this.startEditLot(line, ev)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:0.875rem;height:0.875rem;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+                                            </svg>
+                                            <t t-if="line.lot_name" t-esc="line.lot_name"/>
+                                            <t t-else="">Choisir</t>
+                                        </button>
+
+                                        <!-- Lot picker dropdown — anchored to the button above, Odoo many2one style -->
+                                        <t t-if="state.lotPickerOpenLineId === line.id">
+                                            <div class="cbm_lot_picker_clickaway" t-on-click="closeLotPicker"/>
+                                            <div class="cbm_lot_picker_menu">
+                                                <div class="cbm_lot_picker_search_wrap">
+                                                    <input type="text"
+                                                           class="cbm_lot_picker_input"
+                                                           placeholder="Rechercher un lot..."
+                                                           t-on-input="onLotPickerSearch"
+                                                           autocomplete="off"/>
+                                                </div>
+                                                <div t-if="state.lotPickerLoading" class="cbm_lot_picker_loading">
+                                                    <span class="spinner-border spinner-border-sm me-1"/>Chargement...
+                                                </div>
+                                                <t t-if="!state.lotPickerLoading">
+                                                    <t t-set="filteredLots" t-value="getFilteredLots()"/>
+                                                    <div t-if="filteredLots.length === 0" class="cbm_lot_picker_empty">
+                                                        Aucun lot trouvé
+                                                    </div>
+                                                    <t t-foreach="filteredLots" t-as="lot" t-key="lot.lot_id || ('no_lot_' + lot_index)">
+                                                        <div class="cbm_inv_dropdown_item" t-on-click="() => this.selectLot(lot)">
+                                                            <div>
+                                                                <div class="cbm_inv_item_name" t-esc="lot.lot_name"/>
+                                                                <div class="cbm_inv_item_meta">
+                                                                    <t t-if="lot.expiry_date">Exp: <t t-esc="lot.expiry_date"/> · </t>
+                                                                    Qté: <t t-esc="lot.qty_system"/>
+                                                                </div>
+                                                            </div>
+                                                            <span class="cbm_inv_item_badge">Choisir</span>
+                                                        </div>
+                                                    </t>
+                                                </t>
+                                            </div>
+                                        </t>
+                                    </td>
+
+                                    <!-- Expiry -->
+                                    <td class="d-none d-sm-table-cell">
+                                        <t t-if="state.editingExpiryLineId === line.id">
+                                            <input type="date" class="cbm_inline_date"
+                                                   t-att-value="state.editingExpiryValue"
+                                                   t-on-change="onExpiryChange"
+                                                   t-on-blur="() => this.saveExpiry(line.id)"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-att-class="'cbm_inv_expiry_cell' + (!line.expiry_date ? ' empty' : '')"
+                                                  t-on-click="() => this.startEditExpiry(line.id, line.expiry_date)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
+                                                </svg>
                                                 <t t-if="line.expiry_date" t-esc="line.expiry_date"/>
-                                                <t t-else="">-</t>
-                                            </td>
-                                            <!-- Inline Qty Field -->
-                                            <td class="cbm_col_qty">
-                                                <t t-if="state.editingLineId === line.id">
-                                                    <!-- Edit mode: input field -->
-                                                    <input type="number"
-                                                           class="cbm_qty_inline_input"
-                                                           t-att-data-line-id="line.id"
-                                                           t-model="state.editingLineQty"
-                                                           t-on-change="onQtyChange"
-                                                           t-on-blur="() => this.onQtyBlur(line.id)"
-                                                           step="0.01"
-                                                           min="0"
-                                                           placeholder="0.00"
-                                                           t-att-disabled="state.savingLineId === line.id"/>
-                                                    <span t-if="state.savingLineId === line.id" class="cbm_qty_saving_spinner">
-                                                        <span class="spinner-border spinner-border-sm"/>
-                                                    </span>
-                                                </t>
-                                                <t t-else="">
-                                                    <!-- Display mode: click to edit -->
-                                                    <span class="cbm_qty_display" t-on-click="() => this.onQtyStartEdit(line.id, line.qty_counted)">
-                                                        <t t-esc="line.qty_counted.toFixed(2)"/>
-                                                    </span>
-                                                </t>
-                                            </td>
-                                            <td class="cbm_col_uom" t-esc="line.uom_name"/>
-                                            <td class="cbm_col_actions">
-                                                <button class="cbm_action_btn cbm_action_delete"
-                                                        t-on-click="() => this.confirmDelete(line.id)"
-                                                        title="Supprimer cette ligne">
-                                                    <span class="cbm_icon_trash"/>
-                                                    Supprimer
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
+                                                <t t-else="">Ajouter</t>
+                                            </span>
+                                        </t>
+                                    </td>
+
+                                    <!-- Quantity -->
+                                    <td class="text-center">
+                                        <input type="number" class="cbm_inline_qty"
+                                               t-att-value="line.qty_counted.toFixed(2)"
+                                               t-on-focus="(ev) => ev.target.select()"
+                                               t-on-change="(ev) => this.onQtyChanged(line.id, ev.target.value)"
+                                               step="0.01" min="0"
+                                               t-att-disabled="state.savingLineId === line.id"/>
+                                    </td>
+
+                                    <!-- UoM -->
+                                    <td class="d-none d-md-table-cell">
+                                        <span class="cbm_inv_uom_badge" t-esc="line.uom_name"/>
+                                    </td>
+
+                                    <!-- Delete -->
+                                    <td class="text-center">
+                                        <button class="cbm_inv_delete_btn" t-on-click="() => this.confirmDelete(line.id)" title="Supprimer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bento: Tip + Accuracy -->
+                <div class="cbm_inv_bento">
+                    <div class="cbm_inv_tip_card">
+                        <div class="cbm_inv_tip_header">
+                            <span class="cbm_icon_clipboard cbm_icon_2x"/>
+                            <h4>Conseil d'inventaire</h4>
                         </div>
+                        <p>Pensez à vérifier les scellés sur les cartons complets avant de valider la quantité. Les lots expirant dans moins de 3 mois sont automatiquement signalés.</p>
+                    </div>
+                    <div class="cbm_inv_accuracy_card">
+                        <div class="cbm_inv_accuracy_value">—</div>
+                        <div class="cbm_inv_accuracy_label">Taux de précision disponible après validation du comptage.</div>
                     </div>
                 </div>
-            </div>
+
+            </t>
         </div>
 
-        <!-- Done Modal (Submit for Approval or Recount) -->
-        <div t-if="state.doneModalOpen" class="cbm_inventory_form_modal">
-            <div class="cbm_form_backdrop" t-on-click="cancelDoneModal"/>
-            <div class="cbm_form_card cbm_done_card">
-                <div class="cbm_done_icon">
-                    <span class="cbm_icon_inbox"/>
-                </div>
-                <h3>Comptage terminé ?</h3>
-                <p>Vous avez enregistré <strong t-esc="state.lines.length"/> produit(s). Que souhaitez-vous faire ?</p>
-                <div class="cbm_form_actions">
-                    <button class="cbm_btn cbm_btn_secondary" t-on-click="cancelDoneModal">Continuer</button>
-                    <button class="cbm_btn cbm_btn_warning" t-on-click="startRecount" t-att-disabled="state.recounting">
-                        <span t-if="state.recounting" class="spinner-border spinner-border-sm me-2"/>
-                        <span class="cbm_icon_refresh me-1"/>
-                        Recommencer
-                    </button>
-                    <button class="cbm_btn cbm_btn_primary" t-on-click="submitFinal" t-att-disabled="state.submittingFinal">
-                        <span t-if="state.submittingFinal" class="spinner-border spinner-border-sm me-2"/>
-                        <span class="cbm_icon_check me-1"/>
-                        Valider
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="cbm_page_footer">
-            <div class="cbm_footer_actions">
-                <button class="cbm_btn cbm_btn_secondary" t-on-click="goHome">
-                    <span class="cbm_icon_x me-2"/>
-                    Quitter
-                </button>
-                <t t-if="state.sessionFound and state.lines.length > 0">
-                    <button class="cbm_btn cbm_btn_primary" t-on-click="openDoneModal">
-                        <span class="cbm_icon_check me-1"/>
-                        Terminer
-                    </button>
-                </t>
-            </div>
+        <!-- Fixed Footer -->
+        <div class="cbm_page_footer" t-if="state.sessionFound">
+            <button class="cbm_btn_secondary" t-on-click="goHome">Annuler</button>
+            <button class="cbm_btn_primary cbm_inv_submit_btn" t-on-click="openDoneModal">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:1.25rem;height:1.25rem;">
+                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd"/>
+                </svg>
+                Terminer
+            </button>
         </div>
     </t>
 

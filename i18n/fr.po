@@ -3490,3 +3490,242 @@ msgstr "Import terminé"
 #, python-format
 msgid "%d items imported."
 msgstr "%d éléments importés."
+
+#. module: clinic_staff_portal
+#. ====== INVENTORY SESSION MODEL & VIEWS ======
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_clinic_inventory
+msgid "Physical Inventory Session"
+msgstr "Session d'inventaire physique"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__name
+msgid "Session Name"
+msgstr "Nom de la session"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__date
+msgid "Start Date"
+msgstr "Date de début"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__duration_days
+msgid "Duration (Days)"
+msgstr "Durée (Jours)"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__end_date
+msgid "End Date"
+msgstr "Date de fin"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__location_id
+msgid "Location"
+msgstr "Emplacement"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__responsible_id
+msgid "Responsible Manager"
+msgstr "Responsable"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__announcement_text
+msgid "Announcement Text"
+msgstr "Texte d'annonce"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__generated_announcement
+msgid "Generated Announcement"
+msgstr "Annonce générée"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__team_count
+msgid "Team Count"
+msgstr "Nombre d'équipes"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__line_count
+msgid "Line Count"
+msgstr "Nombre de lignes"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_inventory__state__draft
+msgid "Draft"
+msgstr "Brouillon"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_inventory__state__active
+msgid "Active (Counting)"
+msgstr "Actif (Comptage)"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_inventory__state__pending_approval
+msgid "Pending Approval"
+msgstr "En attente d'approbation"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_inventory__state__approved
+msgid "Approved"
+msgstr "Approuvé"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields.selection,name:clinic_staff_portal.selection__clinic_inventory__state__cancelled
+msgid "Cancelled"
+msgstr "Annulé"
+
+#. module: clinic_staff_portal
+#: model:ir.actions.act_window,name:clinic_staff_portal.clinic_inventory_action
+msgid "Inventory Sessions"
+msgstr "Sessions d'inventaire"
+
+#. module: clinic_staff_portal
+#: model:ir.ui.menu,name:clinic_staff_portal.menu_clinic_inventory_sessions
+msgid "Inventory"
+msgstr "Inventaire"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Only draft inventories can be started"
+msgstr "Seuls les inventaires en brouillon peuvent être démarrés"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Create at least one team before starting"
+msgstr "Créez au moins une équipe avant de démarrer"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Assign users to at least one team before starting"
+msgstr "Assignez des utilisateurs à au moins une équipe avant de démarrer"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Only active inventories can be submitted for approval"
+msgstr "Seuls les inventaires actifs peuvent être soumis pour approbation"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Cannot submit inventory without counted lines"
+msgstr "Impossible de soumettre un inventaire sans lignes comptées"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Only pending inventories can be approved"
+msgstr "Seuls les inventaires en attente peuvent être approuvés"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Cannot cancel already approved inventories"
+msgstr "Impossible d'annuler des inventaires déjà approuvés"
+
+#. module: clinic_staff_portal
+#: code:addons/clinic_staff_portal/models/clinic_inventory.py:0
+#, python-format
+msgid "Duration must be between 1 and 10 days"
+msgstr "La durée doit être entre 1 et 10 jours"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory__is_full_inventory
+msgid "Full Inventory"
+msgstr "Inventaire complet"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,help:clinic_staff_portal.field_clinic_inventory__is_full_inventory
+msgid "If checked, uncounted products at this location will be set to 0. Uncheck for partial inventory (only adjust counted products)."
+msgstr "Si coché, les produits non comptés à cet emplacement seront mis à 0. Décochez pour un inventaire partiel (ajuster uniquement les produits comptés)."
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_clinic_inventory_team
+msgid "Inventory Counting Team"
+msgstr "Équipe de comptage"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory_team__name
+msgid "Team Name"
+msgstr "Nom de l'équipe"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory_team__user_ids
+msgid "Assigned Users"
+msgstr "Utilisateurs assignés"
+
+#. module: clinic_staff_portal
+#: model:ir.model,name:clinic_staff_portal.model_clinic_inventory_line
+msgid "Inventory Count Line"
+msgstr "Ligne de comptage"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory_line__qty_counted
+msgid "Quantity Counted"
+msgstr "Quantité comptée"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory_line__qty_system
+msgid "System Stock"
+msgstr "Stock système"
+
+#. module: clinic_staff_portal
+#: model:ir.model.fields,field_description:clinic_staff_portal.field_clinic_inventory_line__variance
+msgid "Variance"
+msgstr "Écart"
+
+#. module: clinic_staff_portal
+#. View strings
+msgid "Start Counting"
+msgstr "Démarrer le comptage"
+
+#. module: clinic_staff_portal
+msgid "Submit for Approval"
+msgstr "Soumettre pour approbation"
+
+#. module: clinic_staff_portal
+msgid "Approve & Apply to Stock"
+msgstr "Approuver et appliquer au stock"
+
+#. module: clinic_staff_portal
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: clinic_staff_portal
+msgid "Schedule"
+msgstr "Planification"
+
+#. module: clinic_staff_portal
+msgid "Management"
+msgstr "Gestion"
+
+#. module: clinic_staff_portal
+msgid "Teams"
+msgstr "Équipes"
+
+#. module: clinic_staff_portal
+msgid "Count Lines"
+msgstr "Lignes de comptage"
+
+#. module: clinic_staff_portal
+msgid "Announcement"
+msgstr "Annonce"
+
+#. module: clinic_staff_portal
+msgid "Dashboard Banner"
+msgstr "Bannière du tableau de bord"
+
+#. module: clinic_staff_portal
+msgid "Preview"
+msgstr "Aperçu"
+
+#. module: clinic_staff_portal
+msgid "Summary"
+msgstr "Résumé"
+
+#. module: clinic_staff_portal
+msgid "Banner shows on CBM dashboard 7 days before start date and stays until end date. Visible to all staff. Dismissible per browser session."
+msgstr "La bannière s'affiche sur le tableau de bord CBM 7 jours avant la date de début et reste jusqu'à la date de fin. Visible par tout le personnel. Peut être fermée par session navigateur."

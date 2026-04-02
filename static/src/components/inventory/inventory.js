@@ -7,7 +7,7 @@
  * - All data pre-loaded from database, user only edits quantity
  */
 
-import { Component, useState, useRef } from "@odoo/owl";
+import { Component, useState, useRef, useEffect } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 
@@ -17,6 +17,12 @@ export class InventoryCount extends Component {
     setup() {
         this.rpc = useService("rpc");
         this.barcodeInputRef = useRef("barcodeInput");
+        this.productSearchInputRef = useRef("productSearchInput");
+        this.tableFilterRef = useRef("tableFilter");
+        this.cameraVideoRef = useRef("cameraVideo");
+        this._searchDebounce = null;
+        this._barcodeDebounce = null;
+        this._cameraDetectionInterval = null;
 
         this.state = useState({
             // Session
@@ -29,32 +35,41 @@ export class InventoryCount extends Component {
             teamId: null,
             teamName: '',
 
-            // Lines (all data pre-loaded from DB)
+            // Lines
             linesLoading: false,
-            lines: [],  // [{id, product_id, product_name, lot_id, lot_name, expiry_date, qty_counted, qty_system, uom_name, barcode}]
+            lines: [],
 
-            // Barcode input & camera
+            // Barcode input
             barcodeLoading: false,
-            cameraOpen: false,
-            cameraStream: null,
+            barcodeSearchLoading: false,
+            barcodeSearchResults: [],
+            selectedBarcodeIndex: -1,
 
-            // Lot disambiguation (multiple products with same lot)
-            lotSearchResults: [],
-            lotSearchModalOpen: false,
-            selectedLotProduct: null,
+            // Camera
+            cameraOpen: false,
+            cameraSupported: typeof BarcodeDetector !== 'undefined',
+
+            // Product name search (dropdown)
+            productSearchLoading: false,
+            productSearchResults: [],
+            selectedSearchIndex: -1,
+
+            // Lot picker dropdown (anchored to the lot button in the table row)
+            lotPickerOpenLineId: null,  // line.id when editing existing, 'new' when adding new
+            lotPickerProduct: null,
+            lotPickerLots: [],
+            lotPickerLoading: false,
+            lotPickerQuery: '',
 
             // Table search
             tableSearchQuery: '',
 
-            // Inline editing state
-            editingLineId: null,  // line_id currently being edited
-            editingLineQty: '',   // temp qty value during edit
-            savingLineId: null,   // line_id being saved
+            // Inline editing
+            savingLineId: null,
+            editingExpiryLineId: null,
+            editingExpiryValue: '',
 
-            // Draft submission
-            submittingDraft: false,
-
-            // Done modal (submit for approval or recount)
+            // Done modal
             doneModalOpen: false,
             submittingFinal: false,
             recounting: false,
@@ -62,6 +77,25 @@ export class InventoryCount extends Component {
             // Delete confirmation
             deleteConfirmLineId: null,
         });
+
+        // Attach camera stream after OWL renders the video element
+        useEffect(() => {
+            if (this.state.cameraOpen && this._pendingStream) {
+                const video = this.cameraVideoRef.el;
+                if (video) {
+                    const stream = this._pendingStream;
+                    this._pendingStream = null;
+                    video.srcObject = stream;
+                    this._cameraStream = stream;
+                    video.play().then(() => {
+                        this._startBarcodeDetection(video);
+                    }).catch(err => {
+                        console.error("[INVENTORY] video.play() rejected:", err);
+                        this.closeCamera();
+                    });
+                }
+            }
+        }, () => [this.state.cameraOpen]);
 
         this.loadSession();
     }
@@ -73,7 +107,6 @@ export class InventoryCount extends Component {
     async loadSession() {
         try {
             this.state.sessionLoading = true;
-
             const result = await this.rpc('/cbm/inventory/get_session', {});
 
             if (!result.found) {
@@ -90,16 +123,9 @@ export class InventoryCount extends Component {
             this.state.teamId = result.team_id;
             this.state.teamName = result.team_name;
 
-            console.log('[INVENTORY] Session loaded:', {
-                sessionId: this.state.sessionId,
-                teamId: this.state.teamId,
-                teamName: this.state.teamName,
-            });
-
             await this.loadLines();
             this.state.sessionLoading = false;
 
-            // Focus barcode input
             setTimeout(() => {
                 if (this.barcodeInputRef.el) {
                     this.barcodeInputRef.el.focus();
@@ -118,21 +144,14 @@ export class InventoryCount extends Component {
     // ============================================================
 
     async loadLines() {
-        if (!this.state.sessionId) {
-            return;
-        }
-
+        if (!this.state.sessionId) return;
         try {
             this.state.linesLoading = true;
-
             const result = await this.rpc('/cbm/inventory/get_lines', {
                 session_id: this.state.sessionId,
             });
-
             this.state.lines = result || [];
-            console.log('[INVENTORY] Lines loaded:', this.state.lines.length);
             this.state.linesLoading = false;
-
         } catch (error) {
             console.error("[INVENTORY] Failed to load lines:", error);
             this.state.linesLoading = false;
@@ -140,78 +159,386 @@ export class InventoryCount extends Component {
     }
 
     // ============================================================
-    // BARCODE SCANNING
+    // BARCODE / LOT SEARCH (with dropdown)
     // ============================================================
 
     onBarcodeInputChange(event) {
-        // Allow manual typing combined with hardware scanners
-        // (some mobile scanners send input without Enter key)
+        const value = event.target.value || '';
+        if (this._barcodeDebounce) {
+            clearTimeout(this._barcodeDebounce);
+        }
+
+        // Clear dropdown if empty
+        if (!value.trim() || value.length < 2) {
+            this.state.barcodeSearchResults = [];
+            this.state.selectedBarcodeIndex = -1;
+            return;
+        }
+
+        // Debounce search for lot/barcode dropdown
+        this._barcodeDebounce = setTimeout(() => {
+            this._doBarcodeSearch(value.trim());
+        }, 300);
     }
 
-    async onBarcodeInput(event) {
-        if (event.key !== 'Enter') {
-            return;
-        }
+    async _doBarcodeSearch(query) {
+        try {
+            this.state.barcodeSearchLoading = true;
 
-        const barcode = event.target.value || '';
-        if (!barcode.trim()) {
-            return;
-        }
+            // Search both by barcode (product) and by lot name
+            const [barcodeResults, lotResults] = await Promise.all([
+                this.rpc('/cbm/inventory/search_product', {
+                    query: query,
+                    location_id: this.state.locationId,
+                    limit: 5,
+                }),
+                this.rpc('/cbm/inventory/search_lot', {
+                    lot_name: query,
+                    location_id: this.state.locationId,
+                    limit: 10,
+                }),
+            ]);
 
+            // Merge results: lots first (more specific), then products without lots
+            const merged = [];
+            const seenKeys = new Set();
+
+            for (const item of (lotResults || [])) {
+                const key = item.id + '_' + (item.lot_id || 0);
+                if (!seenKeys.has(key)) {
+                    seenKeys.add(key);
+                    merged.push(item);
+                }
+            }
+
+            for (const item of (barcodeResults || [])) {
+                // Only add if not already covered by lot results
+                const key = item.id + '_0';
+                if (!seenKeys.has(key)) {
+                    seenKeys.add(key);
+                    merged.push(item);
+                }
+            }
+
+            this.state.barcodeSearchResults = merged;
+            this.state.selectedBarcodeIndex = -1;
+            this.state.barcodeSearchLoading = false;
+
+        } catch (error) {
+            console.error("[INVENTORY] Barcode search failed:", error);
+            this.state.barcodeSearchLoading = false;
+        }
+    }
+
+    onBarcodeKeydown(event) {
+        const results = this.state.barcodeSearchResults;
+
+        if (event.key === 'ArrowDown' && results.length) {
+            event.preventDefault();
+            this.state.selectedBarcodeIndex = Math.min(
+                this.state.selectedBarcodeIndex + 1,
+                results.length - 1
+            );
+        } else if (event.key === 'ArrowUp' && results.length) {
+            event.preventDefault();
+            this.state.selectedBarcodeIndex = Math.max(
+                this.state.selectedBarcodeIndex - 1, 0
+            );
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            const idx = this.state.selectedBarcodeIndex;
+            if (idx >= 0 && idx < results.length) {
+                this.selectBarcodeResult(results[idx]);
+            } else if (results.length === 1) {
+                // Auto-select single result on Enter
+                this.selectBarcodeResult(results[0]);
+            } else {
+                // Fallback: exact barcode match via shared endpoint
+                this._exactBarcodeSearch(event.target.value);
+            }
+        } else if (event.key === 'Escape') {
+            this.state.barcodeSearchResults = [];
+            this.state.selectedBarcodeIndex = -1;
+        }
+    }
+
+    async _exactBarcodeSearch(barcode) {
+        if (!barcode || !barcode.trim()) return;
         try {
             this.state.barcodeLoading = true;
-
-            // Use shared CBM barcode search (same as consumption module)
-            // Supports: product barcode, lot.ref, lot.name
             const result = await this.rpc('/cbm/search_barcode', {
-                barcode: barcode,
+                barcode: barcode.trim(),
                 location_id: this.state.locationId,
             });
-
             this.state.barcodeLoading = false;
 
             if (!result.found) {
                 if (this.props.showToast) {
                     this.props.showToast(_t("Produit non trouvé"), 'warning');
                 }
-                event.target.value = '';
-                // Re-focus for next scan
-                setTimeout(() => event.target.focus(), 100);
                 return;
             }
 
-            // Format result for addLineFromBarcode (normalize field names)
-            const productData = {
+            await this._addProductLine({
                 id: result.id,
                 name: result.name,
                 barcode: result.barcode,
                 uom_name: result.uom_name,
-                qty_system: result.qty_available || 0,
                 lot_id: result.lot_id,
                 lot_name: result.lot_name || '',
-                expiry_date: false,  // TODO: Get from lot object
-            };
-
-            // Each scan creates a NEW row (no deduplication)
-            // User can delete accidental double-scans manually
-            // This allows staff to record exact counting flow
-            await this.addLineFromBarcode(productData);
-
-            event.target.value = '';
-            // Re-focus for next scan
-            setTimeout(() => event.target.focus(), 100);
+                expiry_date: false,
+                tracking: 'none',  // Already resolved by barcode
+            });
+            this._clearBarcodeInput();
 
         } catch (error) {
-            console.error("[INVENTORY] Barcode scan failed:", error);
+            console.error("[INVENTORY] Exact barcode search failed:", error);
             this.state.barcodeLoading = false;
+        }
+    }
+
+    async selectBarcodeResult(item) {
+        this.state.barcodeSearchResults = [];
+        this.state.selectedBarcodeIndex = -1;
+
+        // Always add directly — lot assigned inline from the table row
+        await this._addProductLine({
+            id: item.id,
+            name: item.name,
+            uom_name: item.uom_name,
+            lot_id: item.lot_id || false,
+            lot_name: item.lot_name || '',
+            expiry_date: item.expiry_date || false,
+            tracking: item.tracking || 'none',
+        });
+        this._clearBarcodeInput();
+    }
+
+    _clearBarcodeInput() {
+        if (this.barcodeInputRef.el) {
+            this.barcodeInputRef.el.value = '';
+            setTimeout(() => this.barcodeInputRef.el.focus(), 100);
+        }
+    }
+
+    // ============================================================
+    // PRODUCT NAME SEARCH (with dropdown)
+    // ============================================================
+
+    onProductSearch(event) {
+        const query = event.target.value;
+        if (this._searchDebounce) {
+            clearTimeout(this._searchDebounce);
+        }
+        if (!query || query.length < 2) {
+            this.state.productSearchResults = [];
+            this.state.selectedSearchIndex = -1;
+            return;
+        }
+        this._searchDebounce = setTimeout(() => {
+            this._doProductSearch(query);
+        }, 300);
+    }
+
+    async _doProductSearch(query) {
+        try {
+            this.state.productSearchLoading = true;
+            const results = await this.rpc('/cbm/inventory/search_product', {
+                query: query,
+                location_id: this.state.locationId,
+                limit: 10,
+            });
+            this.state.productSearchResults = results || [];
+            this.state.selectedSearchIndex = -1;
+            this.state.productSearchLoading = false;
+        } catch (error) {
+            console.error("[INVENTORY] Product search failed:", error);
+            this.state.productSearchLoading = false;
+        }
+    }
+
+    onProductSearchKeydown(event) {
+        const results = this.state.productSearchResults;
+        if (!results.length) return;
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            this.state.selectedSearchIndex = Math.min(
+                this.state.selectedSearchIndex + 1,
+                results.length - 1
+            );
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            this.state.selectedSearchIndex = Math.max(
+                this.state.selectedSearchIndex - 1, 0
+            );
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            const idx = this.state.selectedSearchIndex;
+            if (idx >= 0 && idx < results.length) {
+                this.selectSearchProduct(results[idx]);
+            }
+        } else if (event.key === 'Escape') {
+            this.state.productSearchResults = [];
+            this.state.selectedSearchIndex = -1;
+        }
+    }
+
+    async selectSearchProduct(product) {
+        this.state.productSearchResults = [];
+        this.state.selectedSearchIndex = -1;
+        if (this.productSearchInputRef.el) {
+            this.productSearchInputRef.el.value = '';
+        }
+
+        // Always add directly — lot is assigned inline from the table row
+        await this._addProductLine({
+            id: product.id,
+            name: product.name,
+            uom_name: product.uom_name,
+            lot_id: false,
+            lot_name: '',
+            expiry_date: false,
+            tracking: product.tracking || 'none',
+        });
+    }
+
+    // ============================================================
+    // LOT PICKER DROPDOWN (used for both new lines and editing existing)
+    // ============================================================
+
+    async _openLotPicker(product) {
+        try {
+            this.state.lotPickerProduct = product;
+            this.state.lotPickerLots = [];
+            this.state.lotPickerLoading = true;
+            this.state.lotPickerOpenLineId = 'new';
+            this.state.lotPickerQuery = '';
+
+            const lots = await this.rpc('/cbm/inventory/get_product_lots', {
+                product_id: product.id,
+                location_id: this.state.locationId,
+            });
+
+            this.state.lotPickerLots = lots || [];
+            this.state.lotPickerLoading = false;
+
+        } catch (error) {
+            console.error("[INVENTORY] Failed to load lots:", error);
+            this.state.lotPickerOpenLineId = null;
+            this.state.lotPickerLoading = false;
             if (this.props.showToast) {
-                this.props.showToast(_t("Erreur lors du scan"), 'danger');
+                this.props.showToast(_t("Erreur lors du chargement des lots"), 'danger');
             }
         }
     }
 
-    async addLineFromBarcode(product) {
-        // Create new line with qty=1
+    async startEditLot(line, event) {
+        if (event) event.stopPropagation();
+
+        // Toggle off if already open for this line
+        if (this.state.lotPickerOpenLineId === line.id) {
+            this.closeLotPicker();
+            return;
+        }
+
+        try {
+            this.state.lotPickerProduct = {
+                id: line.product_id,
+                name: line.product_name,
+                uom_name: line.uom_name,
+            };
+            this.state.lotPickerLots = [];
+            this.state.lotPickerLoading = true;
+            this.state.lotPickerOpenLineId = line.id;
+            this.state.lotPickerQuery = '';
+
+            const lots = await this.rpc('/cbm/inventory/get_product_lots', {
+                product_id: line.product_id,
+                location_id: this.state.locationId,
+            });
+
+            this.state.lotPickerLots = lots || [];
+            this.state.lotPickerLoading = false;
+
+        } catch (error) {
+            console.error("[INVENTORY] Failed to load lots for edit:", error);
+            this.state.lotPickerOpenLineId = null;
+            this.state.lotPickerLoading = false;
+        }
+    }
+
+    closeLotPicker() {
+        this.state.lotPickerOpenLineId = null;
+        this.state.lotPickerProduct = null;
+        this.state.lotPickerLots = [];
+        this.state.lotPickerLoading = false;
+        this.state.lotPickerQuery = '';
+    }
+
+    onLotPickerSearch(event) {
+        this.state.lotPickerQuery = (event.target.value || '').toLowerCase();
+    }
+
+    getFilteredLots() {
+        if (!this.state.lotPickerQuery) {
+            return this.state.lotPickerLots;
+        }
+        const q = this.state.lotPickerQuery;
+        return this.state.lotPickerLots.filter(lot => {
+            return (lot.lot_name || '').toLowerCase().includes(q)
+                || (lot.expiry_date || '').toLowerCase().includes(q);
+        });
+    }
+
+    async selectLot(lot) {
+        const product = this.state.lotPickerProduct;
+        const editLineId = this.state.lotPickerOpenLineId;
+        if (!product) return;
+
+        this.closeLotPicker();
+
+        if (editLineId && editLineId !== 'new') {
+            // Edit mode — update existing line's lot
+            const line = this.state.lines.find(l => l.id === editLineId);
+            if (!line) return;
+
+            try {
+                const result = await this.rpc('/cbm/inventory/save_line', {
+                    session_id: this.state.sessionId,
+                    product_id: line.product_id,
+                    lot_id: lot.lot_id || false,
+                    expiry_date: lot.expiry_date || line.expiry_date || false,
+                    qty_counted: line.qty_counted,
+                    note: line.note || '',
+                    line_id: editLineId,
+                });
+
+                if (result.success) {
+                    await this.loadLines();
+                }
+            } catch (error) {
+                console.error("[INVENTORY] Update lot failed:", error);
+            }
+        } else {
+            // New line mode
+            await this._addProductLine({
+                id: product.id,
+                name: product.name,
+                uom_name: product.uom_name,
+                lot_id: lot.lot_id || false,
+                lot_name: lot.lot_name || '',
+                expiry_date: lot.expiry_date || false,
+                tracking: product.tracking || 'lot',
+            });
+        }
+    }
+
+    // ============================================================
+    // ADD PRODUCT LINE (shared by all search flows)
+    // ============================================================
+
+    async _addProductLine(product) {
         try {
             const result = await this.rpc('/cbm/inventory/save_line', {
                 session_id: this.state.sessionId,
@@ -220,29 +547,21 @@ export class InventoryCount extends Component {
                 expiry_date: product.expiry_date || false,
                 qty_counted: 1,
                 note: '',
-                line_id: false,  // Create new
+                line_id: false,
             });
 
             if (!result.success) {
+                console.error("[INVENTORY] save_line rejected:", result.error);
                 if (this.props.showToast) {
                     this.props.showToast(result.error || _t("Erreur lors de l'ajout"), 'danger');
                 }
                 return;
             }
 
-            // Reload lines to get new row
             await this.loadLines();
 
-            // Auto-focus qty field of newly added product
-            setTimeout(() => {
-                const newLine = this.state.lines.find(l => l.product_id === product.id);
-                if (newLine) {
-                    this.onQtyStartEdit(newLine.id, newLine.qty_counted);
-                }
-            }, 50);
-
         } catch (error) {
-            console.error("[INVENTORY] Add line from barcode failed:", error);
+            console.error("[INVENTORY] Add line failed (exception):", error);
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur de connexion"), 'danger');
             }
@@ -250,52 +569,20 @@ export class InventoryCount extends Component {
     }
 
     // ============================================================
-    // INLINE QTY EDITING & AUTO-SAVE
+    // INLINE QTY EDITING (always-visible input, no click-to-edit)
     // ============================================================
 
-    onQtyStartEdit(lineId, currentQty) {
-        this.state.editingLineId = lineId;
-        this.state.editingLineQty = currentQty.toString();
-
-        // Auto-focus input after next render
-        setTimeout(() => {
-            const input = document.querySelector(`input[data-line-id="${lineId}"]`);
-            if (input) {
-                input.focus();
-                input.select();
-            }
-        }, 10);
-    }
-
-    onQtyChange(event) {
-        this.state.editingLineQty = event.target.value;
-    }
-
-    async onQtyBlur(lineId) {
-        // Save when user leaves qty field
-        await this.saveQtyInline(lineId);
-    }
-
-    async saveQtyInline(lineId) {
-        if (!lineId || !this.state.sessionId) {
-            this.state.editingLineId = null;
-            return;
-        }
-
-        const line = this.state.lines.find(l => l.id === lineId);
-        if (!line) {
-            this.state.editingLineId = null;
-            return;
-        }
-
-        const newQty = parseFloat(this.state.editingLineQty);
+    async onQtyChanged(lineId, rawValue) {
+        const newQty = parseFloat(rawValue);
         if (isNaN(newQty) || newQty < 0) {
             if (this.props.showToast) {
                 this.props.showToast(_t("Quantité invalide"), 'warning');
             }
-            this.state.editingLineId = null;
             return;
         }
+
+        const line = this.state.lines.find(l => l.id === lineId);
+        if (!line) return;
 
         try {
             this.state.savingLineId = lineId;
@@ -312,35 +599,66 @@ export class InventoryCount extends Component {
 
             if (!result.success) {
                 if (this.props.showToast) {
-                    this.props.showToast(result.error || _t("Erreur lors de l'enregistrement"), 'danger');
+                    this.props.showToast(result.error || _t("Erreur"), 'danger');
                 }
-                this.state.savingLineId = null;
-                this.state.editingLineId = null;
-                return;
+            } else {
+                // Reload lines to ensure OWL reactive proxy reflects the change
+                await this.loadLines();
             }
 
-            console.log('[INVENTORY] Line saved:', lineId, 'qty=', newQty);
-
-            // Update local state
-            line.qty_counted = newQty;
-
-            // Close edit mode
-            this.state.editingLineId = null;
             this.state.savingLineId = null;
-
-            // Keep focus on barcode for next scan
-            if (this.barcodeInputRef.el) {
-                this.barcodeInputRef.el.focus();
-            }
 
         } catch (error) {
             console.error("[INVENTORY] Save qty failed:", error);
+            this.state.savingLineId = null;
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur de connexion"), 'danger');
             }
-            this.state.savingLineId = null;
-            this.state.editingLineId = null;
         }
+    }
+
+    // ============================================================
+    // INLINE EXPIRY DATE EDITING
+    // ============================================================
+
+    startEditExpiry(lineId, currentValue) {
+        this.state.editingExpiryLineId = lineId;
+        this.state.editingExpiryValue = currentValue || '';
+    }
+
+    onExpiryChange(event) {
+        this.state.editingExpiryValue = event.target.value;
+    }
+
+    async saveExpiry(lineId) {
+        const line = this.state.lines.find(l => l.id === lineId);
+        if (!line) {
+            this.state.editingExpiryLineId = null;
+            return;
+        }
+
+        const newExpiry = this.state.editingExpiryValue || false;
+
+        try {
+            const result = await this.rpc('/cbm/inventory/save_line', {
+                session_id: this.state.sessionId,
+                product_id: line.product_id,
+                lot_id: line.lot_id || false,
+                expiry_date: newExpiry,
+                qty_counted: line.qty_counted,
+                note: line.note || '',
+                line_id: lineId,
+            });
+
+            if (result.success) {
+                await this.loadLines();
+            }
+
+        } catch (error) {
+            console.error("[INVENTORY] Save expiry failed:", error);
+        }
+
+        this.state.editingExpiryLineId = null;
     }
 
     // ============================================================
@@ -357,9 +675,7 @@ export class InventoryCount extends Component {
 
     async deleteLine() {
         const lineId = this.state.deleteConfirmLineId;
-        if (!lineId) {
-            return;
-        }
+        if (!lineId) return;
 
         try {
             const result = await this.rpc('/cbm/inventory/delete_line', {
@@ -368,7 +684,7 @@ export class InventoryCount extends Component {
 
             if (!result.success) {
                 if (this.props.showToast) {
-                    this.props.showToast(result.error || _t("Erreur lors de la suppression"), 'danger');
+                    this.props.showToast(result.error || _t("Erreur"), 'danger');
                 }
                 this.state.deleteConfirmLineId = null;
                 return;
@@ -383,15 +699,15 @@ export class InventoryCount extends Component {
 
         } catch (error) {
             console.error("[INVENTORY] Delete line failed:", error);
+            this.state.deleteConfirmLineId = null;
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur de connexion"), 'danger');
             }
-            this.state.deleteConfirmLineId = null;
         }
     }
 
     // ============================================================
-    // PDF PRINT & NAVIGATION
+    // PDF & NAVIGATION
     // ============================================================
 
     printTeamPDF() {
@@ -405,197 +721,90 @@ export class InventoryCount extends Component {
     }
 
     // ============================================================
-    // MOBILE CAMERA BARCODE SCANNING
+    // CAMERA BARCODE SCANNING (native BarcodeDetector API)
     // ============================================================
 
     async openCamera() {
+        // Guard: prevent double-tap creating orphaned stream
+        if (this._cameraStream) return;
+
+        if (!this.state.cameraSupported) {
+            if (this.props.showToast) {
+                this.props.showToast(_t("Scan caméra non supporté sur ce navigateur (utilisez Chrome)"), 'warning');
+            }
+            return;
+        }
+
         try {
-            this.state.cameraOpen = true;
-
-            // Request camera access
-            const constraints = {
-                video: {
-                    facingMode: 'environment',  // Back camera
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                },
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
                 audio: false,
-            };
+            });
 
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            this.state.cameraStream = stream;
-
-            // Start camera in video element
-            setTimeout(() => {
-                const video = document.querySelector('.cbm_camera_video');
-                if (video) {
-                    video.srcObject = stream;
-                    // Start barcode detection loop
-                    this.startBarcodeDetection(video);
-                }
-            }, 100);
+            // Store stream temporarily; useEffect will attach it once video element is rendered
+            this._pendingStream = stream;
+            this.state.cameraOpen = true;  // Triggers OWL render → useEffect fires
 
         } catch (error) {
             console.error("[INVENTORY] Camera access error:", error);
+            this.state.cameraOpen = false;
             if (this.props.showToast) {
-                if (error.name === 'NotAllowedError') {
-                    this.props.showToast(_t("Accès à la caméra refusé"), 'danger');
-                } else if (error.name === 'NotFoundError') {
-                    this.props.showToast(_t("Caméra non trouvée"), 'danger');
+                // TypeError on non-HTTPS means the API is blocked by browser security policy
+                const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+                if (!isHttps && error instanceof TypeError) {
+                    this.props.showToast(_t("Caméra nécessite HTTPS"), 'danger');
                 } else {
-                    this.props.showToast(_t("Erreur caméra"), 'danger');
+                    this.props.showToast(_t("Accès caméra refusé"), 'warning');
                 }
             }
-            this.state.cameraOpen = false;
         }
     }
 
     closeCamera() {
-        if (this.state.cameraStream) {
-            this.state.cameraStream.getTracks().forEach(track => track.stop());
-            this.state.cameraStream = null;
+        // Stop stream tracks
+        if (this._cameraStream) {
+            this._cameraStream.getTracks().forEach(track => track.stop());
+            this._cameraStream = null;
+        }
+        // Stop detection loop
+        if (this._cameraDetectionInterval) {
+            clearInterval(this._cameraDetectionInterval);
+            this._cameraDetectionInterval = null;
         }
         this.state.cameraOpen = false;
-        this.cameraDetectionInterval = null;
-
-        // Re-focus barcode input
-        if (this.barcodeInputRef.el) {
-            setTimeout(() => this.barcodeInputRef.el.focus(), 100);
-        }
+        // Refocus barcode input
+        setTimeout(() => {
+            if (this.barcodeInputRef.el) this.barcodeInputRef.el.focus();
+        }, 100);
     }
 
-    startBarcodeDetection(video) {
-        // Simple barcode detection using canvas + decoder
-        // For production, use a library like QuaggaJS or jsQR
-        // This is a placeholder that shows the pattern
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+    _startBarcodeDetection(video) {
+        const detector = new BarcodeDetector({
+            formats: ['qr_code', 'code_128', 'ean_13', 'ean_8', 'code_39', 'code_93', 'itf', 'data_matrix'],
+        });
 
-        this.cameraDetectionInterval = setInterval(() => {
-            if (!this.state.cameraOpen || !video.videoWidth) {
-                return;
-            }
-
+        let detecting = false;  // Guard against overlapping async callbacks
+        this._cameraDetectionInterval = setInterval(async () => {
+            if (!this.state.cameraOpen || !video.videoWidth) return;
+            if (detecting) return;
+            detecting = true;
             try {
-                // Draw video frame to canvas
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0);
-
-                // Get image data for barcode detection
-                // TODO: Integrate with barcode library (QuaggaJS, jsQR, or ZXing)
-                // For now, just show camera is running
-                console.log('[INVENTORY] Camera scanning...', {
-                    width: canvas.width,
-                    height: canvas.height,
-                });
-
+                const barcodes = await detector.detect(video);
+                if (barcodes.length > 0 && this.state.cameraOpen) {
+                    const raw = barcodes[0].rawValue;
+                    this.closeCamera();
+                    await this._exactBarcodeSearch(raw);
+                }
             } catch (error) {
-                console.error("[INVENTORY] Barcode detection error:", error);
+                // Detection errors are expected on blank frames — ignore
+            } finally {
+                detecting = false;
             }
-        }, 500);
-    }
-
-    // Process barcode from camera (called by barcode library)
-    async processCameraBarcode(barcode) {
-        if (!barcode || !this.state.cameraOpen) {
-            return;
-        }
-
-        console.log('[INVENTORY] Camera barcode detected:', barcode);
-
-        // Close camera
-        this.closeCamera();
-
-        // Process as regular barcode scan
-        this.state.barcodeLoading = true;
-
-        try {
-            // Use shared CBM barcode search
-            const result = await this.rpc('/cbm/search_barcode', {
-                barcode: barcode,
-                location_id: this.state.locationId,
-            });
-
-            this.state.barcodeLoading = false;
-
-            if (!result.found) {
-                if (this.props.showToast) {
-                    this.props.showToast(_t("Produit non trouvé"), 'warning');
-                }
-                return;
-            }
-
-            // Format result for addLineFromBarcode
-            const productData = {
-                id: result.id,
-                name: result.name,
-                barcode: result.barcode,
-                uom_name: result.uom_name,
-                qty_system: result.qty_available || 0,
-                lot_id: result.lot_id,
-                lot_name: result.lot_name || '',
-                expiry_date: false,
-            };
-
-            await this.addLineFromBarcode(productData);
-
-        } catch (error) {
-            console.error("[INVENTORY] Camera barcode processing failed:", error);
-            this.state.barcodeLoading = false;
-            if (this.props.showToast) {
-                this.props.showToast(_t("Erreur lors du scan caméra"), 'danger');
-            }
-        }
+        }, 400);
     }
 
     // ============================================================
-    // DRAFT SUBMISSION
-    // ============================================================
-
-    async submitDraft() {
-        if (!this.state.sessionId || !this.state.lines.length) {
-            return;
-        }
-
-        try {
-            this.state.submittingDraft = true;
-
-            const result = await this.rpc('/cbm/inventory/submit_draft', {
-                session_id: this.state.sessionId,
-            });
-
-            if (!result.success) {
-                if (this.props.showToast) {
-                    this.props.showToast(result.error || _t("Erreur lors de l'enregistrement"), 'danger');
-                }
-                this.state.submittingDraft = false;
-                return;
-            }
-
-            if (this.props.showToast) {
-                this.props.showToast(_t("Session enregistrée comme brouillon"), 'success');
-            }
-
-            console.log('[INVENTORY] Session submitted as draft:', this.state.sessionId);
-            this.state.submittingDraft = false;
-
-            // Go home after successful submission
-            setTimeout(() => {
-                this.props.onNavigateHome();
-            }, 1000);
-
-        } catch (error) {
-            console.error("[INVENTORY] Draft submission failed:", error);
-            if (this.props.showToast) {
-                this.props.showToast(_t("Erreur de connexion"), 'danger');
-            }
-            this.state.submittingDraft = false;
-        }
-    }
-
-    // ============================================================
-    // DONE MODAL (Submit or Recount)
+    // DONE MODAL
     // ============================================================
 
     openDoneModal() {
@@ -607,20 +816,16 @@ export class InventoryCount extends Component {
     }
 
     async submitFinal() {
-        if (!this.state.sessionId) {
-            return;
-        }
-
+        if (!this.state.sessionId) return;
         try {
             this.state.submittingFinal = true;
-
             const result = await this.rpc('/cbm/inventory/submit', {
                 session_id: this.state.sessionId,
             });
 
             if (!result.success) {
                 if (this.props.showToast) {
-                    this.props.showToast(result.error || _t("Erreur lors de l'enregistrement"), 'danger');
+                    this.props.showToast(result.error || _t("Erreur"), 'danger');
                 }
                 this.state.submittingFinal = false;
                 return;
@@ -630,39 +835,30 @@ export class InventoryCount extends Component {
                 this.props.showToast(_t("Comptage enregistré avec succès"), 'success');
             }
 
-            console.log('[INVENTORY] Session submitted for approval:', this.state.sessionId);
             this.state.submittingFinal = false;
             this.state.doneModalOpen = false;
-
-            // Go home after successful submission
-            setTimeout(() => {
-                this.props.onNavigateHome();
-            }, 1000);
+            setTimeout(() => this.props.onNavigateHome(), 1000);
 
         } catch (error) {
-            console.error("[INVENTORY] Final submission failed:", error);
+            console.error("[INVENTORY] Submit failed:", error);
+            this.state.submittingFinal = false;
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur de connexion"), 'danger');
             }
-            this.state.submittingFinal = false;
         }
     }
 
     async startRecount() {
-        if (!this.state.sessionId) {
-            return;
-        }
-
+        if (!this.state.sessionId) return;
         try {
             this.state.recounting = true;
-
             const result = await this.rpc('/cbm/inventory/recount', {
                 session_id: this.state.sessionId,
             });
 
             if (!result.success) {
                 if (this.props.showToast) {
-                    this.props.showToast(result.error || _t("Erreur lors du redémarrage"), 'danger');
+                    this.props.showToast(result.error || _t("Erreur"), 'danger');
                 }
                 this.state.recounting = false;
                 return;
@@ -672,100 +868,21 @@ export class InventoryCount extends Component {
                 this.props.showToast(_t("Comptage réinitialisé"), 'success');
             }
 
-            console.log('[INVENTORY] Recount started:', this.state.sessionId);
-
-            // Clear local lines
             this.state.lines = [];
             this.state.recounting = false;
             this.state.doneModalOpen = false;
-
-            // Reload lines (should be empty now)
             await this.loadLines();
 
-            // Focus barcode input for next scan
             setTimeout(() => {
-                if (this.barcodeInputRef.el) {
-                    this.barcodeInputRef.el.focus();
-                }
+                if (this.barcodeInputRef.el) this.barcodeInputRef.el.focus();
             }, 100);
 
         } catch (error) {
             console.error("[INVENTORY] Recount failed:", error);
+            this.state.recounting = false;
             if (this.props.showToast) {
                 this.props.showToast(_t("Erreur de connexion"), 'danger');
             }
-            this.state.recounting = false;
-        }
-    }
-
-    // ============================================================
-    // LOT NUMBER SEARCH (Multiple Products Same Lot)
-    // ============================================================
-
-    async searchByLot(lotName) {
-        if (!lotName || !lotName.trim()) {
-            return;
-        }
-
-        try {
-            this.state.barcodeLoading = true;
-
-            const results = await this.rpc('/cbm/inventory/search_lot', {
-                lot_name: lotName.trim(),
-                location_id: this.state.locationId,
-            });
-
-            this.state.barcodeLoading = false;
-
-            if (!results || results.length === 0) {
-                if (this.props.showToast) {
-                    this.props.showToast(_t("Lot non trouvé"), 'warning');
-                }
-                return;
-            }
-
-            if (results.length === 1) {
-                // Only one product with this lot - add directly
-                await this.addLineFromBarcode(results[0]);
-            } else {
-                // Multiple products with same lot - show disambiguation modal
-                this.state.lotSearchResults = results;
-                this.state.lotSearchModalOpen = true;
-                console.log('[INVENTORY] Found', results.length, 'products with lot', lotName);
-            }
-
-        } catch (error) {
-            console.error("[INVENTORY] Lot search failed:", error);
-            this.state.barcodeLoading = false;
-            if (this.props.showToast) {
-                this.props.showToast(_t("Erreur lors de la recherche"), 'danger');
-            }
-        }
-    }
-
-    selectLotProduct(product) {
-        this.state.selectedLotProduct = product;
-    }
-
-    async confirmLotSelection() {
-        if (!this.state.selectedLotProduct) {
-            return;
-        }
-
-        const product = this.state.selectedLotProduct;
-        this.closeLotSearchModal();
-
-        await this.addLineFromBarcode(product);
-    }
-
-    closeLotSearchModal() {
-        this.state.lotSearchModalOpen = false;
-        this.state.lotSearchResults = [];
-        this.state.selectedLotProduct = null;
-
-        // Re-focus barcode input
-        if (this.barcodeInputRef.el) {
-            setTimeout(() => this.barcodeInputRef.el.focus(), 100);
         }
     }
 
@@ -779,24 +896,21 @@ export class InventoryCount extends Component {
 
     clearTableSearch() {
         this.state.tableSearchQuery = '';
+        if (this.tableFilterRef.el) {
+            this.tableFilterRef.el.value = '';
+        }
     }
 
     getFilteredLines() {
         if (!this.state.tableSearchQuery) {
             return this.state.lines;
         }
-
         const query = this.state.tableSearchQuery;
         return this.state.lines.filter(line => {
             const productName = (line.product_name || '').toLowerCase();
             const lotName = (line.lot_name || '').toLowerCase();
             const barcode = (line.barcode || '').toLowerCase();
-
-            return (
-                productName.includes(query) ||
-                lotName.includes(query) ||
-                barcode.includes(query)
-            );
+            return productName.includes(query) || lotName.includes(query) || barcode.includes(query);
         });
     }
 }

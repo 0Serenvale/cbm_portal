@@ -8,6 +8,8 @@
             <tree>
                 <field name="name"/>
                 <field name="date"/>
+                <field name="duration_days" string="Days"/>
+                <field name="end_date"/>
                 <field name="location_id"/>
                 <field name="state" decoration-success="state == 'approved'"
                                    decoration-warning="state == 'pending_approval'"
@@ -38,42 +40,48 @@
                             attrs="{'invisible': [('state', '!=', 'pending_approval')]}"/>
                     <button name="action_cancel" type="object" string="Cancel"
                             attrs="{'invisible': [('state', 'in', ['approved', 'cancelled'])]}"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,active,pending_approval,approved"
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active,pending_approval,approved"
                            readonly="1"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
-                            <field name="name" placeholder="Session name (e.g., Inventory April 2026)..."/>
+                            <field name="name" placeholder="e.g., Inventaire Q2 2026"/>
                         </h1>
                     </div>
+
                     <!-- Session Info -->
                     <group>
-                        <group>
+                        <group string="Schedule">
                             <field name="date"/>
+                            <field name="duration_days"/>
+                            <field name="end_date"/>
                             <field name="location_id" options="{'no_create': True}"/>
                         </group>
-                        <group>
+                        <group string="Management">
                             <field name="responsible_id" options="{'no_create': True}"/>
+                            <field name="is_full_inventory"/>
                         </group>
                     </group>
-                    <!-- Notes -->
-                    <field name="notes" placeholder="Additional notes about this inventory session..."/>
-                    <!-- Teams Tab -->
+
+                    <!-- Tabs -->
                     <notebook>
+                        <!-- Teams Tab -->
                         <page string="Teams" name="teams">
                             <field name="team_ids" context="{'default_inventory_id': id}">
                                 <tree editable="bottom">
-                                    <field name="name" placeholder="Team name (e.g., Team A)..."/>
+                                    <field name="name" placeholder="Team A, Team B..."/>
                                     <field name="user_ids" widget="many2many_tags"
                                            options="{'no_create': True}"
                                            placeholder="Select users..."/>
-                                    <field name="line_count" string="Count Lines" readonly="1"/>
+                                    <field name="line_count" string="Lines" readonly="1"/>
                                 </tree>
                             </field>
                         </page>
-                        <!-- Lines Tab (Read-only, for manager review) -->
+
+                        <!-- Count Lines Tab (read-only for manager review) -->
                         <page string="Count Lines" name="lines">
                             <field name="line_ids" readonly="1">
                                 <tree>
@@ -93,7 +101,25 @@
                                 </tree>
                             </field>
                         </page>
-                        <!-- Stats Tab (Manager summary) -->
+
+                        <!-- Announcement Tab -->
+                        <page string="Announcement" name="announcement">
+                            <group>
+                                <group string="Dashboard Banner">
+                                    <field name="announcement_text" nolabel="1" colspan="2"
+                                        placeholder="Leave empty for auto-generated text..."/>
+                                </group>
+                                <group string="Preview">
+                                    <field name="generated_announcement" nolabel="1" colspan="2" readonly="1"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                Banner shows on CBM dashboard 7 days before start date and stays until end date.
+                                Visible to all staff. Dismissible per browser session.
+                            </div>
+                        </page>
+
+                        <!-- Summary Tab -->
                         <page string="Summary" name="summary"
                               attrs="{'invisible': [('state', '=', 'draft')]}">
                             <group>
@@ -108,10 +134,9 @@
                             </group>
                         </page>
                     </notebook>
+
+                    <field name="notes" placeholder="Additional notes..."/>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_ids" widget="mail_thread"/>
-                </div>
             </form>
         </field>
     </record>
@@ -128,14 +153,11 @@
                 <field name="responsible_id"/>
                 <separator/>
                 <filter string="Draft" name="filter_draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Active (Counting)" name="filter_active" domain="[('state', '=', 'active')]"/>
-                <filter string="Pending Approval" name="filter_pending" domain="[('state', '=', 'pending_approval')]"/>
+                <filter string="Active" name="filter_active" domain="[('state', '=', 'active')]"/>
+                <filter string="Pending" name="filter_pending" domain="[('state', '=', 'pending_approval')]"/>
                 <filter string="Approved" name="filter_approved" domain="[('state', '=', 'approved')]"/>
                 <filter string="Cancelled" name="filter_cancelled" domain="[('state', '=', 'cancelled')]"/>
                 <separator/>
-                <filter string="This Month" name="filter_this_month"
-                        domain="[('date', '&gt;=', context_today().replace(day=1)),
-                                 ('date', '&lt;=', context_today())]"/>
                 <group expand="0" string="Group By">
                     <filter string="Location" name="groupby_location" context="{'group_by': 'location_id'}"/>
                     <filter string="Status" name="groupby_state" context="{'group_by': 'state'}"/>
@@ -151,19 +173,23 @@
         <field name="res_model">clinic.inventory</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="clinic_inventory_view_search"/>
-        <field name="context">{'search_default_filter_active': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                No inventory sessions yet. Create a new physical inventory session.
+                No inventory sessions yet.
+            </p>
+            <p>
+                Create a session: set the date, duration, location. Add teams and assign users.
+                Click "Start Counting" to activate. The inventory tile will appear on the
+                CBM dashboard for assigned team members. A banner announcement shows 7 days before.
             </p>
         </field>
     </record>
 
-    <!-- Menu under Tile Manager for manager access -->
+    <!-- Menu under Tile Manager -->
     <menuitem id="menu_clinic_inventory_sessions"
-        name="Inventory Sessions"
+        name="Inventory"
         parent="clinic_staff_portal.menu_tile_manager"
         action="clinic_inventory_action"
-        sequence="21"/>
+        sequence="20"/>
 
 </odoo>
