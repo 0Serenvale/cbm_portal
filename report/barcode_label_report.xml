@@ -3,7 +3,7 @@
     <!-- Barcode Label Report Action -->
     <record id="action_report_barcode_label" model="ir.actions.report">
         <field name="name">Étiquettes codes-barres</field>
-        <field name="model">product.product</field>
+        <field name="model">product.template</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">clinic_staff_portal.report_barcode_label</field>
         <field name="report_file">clinic_staff_portal.report_barcode_label</field>
@@ -72,9 +72,9 @@
             </style>
 
             <div class="cbm_bc_grid">
-                <t t-foreach="docs" t-as="product">
-                    <!-- Resolve barcode value: use product.barcode, fallback to default_code -->
-                    <t t-set="bc_value" t-value="product.barcode or product.default_code or ''"/>
+                <t t-foreach="docs.mapped('product_variant_ids')" t-as="product">
+                    <!-- Resolve barcode value: use variant barcode, fallback to default_code, then template default_code -->
+                    <t t-set="bc_value" t-value="product.barcode or product.default_code or product.product_tmpl_id.default_code or ''"/>
 
                     <div class="cbm_bc_label">
                         <!-- Product name -->
