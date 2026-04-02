@@ -91,7 +91,7 @@
                         <!-- Barcode SVG (Code128) — only if we have a value -->
                         <t t-if="bc_value">
                             <div class="cbm_bc_barcode">
-                                <img t-att-src="'/report/barcode/Code128/%s?width=280&amp;height=60' % werkzeug.urls.url_quote(bc_value)"
+                                <img t-attf-src="/report/barcode/Code128/{{bc_value}}?width=280&amp;height=60"
                                      style="max-width:100%; height:40px;"/>
                             </div>
                             <div class="cbm_bc_code">
