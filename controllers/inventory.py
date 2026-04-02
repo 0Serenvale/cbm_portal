@@ -114,49 +114,56 @@ class InventoryController(http.Controller):
             return {'found': False}
 
     @http.route('/cbm/inventory/search_product', type='json', auth='user')
-    def search_product(self, query, location_id, limit=10):
-        """Search products by name or barcode.
+    def search_product(self, query, location_id, limit=20):
+        """Search products by name or barcode — global catalogue, not filtered by location.
 
-        Returns matching products with system stock quantity at the given location.
+        Location is only used to look up the reference qty shown in the dropdown.
+        The search itself covers all active storable/consumable products so staff
+        can count any product regardless of whether it has stock at the location.
 
         Args:
             query: Search string (name or barcode)
-            location_id: stock.location ID to fetch quantities from
-            limit: Max results (default 10)
+            location_id: stock.location ID to fetch reference quantities from
+            limit: Max results (default 20)
 
         Returns:
-            list: [{id, name, barcode, uom_name, qty_system}]
+            list: [{id, name, barcode, uom_name, qty_system, tracking}]
         """
         try:
             StockQuant = request.env['stock.quant']
             Product = request.env['product.product']
 
-            # Search by name or barcode — explicit & wraps the | so active filter applies to both
+            # Search active products by name (via template) OR barcode.
+            # No location filter — the search is a global catalogue reference.
             domain = [
-                '&',
+                ('active', '=', True),
                 '|',
                 ('name', 'ilike', query),
                 ('barcode', 'ilike', query),
-                ('active', '=', True),
             ]
             products = Product.search(domain, limit=limit)
 
-            result = []
-            for product in products:
-                # Get total quantity at the session location
-                quants = StockQuant.search([
-                    ('product_id', '=', product.id),
+            # Pre-fetch all quants at the location in one query
+            if products:
+                all_quants = StockQuant.search([
+                    ('product_id', 'in', products.ids),
                     ('location_id', '=', location_id),
                 ])
-                qty_system = sum(q.quantity for q in quants)
+                qty_map = {}
+                for q in all_quants:
+                    qty_map[q.product_id.id] = qty_map.get(q.product_id.id, 0) + q.quantity
+            else:
+                qty_map = {}
 
+            result = []
+            for product in products:
                 result.append({
                     'id': product.id,
                     'name': product.name,
                     'barcode': product.barcode or '',
                     'uom_name': product.uom_id.name if product.uom_id else 'U',
-                    'qty_system': qty_system,
-                    'tracking': product.tracking,  # 'none', 'lot', 'serial'
+                    'qty_system': qty_map.get(product.id, 0),
+                    'tracking': product.tracking,
                 })
 
             return result
