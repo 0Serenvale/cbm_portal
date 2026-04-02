@@ -78,12 +78,12 @@ class InventoryController(http.Controller):
                     team = teams[0]
                     user_submitted = user in team.submitted_user_ids
 
-                    # Count user's lines for summary
+                    # Count user's lines for summary (create_uid = who saved them)
                     ClinicLine = request.env['clinic.inventory.line']
                     user_lines = ClinicLine.search([
                         ('inventory_id', '=', session.id),
                         ('team_id', '=', team.id),
-                        ('user_id', '=', user.id),
+                        ('create_uid', '=', user.id),
                     ])
                     line_count = len(user_lines)
                     product_count = len(set(user_lines.mapped('product_id').ids))
@@ -323,10 +323,11 @@ class InventoryController(http.Controller):
                 )
                 return []
 
-            # Get this team's lines
+            # Get only this user's lines (create_uid = the user who saved them)
             lines = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
+                ('create_uid', '=', user.id),
             ], order='product_id, lot_id')
 
             result = []
@@ -457,9 +458,9 @@ class InventoryController(http.Controller):
             if not line.exists():
                 return {'success': False, 'error': _('Line not found')}
 
-            # Verify user belongs to the line's team
-            if not line.team_id.user_ids.filtered(lambda u: u.id == user.id):
-                return {'success': False, 'error': _('Cannot delete another team\'s line')}
+            # Verify user owns this line (create_uid)
+            if line.create_uid.id != user.id:
+                return {'success': False, 'error': _('Cannot delete another user\'s line')}
 
             # Reject delete if user already submitted
             if user in line.team_id.submitted_user_ids:
@@ -519,11 +520,11 @@ class InventoryController(http.Controller):
             if user in team.submitted_user_ids:
                 return {'success': True, 'all_submitted': session.state == 'pending_approval'}
 
-            # Verify user has lines
+            # Verify user has lines (create_uid = who saved them)
             user_lines = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
-                ('user_id', '=', user.id),
+                ('create_uid', '=', user.id),
             ], limit=1)
             if not user_lines:
                 return {'success': False, 'error': _('Cannot submit without counted lines')}
@@ -587,10 +588,11 @@ class InventoryController(http.Controller):
             if user in team.submitted_user_ids:
                 return {'success': False, 'error': _('Cannot recount after submission')}
 
-            # Delete all lines for this team
+            # Delete only this user's lines (create_uid scoping)
             lines_to_delete = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
+                ('create_uid', '=', user.id),
             ])
 
             deleted_count = len(lines_to_delete)

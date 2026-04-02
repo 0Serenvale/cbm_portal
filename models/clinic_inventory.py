@@ -160,24 +160,21 @@ class ClinicInventory(models.Model):
     def get_reconciliation_data(self):
         """Build grouped reconciliation data for the final PDF report.
 
-        Groups lines by (product, lot, expiry) and collects each team's count.
-        Returns a list of dicts sorted by product name, each with:
-        - product: product.product record
-        - lot: stock.lot record or False
-        - expiry: date or False
-        - qty_system: current system stock (refreshed live)
-        - lines_by_team: {team_id: clinic.inventory.line}
-        - lines_by_user: {(team_id, user_id): clinic.inventory.line}
-        - variance: average counted - system qty
+        Groups lines by (product, lot, expiry). Per team, averages across
+        individual user counts (identified by create_uid).
+
+        Returns list of dicts sorted by product name, each with:
+        - product, lot, expiry, qty_system
+        - lines_by_team: {team_id: [line, ...]}
+        - avg_counted, variance
         """
         self.ensure_one()
         StockQuant = self.env['stock.quant'].sudo()
-        grouped = {}  # key: (product_id, lot_id, expiry_date)
+        grouped = {}
 
         for line in self.line_ids:
             key = (line.product_id.id, line.lot_id.id if line.lot_id else False, line.expiry_date)
             if key not in grouped:
-                # Get fresh system qty
                 quant = StockQuant.search([
                     ('product_id', '=', line.product_id.id),
                     ('lot_id', '=', line.lot_id.id if line.lot_id else False),
@@ -191,15 +188,12 @@ class ClinicInventory(models.Model):
                     'lines_by_team': {},
                     'counts': [],
                 }
-            # Collect all lines per team (multiple users may count same product)
             team_id = line.team_id.id
             if team_id not in grouped[key]['lines_by_team']:
-                if team_id not in grouped[key]['lines_by_team']:
                 grouped[key]['lines_by_team'][team_id] = []
             grouped[key]['lines_by_team'][team_id].append(line)
             grouped[key]['counts'].append(line.qty_counted)
 
-        # Compute variance as average_counted - system
         result = []
         for data in grouped.values():
             avg_counted = sum(data['counts']) / len(data['counts']) if data['counts'] else 0.0
@@ -207,9 +201,55 @@ class ClinicInventory(models.Model):
             data['variance'] = avg_counted - data['qty_system']
             result.append(data)
 
-        # Sort by product name
         result.sort(key=lambda d: d['product'].name)
         return result
+
+    def get_intra_team_discrepancies(self):
+        """Find products where users in the same team counted differently.
+
+        Uses create_uid to identify who counted each line.
+        Only relevant when a team has multiple members (each counts independently).
+
+        Returns list of dicts:
+        - team, product, lot
+        - user_counts: [(user_name, qty_counted), ...]
+        - max_diff
+        """
+        self.ensure_one()
+        discrepancies = []
+
+        for team in self.team_ids:
+            if len(team.user_ids) < 2:
+                continue
+
+            # Group by (product, lot) — collect one line per user (create_uid)
+            grouped = {}
+            for line in self.line_ids.filtered(lambda l: l.team_id.id == team.id):
+                key = (line.product_id.id, line.lot_id.id if line.lot_id else False)
+                if key not in grouped:
+                    grouped[key] = {
+                        'product': line.product_id,
+                        'lot': line.lot_id,
+                        'user_counts': [],
+                    }
+                grouped[key]['user_counts'].append((line.create_uid.name, line.qty_counted))
+
+            for data in grouped.values():
+                if len(data['user_counts']) < 2:
+                    continue
+                counts = [uc[1] for uc in data['user_counts']]
+                max_diff = max(counts) - min(counts)
+                if max_diff > 0:
+                    discrepancies.append({
+                        'team': team,
+                        'product': data['product'],
+                        'lot': data['lot'],
+                        'user_counts': data['user_counts'],
+                        'max_diff': max_diff,
+                    })
+
+        discrepancies.sort(key=lambda d: (d['team'].name, d['product'].name))
+        return discrepancies
 
     def action_start(self):
         """Start inventory counting (draft → active). Tile appears for team users."""

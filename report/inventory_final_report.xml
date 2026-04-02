@@ -137,6 +137,41 @@
                             </div>
                         </div>
 
+                        <!-- Intra-Team Discrepancies -->
+                        <t t-set="discrepancies" t-value="session.get_intra_team_discrepancies()"/>
+                        <t t-if="discrepancies">
+                            <div style="margin-bottom: 24px;">
+                                <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 8px; color: #374151;">Écarts Intra-Équipe</h3>
+                                <p style="font-size: 11px; color: #6b7280; margin: 0 0 12px;">Produits où les membres d'une même équipe ont compté des quantités différentes.</p>
+                                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                    <thead>
+                                        <tr style="background: #fef3c7; border-bottom: 2px solid #92400e;">
+                                            <th style="padding: 8px 10px; text-align: left; font-weight: 600; border: 1px solid #fde68a;">Équipe</th>
+                                            <th style="padding: 8px 10px; text-align: left; font-weight: 600; border: 1px solid #fde68a;">Produit</th>
+                                            <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #fde68a;">Lot</th>
+                                            <th style="padding: 8px 10px; text-align: left; font-weight: 600; border: 1px solid #fde68a;">Comptages</th>
+                                            <th style="padding: 8px 10px; text-align: center; font-weight: 600; border: 1px solid #fde68a;">Écart Max</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="discrepancies" t-as="disc">
+                                            <tr t-attf-style="{{ 'background: #fffbeb;' if disc_index % 2 == 0 else '' }}">
+                                                <td style="padding: 8px 10px; border: 1px solid #fde68a;"><span t-esc="disc['team'].name"/></td>
+                                                <td style="padding: 8px 10px; border: 1px solid #fde68a;"><span t-esc="disc['product'].name"/></td>
+                                                <td style="padding: 8px 10px; text-align: center; border: 1px solid #fde68a; font-size: 10px;"><span t-esc="disc['lot'].name if disc['lot'] else '-'"/></td>
+                                                <td style="padding: 8px 10px; border: 1px solid #fde68a;">
+                                                    <t t-foreach="disc['user_counts']" t-as="uc">
+                                                        <span t-esc="uc[0]"/>: <strong t-esc="'{:.2f}'.format(uc[1])"/><t t-if="not uc_last">, </t>
+                                                    </t>
+                                                </td>
+                                                <td style="padding: 8px 10px; text-align: center; border: 1px solid #fde68a; font-weight: 700; color: #92400e;"><span t-esc="'{:.2f}'.format(disc['max_diff'])"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
                         <!-- Summary Stats -->
                         <div style="margin-top: 24px; background: #eff6ff; padding: 16px; border-radius: 4px; border: 1px solid #bfdbfe;">
                             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
