@@ -19,22 +19,24 @@
         </field>
     </record>
 
-    <!-- Server action: print barcode label from product.product form button -->
+    <!-- Server action: print barcode labels from product.template form button -->
+    <!-- Collects all product.product variants for the template, then prints -->
     <record id="action_product_print_barcode_label" model="ir.actions.server">
         <field name="name">Imprimer étiquette code-barres</field>
-        <field name="model_id" ref="product.model_product_product"/>
-        <field name="binding_model_id" ref="product.model_product_product"/>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
         <field name="state">code</field>
         <field name="code">
-action = env.ref('clinic_staff_portal.action_report_barcode_label').report_action(records)
+variants = records.mapped('product_variant_ids')
+action = env.ref('clinic_staff_portal.action_report_barcode_label').report_action(variants)
         </field>
     </record>
 
-    <!-- Print barcode label button on product.product form -->
-    <record id="view_product_product_form_barcode_print_button" model="ir.ui.view">
-        <field name="name">product.product.form.barcode.print.button</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_normal_form_view"/>
+    <!-- Print barcode label button on product.template form (main Products menu) -->
+    <record id="view_product_template_form_barcode_print_button" model="ir.ui.view">
+        <field name="name">product.template.form.barcode.print.button</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="%(clinic_staff_portal.action_product_print_barcode_label)d"
