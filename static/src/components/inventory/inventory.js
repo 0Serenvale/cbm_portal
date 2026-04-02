@@ -58,12 +58,13 @@ export class InventoryCount extends Component {
             productSearchResults: [],
             selectedSearchIndex: -1,
 
-            // Lot picker dropdown (anchored to the lot button in the table row)
-            lotPickerOpenLineId: null,  // line.id when editing existing, 'new' when adding new
+            // Lot picker dropdown — fixed-position anchored to button rect
+            lotPickerOpenLineId: null,
             lotPickerProduct: null,
             lotPickerLots: [],
             lotPickerLoading: false,
             lotPickerQuery: '',
+            lotPickerRect: null,   // {top, left, width, flipUp}
 
             // Table search
             tableSearchQuery: '',
@@ -455,6 +456,21 @@ export class InventoryCount extends Component {
             return;
         }
 
+        // Capture button position for fixed-position dropdown
+        let rect = null;
+        if (event && event.currentTarget) {
+            const btnRect = event.currentTarget.getBoundingClientRect();
+            const menuHeight = 280; // max-height of menu
+            const spaceBelow = window.innerHeight - btnRect.bottom;
+            const flipUp = spaceBelow < menuHeight && btnRect.top > menuHeight;
+            rect = {
+                top: flipUp ? btnRect.top : btnRect.bottom,
+                left: btnRect.left,
+                width: Math.max(btnRect.width, 260),
+                flipUp,
+            };
+        }
+
         try {
             this.state.lotPickerProduct = {
                 id: line.product_id,
@@ -465,6 +481,7 @@ export class InventoryCount extends Component {
             this.state.lotPickerLoading = true;
             this.state.lotPickerOpenLineId = line.id;
             this.state.lotPickerQuery = '';
+            this.state.lotPickerRect = rect;
 
             const lots = await this.rpc('/cbm/inventory/get_product_lots', {
                 product_id: line.product_id,
@@ -478,6 +495,7 @@ export class InventoryCount extends Component {
             console.error("[INVENTORY] Failed to load lots for edit:", error);
             this.state.lotPickerOpenLineId = null;
             this.state.lotPickerLoading = false;
+            this.state.lotPickerRect = null;
         }
     }
 
@@ -487,6 +505,7 @@ export class InventoryCount extends Component {
         this.state.lotPickerLots = [];
         this.state.lotPickerLoading = false;
         this.state.lotPickerQuery = '';
+        this.state.lotPickerRect = null;
     }
 
     onLotPickerSearch(event) {

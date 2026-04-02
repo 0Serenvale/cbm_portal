@@ -352,12 +352,8 @@
                                             </div>
                                         </td>
 
-                                        <!-- Lot: stitch px-2 md:px-6 py-4 md:py-6 -->
+                                        <!-- Lot: button only — picker rendered as fixed portal below -->
                                         <td class="cbm_td_other cbm_inv_lot_cell">
-                                            <!-- stitch: flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1.5
-                                                         rounded-lg border-2 border-dashed border-outline-variant
-                                                         text-on-surface-variant text-[10px] md:text-sm font-medium
-                                                         hover:border-primary hover:text-primary whitespace-nowrap -->
                                             <button t-att-class="'cbm_inv_lot_btn' + (line.lot_name ? ' has-lot' : '')"
                                                     t-on-mousedown="(ev) => { ev.preventDefault(); this.startEditLot(line, ev); }">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -366,45 +362,10 @@
                                                 </svg>
                                                 <t t-if="line.lot_name" t-esc="line.lot_name"/>
                                                 <t t-else="">
-                                                    <!-- stitch: hidden xs:inline → Sélectionner, xs:hidden → Choisir -->
                                                     <span class="cbm_inv_lot_label_long">Sélectionner</span>
                                                     <span class="cbm_inv_lot_label_short">Choisir</span>
                                                 </t>
                                             </button>
-
-                                            <!-- Lot picker dropdown -->
-                                            <t t-if="state.lotPickerOpenLineId === line.id">
-                                                <div class="cbm_lot_picker_clickaway" t-on-click="closeLotPicker"/>
-                                                <div class="cbm_lot_picker_menu">
-                                                    <div class="cbm_lot_picker_search_wrap">
-                                                        <input type="text"
-                                                               class="cbm_lot_picker_input"
-                                                               placeholder="Rechercher un lot..."
-                                                               t-on-input="onLotPickerSearch"
-                                                               autocomplete="off"/>
-                                                    </div>
-                                                    <div t-if="state.lotPickerLoading" class="cbm_lot_picker_loading">
-                                                        <span class="spinner-border spinner-border-sm me-1"/>Chargement...
-                                                    </div>
-                                                    <t t-if="!state.lotPickerLoading">
-                                                        <t t-set="filteredLots" t-value="getFilteredLots()"/>
-                                                        <div t-if="filteredLots.length === 0" class="cbm_lot_picker_empty">
-                                                            Aucun lot trouvé
-                                                        </div>
-                                                        <t t-foreach="filteredLots" t-as="lot" t-key="lot.lot_id || ('no_lot_' + lot_index)">
-                                                            <div class="cbm_inv_dropdown_item" t-on-click="() => this.selectLot(lot)">
-                                                                <div>
-                                                                    <div class="cbm_inv_item_name" t-esc="lot.lot_name"/>
-                                                                    <div class="cbm_inv_item_meta">
-                                                                        <t t-if="lot.expiry_date">Exp: <t t-esc="lot.expiry_date"/></t>
-                                                                    </div>
-                                                                </div>
-                                                                <span class="cbm_inv_item_badge">Choisir</span>
-                                                            </div>
-                                                        </t>
-                                                    </t>
-                                                </div>
-                                            </t>
                                         </td>
 
                                         <!-- Expiry: stitch hidden sm:table-cell px-2 md:px-6 py-4 md:py-6 -->
@@ -495,6 +456,40 @@
             </t>
         </div>
         </div>
+
+        <!-- Lot picker portal — fixed position, outside table/overflow context -->
+        <t t-if="state.lotPickerOpenLineId &amp;&amp; state.lotPickerRect">
+            <div class="cbm_lot_picker_clickaway" t-on-mousedown="(ev) => { ev.preventDefault(); this.closeLotPicker(); }"/>
+            <div class="cbm_lot_picker_menu cbm_lot_picker_fixed"
+                 t-attf-style="
+                    left: {{ state.lotPickerRect.left }}px;
+                    width: {{ state.lotPickerRect.width }}px;
+                    {{ state.lotPickerRect.flipUp ? 'bottom: ' + (window.innerHeight - state.lotPickerRect.top) + 'px;' : 'top: ' + state.lotPickerRect.top + 'px;' }}
+                 ">
+                <div class="cbm_lot_picker_search_wrap">
+                    <input type="text"
+                           class="cbm_lot_picker_input"
+                           placeholder="Rechercher un lot..."
+                           t-on-input="onLotPickerSearch"
+                           autocomplete="off"/>
+                </div>
+                <div t-if="state.lotPickerLoading" class="cbm_lot_picker_loading">
+                    <span class="spinner-border spinner-border-sm me-1"/>Chargement...
+                </div>
+                <t t-if="!state.lotPickerLoading">
+                    <t t-set="filteredLots" t-value="getFilteredLots()"/>
+                    <div t-if="filteredLots.length === 0" class="cbm_lot_picker_empty">
+                        Aucun lot trouvé
+                    </div>
+                    <t t-foreach="filteredLots" t-as="lot" t-key="lot.lot_id || ('no_lot_' + lot_index)">
+                        <div class="cbm_inv_dropdown_item" t-on-mousedown="(ev) => { ev.preventDefault(); this.selectLot(lot); }">
+                            <span class="cbm_inv_item_name" t-esc="lot.lot_name"/>
+                            <span class="cbm_inv_item_badge">Choisir</span>
+                        </div>
+                    </t>
+                </t>
+            </div>
+        </t>
 
         <!-- Fixed Footer (only during counting, not on status page) -->
         <!-- stitch: fixed bottom-0 p-4 md:p-6 bg-gradient-to-t from-surface to-transparent -->

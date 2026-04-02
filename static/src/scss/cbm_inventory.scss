@@ -211,6 +211,30 @@
     margin-top: 0.25rem;
 }
 
+// Fixed-position portal variant — anchored via inline style from JS rect
+// Overrides position/top/left/width with inline style; z-index must beat everything
+.cbm_lot_picker_fixed {
+    position: fixed;
+    // left, top/bottom, width set via t-attf-style in XML
+    min-width: 16rem;
+    // On mobile: stretch to near full viewport width so lot names don't truncate
+    @media (max-width: 576px) {
+        left: 0.75rem !important;
+        right: 0.75rem !important;
+        width: auto !important;
+    }
+    max-height: 17.5rem;  // ~280px — matches JS menuHeight constant
+    overflow-y: auto;
+    z-index: 9999;         // above everything — table, footer, modals
+    margin-top: 0.25rem;
+
+    // Flip-up: no margin-top, add margin-bottom gap
+    &[style*="bottom:"] {
+        margin-top: 0;
+        margin-bottom: 0.25rem;
+    }
+}
+
 .cbm_lot_picker_search_wrap {
     position: sticky;
     top: 0;
