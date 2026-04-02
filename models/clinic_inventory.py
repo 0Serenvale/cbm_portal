@@ -189,15 +189,14 @@ class ClinicInventory(models.Model):
                     'expiry': line.expiry_date,
                     'qty_system': quant.quantity if quant else 0.0,
                     'lines_by_team': {},
-                    'lines_by_user': {},
                     'counts': [],
                 }
             # Collect all lines per team (multiple users may count same product)
             team_id = line.team_id.id
             if team_id not in grouped[key]['lines_by_team']:
+                if team_id not in grouped[key]['lines_by_team']:
                 grouped[key]['lines_by_team'][team_id] = []
             grouped[key]['lines_by_team'][team_id].append(line)
-            grouped[key]['lines_by_user'][(team_id, line.user_id.id)] = line
             grouped[key]['counts'].append(line.qty_counted)
 
         # Compute variance as average_counted - system
@@ -211,52 +210,6 @@ class ClinicInventory(models.Model):
         # Sort by product name
         result.sort(key=lambda d: d['product'].name)
         return result
-
-    def get_intra_team_discrepancies(self):
-        """Find products where users in the same team counted differently.
-
-        Returns a list of dicts for each discrepancy:
-        - team: clinic.inventory.team record
-        - product: product.product record
-        - lot: stock.lot record or False
-        - user_counts: [(user, qty_counted), ...]
-        - max_diff: absolute difference between highest and lowest count
-        """
-        self.ensure_one()
-        discrepancies = []
-
-        for team in self.team_ids:
-            if len(team.user_ids) < 2:
-                continue
-
-            # Group team's lines by (product_id, lot_id)
-            grouped = {}
-            for line in self.line_ids.filtered(lambda l: l.team_id.id == team.id):
-                key = (line.product_id.id, line.lot_id.id if line.lot_id else False)
-                if key not in grouped:
-                    grouped[key] = {
-                        'product': line.product_id,
-                        'lot': line.lot_id,
-                        'user_counts': [],
-                    }
-                grouped[key]['user_counts'].append((line.user_id, line.qty_counted))
-
-            for data in grouped.values():
-                if len(data['user_counts']) < 2:
-                    continue
-                counts = [uc[1] for uc in data['user_counts']]
-                max_diff = max(counts) - min(counts)
-                if max_diff > 0:
-                    discrepancies.append({
-                        'team': team,
-                        'product': data['product'],
-                        'lot': data['lot'],
-                        'user_counts': data['user_counts'],
-                        'max_diff': max_diff,
-                    })
-
-        discrepancies.sort(key=lambda d: (d['team'].name, d['product'].name))
-        return discrepancies
 
     def action_start(self):
         """Start inventory counting (draft → active). Tile appears for team users."""
@@ -642,12 +595,6 @@ class ClinicInventoryLine(models.Model):
         required=True,
         index=True,
         ondelete='cascade',
-    )
-    user_id = fields.Many2one(
-        'res.users',
-        'Counted By',
-        required=True,
-        index=True,
     )
     product_id = fields.Many2one(
         'product.product',

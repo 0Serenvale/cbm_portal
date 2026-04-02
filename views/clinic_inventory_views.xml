@@ -91,7 +91,6 @@
                             <field name="line_ids" readonly="1">
                                 <tree>
                                     <field name="team_id"/>
-                                    <field name="user_id" string="Counted By"/>
                                     <field name="product_id"/>
                                     <field name="lot_id"/>
                                     <field name="expiry_date"/>

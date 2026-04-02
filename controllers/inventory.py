@@ -323,11 +323,10 @@ class InventoryController(http.Controller):
                 )
                 return []
 
-            # Get only this user's lines, ordered by product name then lot name
+            # Get this team's lines
             lines = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
-                ('user_id', '=', user.id),
             ], order='product_id, lot_id')
 
             result = []
@@ -405,7 +404,6 @@ class InventoryController(http.Controller):
             vals = {
                 'inventory_id': session.id,
                 'team_id': team.id,
-                'user_id': user.id,
                 'product_id': product_id,
                 'lot_id': lot_id if lot_id else False,
                 'expiry_date': expiry_date_val,
@@ -414,14 +412,14 @@ class InventoryController(http.Controller):
             }
 
             if line_id:
-                # Update existing line (must belong to current user)
+                # Update existing line (must belong to this team)
                 line = ClinicLine.browse(line_id)
                 if not line.exists():
                     return {'success': False, 'error': _('Line not found')}
-                if line.user_id.id != user.id:
-                    return {'success': False, 'error': _('Cannot edit another user\'s line')}
+                if line.team_id.id != team.id:
+                    return {'success': False, 'error': _('Cannot edit another team\'s line')}
 
-                # sudo(): portal user has perm_write=0, ownership verified above
+                # sudo(): portal user has perm_write=0, team ownership verified above
                 line.sudo().write(vals)
                 _logger.info(
                     "[CBM INVENTORY] User %s updated line %s for team %s",
@@ -459,9 +457,9 @@ class InventoryController(http.Controller):
             if not line.exists():
                 return {'success': False, 'error': _('Line not found')}
 
-            # Verify user owns this line
-            if line.user_id.id != user.id:
-                return {'success': False, 'error': _('Cannot delete another user\'s line')}
+            # Verify user belongs to the line's team
+            if not line.team_id.user_ids.filtered(lambda u: u.id == user.id):
+                return {'success': False, 'error': _('Cannot delete another team\'s line')}
 
             # Reject delete if user already submitted
             if user in line.team_id.submitted_user_ids:
@@ -589,11 +587,10 @@ class InventoryController(http.Controller):
             if user in team.submitted_user_ids:
                 return {'success': False, 'error': _('Cannot recount after submission')}
 
-            # Delete only current user's lines (not other team members')
+            # Delete all lines for this team
             lines_to_delete = ClinicLine.search([
                 ('inventory_id', '=', session.id),
                 ('team_id', '=', team.id),
-                ('user_id', '=', user.id),
             ])
 
             deleted_count = len(lines_to_delete)
