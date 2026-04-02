@@ -1,41 +1,53 @@
-// Inventory Component Styles
-// Follows CBM kiosk design system — uses var(--cbm-*) tokens throughout
-// so dark mode and theme changes apply automatically.
+// ============================================================
+// INVENTORY COUNTING — SCSS
+// Pixel-faithful to stitch/inventory_counting_no_nav prototype.
 //
-// Layout reference: stitch/inventory_counting_no_nav
-// - Max-width: 64rem (max-w-6xl)
-// - Page padding: 1rem mobile / 2rem desktop
-// - Bottom pad: 6rem (footer clearance)
+// Color tokens map to CBM var(--cbm-*) so dark/light mode works.
+// Token mapping (stitch → CBM var):
+//   surface                → --cbm-color-bg (#f7fafc light / #121212 dark)
+//   surface-container-lowest → --cbm-card-bg (#ffffff / #1c1c1c)
+//   surface-container-low  → --cbm-card-elevated (#f8fafc / #262626)
+//   surface-container-high → --cbm-hover-bg (#f1f5f9 / #2d2d2d)
+//   on-surface             → --cbm-color-text
+//   on-surface-variant     → --cbm-color-text-muted
+//   outline-variant        → --cbm-border-color
+//   primary                → --cbm-btn-primary-bg
+//   on-primary             → --cbm-btn-primary-text
+//   error                  → --cbm-status-cancel
+//   secondary-container    → --cbm-chip-bg (close enough)
+// ============================================================
 
 // ============================================================
-// PAGE CONTENT WRAPPER
-// Constrains width and sets padding consistent with stitch spec
+// PAGE WRAPPER
+// Matches stitch: p-4 md:p-8 max-w-6xl mx-auto pb-24
 // ============================================================
 
 .cbm_inv_page_content {
-    max-width: 64rem;
+    max-width: 72rem;          // max-w-6xl = 72rem
     margin: 0 auto;
-    padding: 1rem 1rem 6rem;
+    width: 100%;
+    padding: 1rem 1rem 6rem;   // p-4 pb-24
 
     @media (min-width: 768px) {
-        padding: 2rem 2rem 6rem;
+        padding: 2rem 2rem 6rem; // md:p-8 pb-24
     }
 }
 
 // ============================================================
 // DUAL SEARCH SECTION
+// Stitch: grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-12
 // ============================================================
 
 .cbm_inv_search_section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
     margin-bottom: 2rem;
 
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
+    @media (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
     }
 }
 
@@ -46,28 +58,35 @@
     gap: 0.5rem;
 }
 
+// Stitch: text-[10px] md:text-label-sm font-bold text-on-surface-variant uppercase tracking-widest ml-1
 .cbm_inv_search_label {
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--cbm-color-text-hint);
+    color: var(--cbm-color-text-muted);
     margin-left: 0.125rem;
+
+    @media (min-width: 768px) {
+        font-size: 0.75rem; // label-sm
+    }
 }
 
+// Stitch input: bg-surface-container-lowest border-none rounded-xl
+//   ring-1 ring-black/5 focus:ring-2 focus:ring-primary
+//   pl-12 py-4 md:py-5 text-base md:text-lg font-bold
 .cbm_inv_search_box {
     position: relative;
     display: flex;
     align-items: center;
-    background: var(--cbm-card-bg);
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--cbm-card-shadow);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--cbm-card-bg);    // surface-container-lowest
+    border: none;
+    border-radius: 0.75rem;            // rounded-xl
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05); // ring-1 ring-black/5
+    transition: box-shadow 0.2s;
 
     &:focus-within {
-        border-color: var(--cbm-btn-primary-bg);
-        box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.15), var(--cbm-card-shadow);
+        box-shadow: 0 0 0 2px var(--cbm-btn-primary-bg); // focus:ring-2 ring-primary
     }
 
     .cbm_inv_search_icon {
@@ -75,7 +94,7 @@
         left: 1rem;
         display: flex;
         align-items: center;
-        color: var(--cbm-btn-primary-bg);
+        color: var(--cbm-btn-primary-bg);   // text-primary-dim
         pointer-events: none;
         z-index: 1;
         svg { width: 1.25rem; height: 1.25rem; }
@@ -85,28 +104,29 @@
         width: 100%;
         border: none;
         background: transparent;
-        padding: 1rem 1rem 1rem 3rem;
-        font-size: 1rem;
-        font-weight: 600;
+        padding: 1rem 1rem 1rem 3rem;  // py-4 pl-12
+        font-size: 1rem;               // text-base
+        font-weight: 700;              // font-bold
         color: var(--cbm-color-text);
-        border-radius: var(--radius-lg);
+        border-radius: 0.75rem;
         outline: none;
 
         @media (min-width: 768px) {
-            font-size: 1.125rem;
+            padding-top: 1.25rem;       // md:py-5
+            padding-bottom: 1.25rem;
+            font-size: 1.125rem;        // md:text-lg
         }
 
         &::placeholder {
-            color: var(--cbm-color-text-hint);
+            color: var(--cbm-border-color); // placeholder:text-outline-variant
             font-weight: 400;
-            font-size: 0.9375rem;
         }
 
         &:disabled { opacity: 0.6; }
     }
 }
 
-// Search dropdown — floating card
+// Dropdown — floats below search box
 .cbm_inv_dropdown {
     position: absolute;
     top: calc(100% + 0.375rem);
@@ -114,9 +134,8 @@
     right: 0;
     z-index: 300;
     background: var(--cbm-card-bg);
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--cbm-card-shadow-hover);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 20px rgba(40, 52, 57, 0.1), 0 0 0 1px rgba(0,0,0,0.05);
     max-height: 20rem;
     overflow-y: auto;
 
@@ -126,10 +145,10 @@
         justify-content: space-between;
         padding: 0.875rem 1rem;
         cursor: pointer;
-        transition: background 0.12s;
+        transition: background 0.1s;
 
-        &:hover { background: var(--cbm-hover-bg); }
-        &.selected { background: var(--cbm-hover-bg); border-left: 2px solid var(--cbm-btn-primary-bg); }
+        &:hover { background: var(--cbm-card-elevated); }
+        &.selected { background: var(--cbm-hover-bg); }
     }
 
     .cbm_inv_item_name {
@@ -148,25 +167,24 @@
     .cbm_inv_item_badge {
         font-size: 0.8125rem;
         font-weight: 700;
-        padding: 0.3rem 0.75rem;
+        padding: 0.25rem 0.75rem;
         background: var(--cbm-chip-bg);
         color: var(--cbm-btn-primary-bg);
         border-radius: 2rem;
         flex-shrink: 0;
-        margin-left: 1rem;
+        margin-left: 0.75rem;
         white-space: nowrap;
     }
 }
 
 // ============================================================
-// LOT PICKER DROPDOWN
+// LOT PICKER
 // ============================================================
 
 .cbm_inv_lot_cell {
     position: relative;
 }
 
-// Invisible full-screen click-away (closes picker)
 .cbm_lot_picker_clickaway {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -178,14 +196,13 @@
     top: 100%;
     left: 0;
     z-index: 200;
-    min-width: 18rem;
-    max-width: 26rem;
-    max-height: 20rem;
+    min-width: 16rem;
+    max-width: 24rem;
+    max-height: 18rem;
     overflow-y: auto;
     background: var(--cbm-card-bg);
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--cbm-card-shadow-hover);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 20px rgba(40, 52, 57, 0.1), 0 0 0 1px rgba(0,0,0,0.05);
     margin-top: 0.25rem;
 }
 
@@ -194,25 +211,22 @@
     top: 0;
     background: var(--cbm-card-bg);
     padding: 0.5rem;
-    border-bottom: var(--cbm-card-border);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
     z-index: 1;
 }
 
 .cbm_lot_picker_input {
     width: 100%;
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 0.5rem;
     padding: 0.4375rem 0.75rem;
     font-size: 0.875rem;
     background: var(--cbm-card-elevated);
     color: var(--cbm-color-text);
     outline: none;
 
-    &::placeholder { color: var(--cbm-color-text-hint); }
-    &:focus {
-        border-color: var(--cbm-btn-primary-bg);
-        box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.15);
-    }
+    &::placeholder { color: var(--cbm-border-color); }
+    &:focus { box-shadow: 0 0 0 2px var(--cbm-btn-primary-bg); border-color: transparent; }
 }
 
 .cbm_lot_picker_loading,
@@ -224,51 +238,71 @@
 }
 
 // ============================================================
-// LINES SECTION HEADER
+// SECTION HEADER (lines title + PDF button)
+// Stitch: flex justify-between items-end pb-4 gap-4
 // ============================================================
 
 .cbm_inv_lines_header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 1rem;
+    flex-direction: column;
     gap: 1rem;
+    padding-bottom: 1rem;
 
-    @media (max-width: 480px) {
-        flex-direction: column;
-        align-items: flex-start;
+    @media (min-width: 576px) {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
     }
 }
 
+// Stitch: text-headline-sm md:text-headline-md font-bold tracking-tight
 .cbm_inv_lines_title {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--cbm-color-text);
     margin: 0 0 0.25rem;
+    letter-spacing: -0.01em;
+
+    @media (min-width: 768px) {
+        font-size: 1.5rem;
+    }
 }
 
+// Stitch: text-xs md:text-sm text-on-surface-variant
 .cbm_inv_lines_subtitle {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--cbm-color-text-muted);
     margin: 0;
+
+    @media (min-width: 768px) {
+        font-size: 0.875rem;
+    }
 }
 
+// Stitch: px-4 py-2 md:px-5 md:py-2.5 bg-surface-container-high rounded-xl
+//   text-primary font-bold text-sm md:text-base active:scale-95
 .cbm_inv_pdf_btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: var(--cbm-card-elevated);
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-lg);
+    background: var(--cbm-hover-bg);          // surface-container-high
+    border: none;
+    border-radius: 0.75rem;
     font-size: 0.875rem;
     font-weight: 700;
     color: var(--cbm-btn-primary-bg);
     cursor: pointer;
-    transition: background 0.15s;
     white-space: nowrap;
+    transition: background 0.15s, transform 0.1s;
 
-    &:hover { background: var(--cbm-hover-bg); }
+    &:hover { background: var(--cbm-chip-bg); }
+    &:active { transform: scale(0.95); }
+
+    @media (min-width: 768px) {
+        padding: 0.625rem 1.25rem;
+        font-size: 1rem;
+    }
 }
 
 // ============================================================
@@ -279,14 +313,14 @@
     display: flex;
     align-items: center;
     background: var(--cbm-card-bg);
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-md);
-    margin-bottom: 1rem;
+    border-radius: 0.625rem;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+    margin-bottom: 0.75rem;
     overflow: hidden;
 
     .cbm_inv_filter_icon {
         padding: 0 0.25rem 0 0.875rem;
-        color: var(--cbm-color-text-hint);
+        color: var(--cbm-color-text-muted);
         display: flex;
         align-items: center;
         flex-shrink: 0;
@@ -300,16 +334,16 @@
         font-size: 0.875rem;
         color: var(--cbm-color-text);
         outline: none;
-        &::placeholder { color: var(--cbm-color-text-hint); }
+        &::placeholder { color: var(--cbm-border-color); }
     }
 
     .cbm_inv_filter_clear {
         background: none;
         border: none;
-        border-left: var(--cbm-card-border);
+        border-left: 1px solid rgba(0,0,0,0.06);
         padding: 0.5rem 0.75rem;
         cursor: pointer;
-        color: var(--cbm-color-text-hint);
+        color: var(--cbm-color-text-muted);
         display: flex;
         align-items: center;
         &:hover { color: var(--cbm-color-text); }
@@ -317,300 +351,399 @@
 }
 
 // ============================================================
-// GRIDLESS TABLE
+// TABLE
+// Stitch: bg-surface-container-low rounded-xl overflow-x-auto
+// thead: bg-surface-container-high/50
+// th: px-3 md:px-6 py-4 md:py-5 text-[10px] font-extrabold uppercase tracking-wider
+// tr: hover:bg-surface-container-lowest divide-y divide-white/20
+// td: px-3 md:px-6 py-4 md:py-6
 // ============================================================
 
 .cbm_inv_table_wrap {
-    background: var(--cbm-card-elevated);
-    border-radius: var(--radius-lg);
-    overflow: visible; // Must be visible — lot picker dropdown needs to escape
-    border: var(--cbm-card-border);
-    box-shadow: var(--cbm-card-shadow);
+    background: var(--cbm-card-elevated);   // surface-container-low
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    // overflow must be auto (not hidden) so lot picker dropdown can overflow on lg
+    @media (min-width: 1024px) {
+        overflow-x: visible;
+    }
 }
 
 .cbm_inv_table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 100%;
 
     thead tr {
-        background: var(--cbm-hover-bg);
-        border-bottom: var(--cbm-card-border);
+        background: rgba(223, 234, 239, 0.5); // surface-container-high at 50% opacity
+    }
+
+    // Dark mode thead
+    .cbm-dark-mode & thead tr {
+        background: rgba(45, 45, 45, 0.5);
     }
 
     thead th {
-        padding: 0.75rem 1rem;
-        font-size: 0.6875rem;
-        font-weight: 800;
+        padding: 1rem 0.75rem;             // py-4 px-3
+        font-size: 0.625rem;               // text-[10px]
+        font-weight: 800;                  // font-extrabold
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--cbm-color-text-hint);
+        letter-spacing: 0.05em;            // tracking-wider
+        color: var(--cbm-color-text-muted);
         white-space: nowrap;
-    }
 
-    tbody tr {
-        background: var(--cbm-card-bg);
-        // No transform on hover — prevents layout shift / jitter
-        // Use background-only transition
-        transition: background 0.1s;
-
-        &:hover { background: var(--cbm-card-elevated); }
-
-        // Subtle row separator (no hard border, just a 1px tonal line)
-        & + tr td {
-            border-top: 0.0625rem solid var(--cbm-border-subtle);
+        @media (min-width: 768px) {
+            padding: 1.25rem 1.5rem;       // md:py-5 md:px-6
+            font-size: 0.75rem;
         }
     }
 
+    tbody tr {
+        background: var(--cbm-card-bg);    // surface-container-lowest
+        transition: background 0.1s;       // no transform — prevents jitter
+
+        &:hover { background: var(--cbm-card-bg); filter: brightness(0.97); }
+
+        // Stitch: divide-y divide-white/20
+        & + tr {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    }
+
+    // Dark mode: divide lines visible
+    .cbm-dark-mode & tbody tr + tr {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
     tbody td {
-        padding: 0.875rem 1rem;
+        padding: 1rem 0.75rem;             // py-4 px-3
+
+        @media (min-width: 768px) {
+            padding: 1.5rem;               // md:py-6 md:px-6
+        }
+
         font-size: 0.875rem;
         color: var(--cbm-color-text);
         vertical-align: middle;
     }
 }
 
+// Product cell — stitch: font-bold text-on-surface text-sm md:text-lg leading-tight
 .cbm_inv_product_name {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.875rem;
     color: var(--cbm-color-text);
     line-height: 1.35;
+
+    @media (min-width: 768px) {
+        font-size: 1.125rem;
+    }
 }
 
+// Lot button — stitch: border-2 border-dashed border-outline-variant
+//   text-on-surface-variant text-[10px] md:text-sm font-medium
+//   hover:border-primary hover:text-primary rounded-lg
 .cbm_inv_lot_btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    padding: 0.3125rem 0.625rem;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
     border: 2px dashed var(--cbm-border-color);
-    border-radius: var(--radius-sm);
+    border-radius: 0.5rem;                 // rounded-lg
     background: none;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--cbm-color-text-hint);
+    font-size: 0.625rem;                   // text-[10px]
+    font-weight: 500;                      // font-medium
+    color: var(--cbm-color-text-muted);
     cursor: pointer;
-    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    transition: border-color 0.15s, color 0.15s;
     white-space: nowrap;
+
+    @media (min-width: 768px) {
+        gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;               // md:text-sm
+    }
 
     &:hover {
         border-color: var(--cbm-btn-primary-bg);
-        border-style: solid;
+        border-style: dashed;
         color: var(--cbm-btn-primary-bg);
-        background: var(--cbm-chip-bg);
     }
 
     &.has-lot {
         border-style: solid;
         border-color: var(--cbm-border-color);
         color: var(--cbm-color-text);
-        background: var(--cbm-card-elevated);
     }
 
     svg { width: 0.875rem; height: 0.875rem; flex-shrink: 0; }
 }
 
+// Expiry cell — stitch: flex items-center gap-1 md:gap-2
+//   text-on-surface font-medium text-xs md:text-base
 .cbm_inv_expiry_cell {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    font-size: 0.875rem;
+    gap: 0.25rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--cbm-color-text);
     cursor: pointer;
-    padding: 0.25rem 0.375rem;
-    border-radius: var(--radius-sm);
-    transition: background 0.12s;
+    padding: 0.1875rem 0.375rem;
+    border-radius: 0.375rem;
+    transition: background 0.1s;
+
+    @media (min-width: 768px) {
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
 
     &:hover { background: var(--cbm-hover-bg); }
 
     &.empty {
-        color: var(--cbm-color-text-hint);
+        color: var(--cbm-color-text-muted);
         font-style: italic;
     }
 
     svg {
-        width: 0.875rem;
-        height: 0.875rem;
-        color: var(--cbm-color-text-hint);
+        width: 1rem; height: 1rem;
+        color: var(--cbm-color-text-muted);
         flex-shrink: 0;
+
+        @media (min-width: 768px) {
+            width: 1.25rem; height: 1.25rem;
+        }
     }
 }
 
 .cbm_inline_date {
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-sm);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
     padding: 0.3125rem 0.625rem;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     background: var(--cbm-card-bg);
     color: var(--cbm-color-text);
     outline: none;
     max-width: 9rem;
 
-    &:focus {
-        border-color: var(--cbm-btn-primary-bg);
-        box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.15);
-    }
+    &:focus { box-shadow: 0 0 0 2px var(--cbm-btn-primary-bg); border-color: transparent; }
 }
 
+// Qty input — stitch: bg-white border-none rounded-lg ring-1 ring-black/5
+//   focus:ring-2 focus:ring-primary shadow-sm
+//   text-sm md:text-headline-sm font-bold text-primary
+//   w-16 md:w-24 text-center
 .cbm_inline_qty {
-    width: 4.5rem;
+    width: 4rem;                           // w-16
     text-align: center;
-    padding: 0.375rem 0.5rem;
-    border: var(--cbm-card-border);
-    border-radius: var(--radius-sm);
-    background: var(--cbm-card-bg);
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--cbm-btn-primary-bg);
-    box-shadow: var(--cbm-card-shadow);
+    padding: 0.375rem 0.25rem;
+    border: none;
+    border-radius: 0.5rem;                 // rounded-lg
+    background: #ffffff;                   // bg-white (same light/dark — stitch uses bg-white always)
+    font-size: 0.875rem;                   // text-sm
+    font-weight: 700;                      // font-bold
+    color: var(--cbm-btn-primary-bg);      // text-primary
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05); // ring-1 shadow-sm
     outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: box-shadow 0.15s;
 
-    &:focus {
-        border-color: var(--cbm-btn-primary-bg);
-        box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.15);
+    @media (min-width: 768px) {
+        width: 6rem;                       // md:w-24
+        padding: 0.5rem 0.25rem;
+        font-size: 1.25rem;                // md:text-headline-sm
     }
 
+    &:focus { box-shadow: 0 0 0 2px var(--cbm-btn-primary-bg); } // focus:ring-2 ring-primary
+
+    // Hide spinners
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     &[type='number'] { -moz-appearance: textfield; }
 }
 
+// UoM badge — stitch: bg-secondary-container text-on-secondary-container
+//   rounded-full text-[10px] font-extrabold uppercase px-2 md:px-3 py-0.5 md:py-1
 .cbm_inv_uom_badge {
     display: inline-block;
-    padding: 0.2rem 0.5rem;
-    background: var(--cbm-chip-bg);
-    color: var(--cbm-color-text-muted);
-    border-radius: 2rem;
-    font-size: 0.6875rem;
+    padding: 0.125rem 0.5rem;
+    background: #d8e3fa;                   // secondary-container (fixed — doesn't change with dark)
+    color: #475265;                        // on-secondary-container
+    border-radius: 2rem;                   // rounded-full
+    font-size: 0.625rem;                   // text-[10px]
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
     white-space: nowrap;
+
+    @media (min-width: 768px) {
+        padding: 0.25rem 0.75rem;
+    }
 }
 
+// Dark mode: UoM uses chip-bg instead
+.cbm-dark-mode .cbm_inv_uom_badge {
+    background: var(--cbm-chip-bg);
+    color: var(--cbm-color-text-muted);
+}
+
+// Delete btn — stitch: p-1.5 md:p-2 text-outline-variant
+//   hover:text-error hover:bg-error/5 rounded-full
 .cbm_inv_delete_btn {
     background: none;
     border: none;
     cursor: pointer;
     padding: 0.375rem;
     border-radius: 50%;
-    color: var(--cbm-color-text-hint);
+    color: var(--cbm-border-color);         // text-outline-variant
     display: flex;
     align-items: center;
     transition: color 0.15s, background 0.15s;
 
-    &:hover {
-        color: var(--cbm-status-cancel);
-        background: var(--cbm-accent-red-bg);
+    @media (min-width: 768px) {
+        padding: 0.5rem;
     }
 
-    svg { width: 1.125rem; height: 1.125rem; }
+    &:hover {
+        color: var(--cbm-status-cancel);    // hover:text-error
+        background: var(--cbm-accent-red-bg); // hover:bg-error/5
+    }
+
+    svg { width: 1.25rem; height: 1.25rem; }
 }
 
 // ============================================================
 // BENTO SECTION
+// Stitch: grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-12
+// Tip card: col-span-2 p-6 md:p-8 bg-surface-container-low rounded-xl
+// Accuracy: p-6 md:p-8 bg-primary text-on-primary rounded-xl
 // ============================================================
 
 .cbm_inv_bento {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
 
-    @media (max-width: 640px) {
-        grid-template-columns: 1fr;
+    @media (min-width: 768px) {
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-top: 3rem;
     }
 }
 
 .cbm_inv_tip_card {
-    background: var(--cbm-card-elevated);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    background: var(--cbm-card-elevated);  // surface-container-low
+    border-radius: 0.75rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    border: var(--cbm-card-border);
+    gap: 1rem;
+    border: none;
+
+    @media (min-width: 768px) {
+        padding: 2rem;
+    }
 
     .cbm_inv_tip_header {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
 
         h4 {
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.125rem;           // text-lg
             font-weight: 700;
             color: var(--cbm-color-text);
+
+            @media (min-width: 768px) {
+                font-size: 1.25rem;        // md:text-xl
+            }
         }
     }
 
     p {
         margin: 0;
-        font-size: 0.875rem;
+        font-size: 0.875rem;               // text-sm
         color: var(--cbm-color-text-muted);
         line-height: 1.65;
+
+        @media (min-width: 768px) {
+            font-size: 1rem;               // md:text-base
+        }
     }
 }
 
 .cbm_inv_accuracy_card {
-    background: var(--cbm-btn-primary-bg);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    background: var(--cbm-btn-primary-bg); // bg-primary
+    border-radius: 0.75rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow: hidden;
     position: relative;
-    min-height: 7rem;
+    min-height: 8rem;
 
+    @media (min-width: 768px) {
+        padding: 2rem;
+    }
+
+    // Stitch: absolute -right-4 -bottom-4 text-7xl md:text-8xl opacity-10
     &::after {
         content: '';
         position: absolute;
-        right: -1.5rem;
-        bottom: -1.5rem;
-        width: 6rem;
-        height: 6rem;
+        right: -1rem;
+        bottom: -1rem;
+        width: 5.5rem;
+        height: 5.5rem;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .cbm_inv_accuracy_value {
-        font-size: 2.5rem;
+        font-size: 2rem;                   // text-3xl
         font-weight: 800;
         color: var(--cbm-btn-primary-text);
         line-height: 1;
         letter-spacing: -0.02em;
+
+        @media (min-width: 768px) {
+            font-size: 2.5rem;             // md:text-4xl
+        }
     }
 
     .cbm_inv_accuracy_label {
-        font-size: 0.875rem;
+        font-size: 0.875rem;               // text-sm
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         line-height: 1.45;
         margin-top: 0.5rem;
+
+        @media (min-width: 768px) {
+            font-size: 1rem;               // md:text-base
+        }
     }
 }
 
 // ============================================================
-// CAMERA BUTTON
+// CAMERA BUTTON (inside search box)
 // ============================================================
 
 .cbm_inv_camera_btn {
     flex-shrink: 0;
     background: none;
     border: none;
-    border-left: var(--cbm-card-border);
+    border-left: 1px solid rgba(0,0,0,0.06);
     padding: 0.75rem 1rem;
     cursor: pointer;
-    color: var(--cbm-color-text-hint);
+    color: var(--cbm-color-text-muted);
     display: flex;
     align-items: center;
-    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    border-radius: 0 0.75rem 0.75rem 0;
     transition: color 0.15s, background 0.15s;
 
     &:hover {
         color: var(--cbm-btn-primary-bg);
-        background: var(--cbm-chip-bg);
+        background: rgba(0,0,0,0.03);
     }
 
     svg { width: 1.25rem; height: 1.25rem; }
@@ -640,11 +773,11 @@
 .cbm_camera_container {
     position: relative;
     background: var(--cbm-card-bg);
-    border-radius: var(--radius-lg);
+    border-radius: 0.75rem;
     width: 90%;
     max-width: 480px;
     overflow: hidden;
-    box-shadow: var(--cbm-card-shadow-hover);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     display: flex;
     flex-direction: column;
 }
@@ -655,7 +788,7 @@
     align-items: center;
     padding: 1rem 1.25rem;
     background: var(--cbm-card-elevated);
-    border-bottom: var(--cbm-card-border);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 
     h3 {
         margin: 0;
@@ -688,28 +821,26 @@
 }
 
 .cbm_camera_video {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     object-fit: cover;
 }
 
 .cbm_camera_hint {
     position: absolute;
-    bottom: 1rem;
-    left: 0; right: 0;
+    bottom: 1rem; left: 0; right: 0;
     text-align: center;
     color: white;
     font-size: 0.875rem;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
     padding: 0.625rem 1rem;
-    border-radius: var(--radius-sm);
+    border-radius: 0.5rem;
     margin: 0 1rem;
     p { margin: 0; }
 }
 
 // ============================================================
-// DELETE / DONE MODAL ICONS
+// MODAL ICONS
 // ============================================================
 
 .cbm_confirm_icon {
@@ -764,11 +895,7 @@
     background: var(--cbm-chip-bg);
     margin: 0 auto 1.5rem;
 
-    svg {
-        width: 2.5rem;
-        height: 2.5rem;
-        color: var(--cbm-btn-primary-bg);
-    }
+    svg { width: 2.5rem; height: 2.5rem; color: var(--cbm-btn-primary-bg); }
 }
 
 .cbm_inv_status_title {
@@ -776,6 +903,7 @@
     font-weight: 800;
     color: var(--cbm-color-text);
     margin: 0 0 0.75rem;
+    letter-spacing: -0.01em;
 }
 
 .cbm_inv_status_message {
@@ -809,7 +937,7 @@
 .cbm_inv_status_stat_label {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--cbm-color-text-hint);
+    color: var(--cbm-color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -825,8 +953,7 @@
 }
 
 .cbm_inv_status_sep {
-    width: 4px;
-    height: 4px;
+    width: 4px; height: 4px;
     border-radius: 50%;
     background: var(--cbm-border-color);
     flex-shrink: 0;
@@ -837,19 +964,115 @@
     justify-content: center;
     gap: 0.75rem;
 
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+    button { display: flex; align-items: center; gap: 0.5rem; }
 }
 
 // ============================================================
-// FOOTER SUBMIT BUTTON
+// FOOTER — stitch:
+// fixed bottom-0 p-4 md:p-6 bg-gradient-to-t from-surface to-transparent
+// inner: bg-white/80 backdrop-blur-xl p-3 md:p-4 rounded-2xl
+//        shadow-2xl shadow-on-surface/5 border border-white/20
+//        flex justify-between items-center max-w-6xl mx-auto
+// Annuler: px-4 md:px-8 py-3 md:py-4 text-sm md:text-base
+//          text-on-surface-variant hover:text-on-surface font-bold
+// Terminer: px-6 md:px-10 py-3 md:py-4 bg-primary text-on-primary
+//           rounded-xl text-sm md:text-base font-bold
+//           shadow-lg shadow-primary/20 active:scale-95
 // ============================================================
 
-.cbm_inv_submit_btn {
+// Override cbm_page_footer for inventory to match stitch footer
+.cbm_page_footer .cbm_inv_footer_inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    padding: 0.75rem;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px rgba(40, 52, 57, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    @media (min-width: 768px) {
+        padding: 1rem;
+    }
+}
+
+.cbm-dark-mode .cbm_page_footer .cbm_inv_footer_inner {
+    background: rgba(28, 28, 28, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+// Footer cancel button — stitch: text-on-surface-variant hover:text-on-surface font-bold
+.cbm_inv_footer_cancel {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--cbm-color-text-muted);
+    border-radius: 0.75rem;
+    transition: color 0.15s;
+
+    @media (min-width: 768px) {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+
+    &:hover { color: var(--cbm-color-text); }
+    &:active { transform: scale(0.95); }
+}
+
+// Footer right side container
+.cbm_inv_footer_right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    @media (min-width: 768px) {
+        gap: 1rem;
+    }
+}
+
+// "Prêt pour soumission" hint — hidden on mobile, visible on lg
+.cbm_inv_footer_hint {
+    display: none;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cbm-color-text-muted);
+
+    @media (min-width: 1024px) {
+        display: block;
+        margin-right: 1rem;
+    }
+}
+
+// Terminer button — stitch: bg-primary text-on-primary rounded-xl shadow-lg shadow-primary/20
+.cbm_inv_footer_submit {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--cbm-btn-primary-bg);
+    color: var(--cbm-btn-primary-text);
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(var(--cbm-btn-primary-bg-rgb, 40, 90, 200), 0.2);
+    transition: background 0.15s, transform 0.1s;
+
+    @media (min-width: 768px) {
+        padding: 1rem 2.5rem;
+        font-size: 1rem;
+    }
+
+    &:hover { filter: brightness(1.08); }
+    &:active { transform: scale(0.95); }
 }
