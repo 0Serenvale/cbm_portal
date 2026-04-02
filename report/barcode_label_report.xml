@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Barcode Label Report Action -->
+    <record id="action_report_barcode_label" model="ir.actions.report">
+        <field name="name">Étiquettes codes-barres</field>
+        <field name="model">product.product</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">clinic_staff_portal.report_barcode_label</field>
+        <field name="report_file">clinic_staff_portal.report_barcode_label</field>
+        <field name="print_report_name">'Etiquettes_Barcodes_' + (object.name or 'produit')</field>
+        <field name="binding_model_id" ref="product.model_product_product"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <!-- Barcode Label QWeb Template -->
+    <!-- Layout: A4, 3 columns × 8 rows = 24 labels per page (~63mm × 35mm each) -->
+    <template id="report_barcode_label">
+        <t t-call="web.html_container">
+            <style>
+                @page {
+                    size: A4;
+                    margin: 10mm 8mm;
+                }
+                .cbm_bc_grid {
+                    display: flex;
+                    flex-wrap: wrap;
+                    width: 100%;
+                }
+                .cbm_bc_label {
+                    width: 30%;
+                    margin: 0.8% 1.5%;
+                    padding: 5px 6px;
+                    border: 1px solid #d1d5db;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                    text-align: center;
+                    page-break-inside: avoid;
+                    overflow: hidden;
+                }
+                .cbm_bc_name {
+                    font-size: 8.5pt;
+                    font-weight: 700;
+                    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+                    color: #111827;
+                    line-height: 1.25;
+                    margin-bottom: 3px;
+                    word-break: break-word;
+                    /* Clamp to 2 lines max so barcode always fits */
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    height: 2.5em;
+                }
+                .cbm_bc_barcode {
+                    margin: 2px auto;
+                    display: block;
+                    max-width: 100%;
+                    height: 40px;
+                }
+                .cbm_bc_code {
+                    font-size: 7pt;
+                    font-family: 'Courier New', monospace;
+                    color: #374151;
+                    margin-top: 2px;
+                    letter-spacing: 0.04em;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            </style>
+
+            <div class="cbm_bc_grid">
+                <t t-foreach="docs" t-as="product">
+                    <!-- Resolve barcode value: use product.barcode, fallback to default_code -->
+                    <t t-set="bc_value" t-value="product.barcode or product.default_code or ''"/>
+
+                    <div class="cbm_bc_label">
+                        <!-- Product name -->
+                        <div class="cbm_bc_name">
+                            <t t-esc="product.name"/>
+                            <t t-if="product.product_template_attribute_value_ids">
+                                <br/>
+                                <span style="font-weight:400; font-size:7.5pt; color:#6b7280;">
+                                    <t t-esc="', '.join(product.product_template_attribute_value_ids.mapped('name'))"/>
+                                </span>
+                            </t>
+                        </div>
+
+                        <!-- Barcode SVG (Code128) — only if we have a value -->
+                        <t t-if="bc_value">
+                            <div class="cbm_bc_barcode">
+                                <img t-att-src="'/report/barcode/Code128/%s?width=280&amp;height=60' % werkzeug.urls.url_quote(bc_value)"
+                                     style="max-width:100%; height:40px;"/>
+                            </div>
+                            <div class="cbm_bc_code">
+                                <t t-esc="bc_value"/>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div style="font-size:7.5pt; color:#9ca3af; margin-top:8px;">
+                                Aucun code-barres
+                            </div>
+                        </t>
+
+                        <!-- Internal ref (if different from barcode) -->
+                        <t t-if="product.default_code and product.default_code != bc_value">
+                            <div style="font-size:6.5pt; color:#9ca3af; margin-top:1px;">
+                                [<t t-esc="product.default_code"/>]
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

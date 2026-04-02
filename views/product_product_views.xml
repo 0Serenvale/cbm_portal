@@ -18,4 +18,35 @@
             </xpath>
         </field>
     </record>
+
+    <!-- Server action: print barcode label from product.product form button -->
+    <record id="action_product_print_barcode_label" model="ir.actions.server">
+        <field name="name">Imprimer étiquette code-barres</field>
+        <field name="model_id" ref="product.model_product_product"/>
+        <field name="binding_model_id" ref="product.model_product_product"/>
+        <field name="state">code</field>
+        <field name="code">
+action = env.ref('clinic_staff_portal.action_report_barcode_label').report_action(records)
+        </field>
+    </record>
+
+    <!-- Print barcode label button on product.product form -->
+    <record id="view_product_product_form_barcode_print_button" model="ir.ui.view">
+        <field name="name">product.product.form.barcode.print.button</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(clinic_staff_portal.action_product_print_barcode_label)d"
+                        type="action"
+                        class="oe_stat_button"
+                        icon="fa-barcode">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Étiquette</span>
+                        <span class="o_stat_text">code-barres</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
 </odoo>

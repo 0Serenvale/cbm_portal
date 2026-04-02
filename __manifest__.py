@@ -59,6 +59,7 @@ Features:
         'report/document_ack_receipt_report.xml',
         'report/inventory_team_report.xml',
         'report/inventory_final_report.xml',
+        'report/barcode_label_report.xml',
         'views/cashier_session_views.xml',
         'views/kiosk_access_log_views.xml',
         'views/clinic_workstation_views.xml',
