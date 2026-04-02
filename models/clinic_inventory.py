@@ -643,7 +643,7 @@ class ClinicInventoryLine(models.Model):
         domain="[('active', '=', True)]",
     )
     lot_id = fields.Many2one(
-        'stock.production.lot',
+        'stock.lot',
         'Lot/Serial',
         index=True,
     )

@@ -181,7 +181,7 @@ class InventoryController(http.Controller):
             list: [{id, name, barcode, uom_name, qty_system, lot_id, lot_name, expiry_date, tracking}]
         """
         try:
-            StockLot = request.env['stock.production.lot']
+            StockLot = request.env['stock.lot']
             StockQuant = request.env['stock.quant']
 
             # Find lots matching the lot_name (partial match for dropdown)
@@ -248,7 +248,7 @@ class InventoryController(http.Controller):
 
             # Get all lots registered for this product (regardless of stock level)
             # Staff may be counting product that has been consumed — show all known lots
-            StockLot = request.env['stock.production.lot']
+            StockLot = request.env['stock.lot']
             lots = StockLot.search([
                 ('product_id', '=', product_id),
             ], limit=50, order='name')
@@ -363,7 +363,7 @@ class InventoryController(http.Controller):
         Args:
             session_id: clinic.inventory ID
             product_id: product.product ID
-            lot_id: stock.production.lot ID (optional)
+            lot_id: stock.lot ID (optional)
             expiry_date: YYYY-MM-DD or False
             qty_counted: float
             note: str
