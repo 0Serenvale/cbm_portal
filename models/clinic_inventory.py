@@ -680,7 +680,7 @@ class ClinicInventoryLine(models.Model):
         store=True,
     )
 
-    @api.depends('lot_id', 'lot_id.expiration_date')
+    @api.depends('lot_id')
     def _compute_expiry_date(self):
         for record in self:
             if record.lot_id:
