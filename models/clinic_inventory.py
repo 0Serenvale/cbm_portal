@@ -441,16 +441,21 @@ class ClinicInventory(models.Model):
             aggregated[key]['counts'].append(line.qty_counted)
 
         # --- Step 3: Set inventory_quantity on quants ---
+        # Pre-fetch all quants at this location in one query to avoid N+1
+        all_location_quants = StockQuant.search([
+            ('location_id', '=', self.location_id.id),
+        ])
+        quant_map = {
+            (q.product_id.id, q.lot_id.id if q.lot_id else False): q
+            for q in all_location_quants
+        }
+
         touched_quants = self.env['stock.quant'].sudo()
         for key, data in aggregated.items():
             # Average across teams
             avg_qty = sum(data['counts']) / len(data['counts'])
 
-            quant = StockQuant.search([
-                ('product_id', '=', data['product_id']),
-                ('lot_id', '=', data['lot_id']),
-                ('location_id', '=', self.location_id.id),
-            ], limit=1)
+            quant = quant_map.get(key)
 
             if quant:
                 quant.inventory_quantity = avg_qty
@@ -472,16 +477,10 @@ class ClinicInventory(models.Model):
 
         # --- Step 4: Full inventory — zero out uncounted products ---
         if self.is_full_inventory:
-            counted_product_ids = list(set(d['product_id'] for d in aggregated.values()))
             counted_keys = set(aggregated.keys())
 
-            # Find all quants at this location that have stock but were NOT counted
-            all_quants = StockQuant.search([
-                ('location_id', '=', self.location_id.id),
-                ('quantity', '>', 0),
-            ])
-
-            for quant in all_quants:
+            # Reuse pre-fetched quants — filter to those with positive stock not counted
+            for quant in all_location_quants.filtered(lambda q: q.quantity > 0):
                 qkey = (quant.product_id.id, quant.lot_id.id if quant.lot_id else False)
                 if qkey not in counted_keys:
                     quant.inventory_quantity = 0
@@ -648,7 +647,13 @@ class ClinicInventoryLine(models.Model):
         'Lot/Serial',
         index=True,
     )
-    expiry_date = fields.Date('Expiry Date')
+    expiry_date = fields.Date(
+        'Expiry Date',
+        compute='_compute_expiry_date',
+        store=True,
+        readonly=False,
+        help='Auto-populated from lot expiration date. Can be overridden manually.',
+    )
     qty_counted = fields.Float(
         'Quantity Counted',
         required=True,
@@ -674,6 +679,15 @@ class ClinicInventoryLine(models.Model):
         compute='_compute_variance',
         store=True,
     )
+
+    @api.depends('lot_id', 'lot_id.expiration_date')
+    def _compute_expiry_date(self):
+        for record in self:
+            if record.lot_id:
+                exp = getattr(record.lot_id, 'expiration_date', None)
+                if exp:
+                    record.expiry_date = exp.date() if hasattr(exp, 'date') else exp
+            # No lot or lot has no expiration: leave expiry_date unchanged (manual value preserved)
 
     @api.depends('product_id', 'lot_id', 'inventory_id.location_id')
     def _compute_qty_system(self):
