@@ -131,6 +131,94 @@
     }
 }
 
+// ============================================================
+// SHARED DROPDOWN ITEM STYLES
+// Used by both product search dropdown AND lot picker menu
+// ============================================================
+
+.cbm_inv_dropdown_item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    border-radius: 0;         // container handles radius
+    user-select: none;
+    -webkit-user-select: none;
+
+    // Light mode hover
+    &:hover,
+    &:focus-visible {
+        background: var(--cbm-hover-bg);
+        outline: none;
+    }
+
+    // Active / pressed
+    &:active {
+        background: var(--cbm-chip-bg);
+    }
+
+    // Keyboard-selected (product search)
+    &.selected {
+        background: var(--cbm-chip-bg);
+    }
+
+    // First / last rounding inside the container
+    &:first-child { border-radius: 0.75rem 0.75rem 0 0; }
+    &:last-child  { border-radius: 0 0 0.75rem 0.75rem; }
+    &:only-child  { border-radius: 0.75rem; }
+}
+
+// Dark mode — stronger highlight since --cbm-hover-bg is subtle
+@media (prefers-color-scheme: dark) {
+    .cbm_inv_dropdown_item:hover,
+    .cbm_inv_dropdown_item:focus-visible {
+        background: rgba(255, 255, 255, 0.08);
+    }
+    .cbm_inv_dropdown_item:active,
+    .cbm_inv_dropdown_item.selected {
+        background: rgba(255, 255, 255, 0.13);
+    }
+}
+
+// Support explicit dark class on body (Odoo dark mode toggle)
+body.o_dark .cbm_inv_dropdown_item:hover,
+body.o_dark .cbm_inv_dropdown_item:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+}
+body.o_dark .cbm_inv_dropdown_item:active,
+body.o_dark .cbm_inv_dropdown_item.selected {
+    background: rgba(255, 255, 255, 0.13);
+}
+
+.cbm_inv_item_name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--cbm-color-text);
+    line-height: 1.35;
+    white-space: normal;     // allow wrapping — especially important for lot names
+    word-break: break-word;
+}
+
+.cbm_inv_item_meta {
+    font-size: 0.8125rem;
+    color: var(--cbm-color-text-muted);
+    margin-top: 0.2rem;
+}
+
+.cbm_inv_item_badge {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    background: var(--cbm-chip-bg);
+    color: var(--cbm-btn-primary-bg);
+    border-radius: 2rem;
+    flex-shrink: 0;
+    margin-left: 0.75rem;
+    white-space: nowrap;
+}
+
 // Dropdown — floats below search group (position: relative on group)
 .cbm_inv_dropdown {
     position: absolute;
@@ -140,45 +228,30 @@
     z-index: 300;
     background: var(--cbm-card-bg);
     border-radius: 0.75rem;
-    box-shadow: 0 4px 20px rgba(40, 52, 57, 0.1), 0 0 0 1px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 24px rgba(40, 52, 57, 0.14), 0 0 0 1px rgba(0,0,0,0.07);
     max-height: 20rem;
     overflow-y: auto;
 
-    .cbm_inv_dropdown_item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.875rem 1rem;
-        cursor: pointer;
-        transition: background 0.1s;
-
-        &:hover { background: var(--cbm-card-elevated); }
-        &.selected { background: var(--cbm-hover-bg); }
+    .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
     }
+}
 
-    .cbm_inv_item_name {
-        font-weight: 600;
-        font-size: 1rem;
-        color: var(--cbm-color-text);
-        line-height: 1.3;
+@media (prefers-color-scheme: dark) {
+    .cbm_inv_dropdown {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
+
+        .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
     }
+}
 
-    .cbm_inv_item_meta {
-        font-size: 0.8125rem;
-        color: var(--cbm-color-text-muted);
-        margin-top: 0.2rem;
-    }
+body.o_dark .cbm_inv_dropdown {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
 
-    .cbm_inv_item_badge {
-        font-size: 0.8125rem;
-        font-weight: 700;
-        padding: 0.25rem 0.75rem;
-        background: var(--cbm-chip-bg);
-        color: var(--cbm-btn-primary-bg);
-        border-radius: 2rem;
-        flex-shrink: 0;
-        margin-left: 0.75rem;
-        white-space: nowrap;
+    .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+        border-top-color: rgba(255, 255, 255, 0.06);
     }
 }
 
@@ -207,8 +280,31 @@
     overflow-y: auto;
     background: var(--cbm-card-bg);
     border-radius: 0.75rem;
-    box-shadow: 0 4px 20px rgba(40, 52, 57, 0.1), 0 0 0 1px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 24px rgba(40, 52, 57, 0.14), 0 0 0 1px rgba(0,0,0,0.07);
     margin-top: 0.25rem;
+
+    // Dividers between items (not after last)
+    .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .cbm_lot_picker_menu {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
+
+        .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+    }
+}
+
+body.o_dark .cbm_lot_picker_menu {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
+
+    .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+        border-top-color: rgba(255, 255, 255, 0.06);
+    }
 }
 
 // Fixed-position portal variant — anchored via inline style from JS rect
@@ -227,6 +323,14 @@
     overflow-y: auto;
     z-index: 9999;         // above everything — table, footer, modals
     margin-top: 0.25rem;
+    background: var(--cbm-card-bg);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(40, 52, 57, 0.14), 0 0 0 1px rgba(0,0,0,0.07);
+
+    // Dividers between items
+    .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
 
     // Flip-up: no margin-top, add margin-bottom gap
     &[style*="bottom:"] {
@@ -235,13 +339,41 @@
     }
 }
 
+@media (prefers-color-scheme: dark) {
+    .cbm_lot_picker_fixed {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
+
+        .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+    }
+}
+
+body.o_dark .cbm_lot_picker_fixed {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
+
+    .cbm_inv_dropdown_item + .cbm_inv_dropdown_item {
+        border-top-color: rgba(255, 255, 255, 0.06);
+    }
+}
+
 .cbm_lot_picker_search_wrap {
     position: sticky;
     top: 0;
     background: var(--cbm-card-bg);
     padding: 0.5rem;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
     z-index: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .cbm_lot_picker_search_wrap {
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+}
+
+body.o_dark .cbm_lot_picker_search_wrap {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 .cbm_lot_picker_input {

@@ -132,6 +132,7 @@ class InventoryController(http.Controller):
 
             domain = [
                 ('active', '=', True),
+                ('type', '=', 'product'),   # storable only — consumables/services have no stock quants
                 '|',
                 ('name', 'ilike', query),
                 ('barcode', 'ilike', query),
@@ -174,7 +175,7 @@ class InventoryController(http.Controller):
             result = []
             for lot in lots:
                 product = lot.product_id
-                if not product.active:
+                if not product.active or product.type != 'product':
                     continue
                 result.append({
                     'id': product.id,
