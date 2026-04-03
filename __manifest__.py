@@ -85,11 +85,13 @@ Features:
     ],
     'assets': {
         'web.assets_backend': [
+            # Google Fonts for dashboard design system (Manrope + Inter)
+            'https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap',
             # CRITICAL: Load kiosk body class FIRST to prevent navbar flash in Firefox
             'clinic_staff_portal/static/src/js/kiosk_body_class.js',
             # CBM Portal SCSS
-            'clinic_staff_portal/static/src/scss/portal_dashboard.scss',
             'clinic_staff_portal/static/src/scss/cbm_kiosk.scss',
+            'clinic_staff_portal/static/src/scss/portal_dashboard.scss',
             'clinic_staff_portal/static/src/scss/cbm_dashboard.scss',
             'clinic_staff_portal/static/src/scss/cbm_cashier.scss',
             'clinic_staff_portal/static/src/scss/cbm_timeoff.scss',
