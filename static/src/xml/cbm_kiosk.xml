@@ -56,49 +56,52 @@
 
             <!-- Home Screen -->
             <div t-elif="state.currentState === 'home'" class="cbm_kiosk_home">
-                <div class="cbm_kiosk_header">
-                    <div>
-                        <h1 class="cbm_portal_title">Portail CBM</h1>
-                        <p class="cbm_welcome mb-0"><span t-attf-class="cbm_activity_dot cbm_activity_{{state.activityStatus}}"/> Bienvenue, <t t-esc="state.userContext?.user_name"/></p>
-                    </div>
+
+                <!-- Announcement / Inventory Warning Banner -->
+                <InventoryBanner/>
+
+                <!-- Header (v2 — simplified, no search/nav) -->
+                <header class="cbm_kiosk_header_v2">
+                    <h1 class="cbm_portal_title">Portail CBM</h1>
                     <div class="cbm_header_actions">
                         <!-- Financial Summary (Executives Only) -->
-                        <div t-if="state.financials.is_executive" class="cbm_financial_header" t-on-click="goToFinancialDashboard" title="Accountability Dashboard - Transferts en Attente">
+                        <div t-if="state.financials.is_executive"
+                             class="cbm_financial_header"
+                             t-on-click="goToFinancialDashboard"
+                             title="Accountability Dashboard - Transferts en Attente">
                             <span class="cbm_fin_at_risk">
                                 <span class="cbm_icon_warning cbm_icon_warning_sm"/>
-                                <t t-esc="state.financials.pending_count || 0"/> transferts · <t t-esc="(state.financials.total_at_risk || 0).toLocaleString()"/> <t t-esc="state.financials.currency_symbol || 'DA'"/>
+                                <t t-esc="state.financials.pending_count || 0"/> transferts ·
+                                <t t-esc="(state.financials.total_at_risk || 0).toLocaleString()"/>
+                                <t t-esc="state.financials.currency_symbol || 'DA'"/>
                             </span>
                         </div>
-                        
+
+                        <!-- Ward Location -->
                         <div class="cbm_header_location" t-if="state.userContext?.ward_name">
                             <span class="cbm_icon_location me-1"/>
                             <span t-esc="state.userContext.ward_name"/>
                         </div>
 
-                        <!-- Theme Toggle Button -->
+                        <!-- Theme Toggle -->
                         <button class="cbm_theme_toggle" t-on-click="toggleKioskTheme" title="Changer le thème">
                             <t t-if="state.kioskDarkMode">
-                                <!-- Sun icon - switch to light -->
                                 <span class="cbm_icon_sun"/>
                             </t>
                             <t t-else="">
-                                <!-- Moon icon - switch to dark -->
                                 <span class="cbm_icon_moon"/>
                             </t>
                         </button>
 
-                        <a href="/web/session/logout" class="cbm_btn_outline cbm_logout_btn"
-                           title="Déconnexion">
+                        <!-- Logout -->
+                        <a href="/web/session/logout" class="cbm_logout_btn" title="Déconnexion">
                             <span class="cbm_icon_logout cbm_icon_logout_sm me-1"/>Déconnexion
                         </a>
                     </div>
-                </div>
+                </header>
 
-                <!-- Inventory Warning Banner (7 days before scheduled inventory) -->
-                <InventoryBanner/>
-
-                <!-- Main Content with Optional Sidebar -->
-                <div class="cbm_home_layout">
+                <!-- Two-column layout -->
+                <div class="cbm_home_layout_v2">
                     <!-- Main Tiles Area -->
                     <div class="cbm_home_main">
                         <!-- Primary Tiles - Core Workflow (Demande, Dispensation, Suivi) -->
