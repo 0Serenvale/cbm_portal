@@ -52,6 +52,8 @@ Shadow: `0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.04)` (no
 Replace the current `cbm_home_layout` (flex row) with a new two-column structure:
 
 ```
+InventoryBanner  ← existing component, above everything, conditional self-show
+cbm_kiosk_header (sticky)
 cbm_home_layout_v2
 ├── cbm_home_main (flex-grow)
 │   ├── cbm_welcome_section
@@ -62,6 +64,8 @@ cbm_home_layout_v2
     ├── cbm_progress_section ("En Attente")
     └── cbm_recent_section ("Mises à jour récentes")
 ```
+
+`InventoryBanner` position: rendered **before** the sticky header, so it pushes the header down rather than overlapping. No logic change to `InventoryBanner` — it manages its own visibility internally.
 
 The sidebar is **always visible** — remove the `t-if="state.pendingApprovals.show_sidebar"` gate. On mobile (< 768px) the sidebar collapses below main content (stacks vertically).
 
@@ -226,10 +230,14 @@ Empty state: "Aucune activité récente" in `$cbm-on-surface-variant`.
 
 | File | Change |
 |---|---|
-| `static/src/scss/cbm_kiosk.scss` | Add design tokens, new card/sidebar classes, update header |
+| `static/src/scss/cbm_dashboard.scss` | **New file** — all design tokens (SCSS variables), new card/sidebar/progress/recent classes |
+| `static/src/scss/cbm_kiosk.scss` | Header-only updates (remove search/nav styles); no new tokens or layout classes added here |
+| `__manifest__.py` | Register `cbm_dashboard.scss` in web assets |
 | `static/src/xml/cbm_kiosk.xml` | Restructure home screen HTML — new layout, cards, sidebar |
 | `static/src/js/cbm_kiosk.js` | Add `recentActivity` state, `loadRecentActivity()` method |
 | `controllers/main.py` | No change — `/cbm/get_history` already exists with limit param |
+
+**Rationale for new file:** `cbm_kiosk.scss` is already large. All dashboard-specific design system tokens and new component classes live in `cbm_dashboard.scss` to keep concerns separated and the new design system self-contained.
 
 ---
 
