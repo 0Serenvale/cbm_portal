@@ -90,6 +90,7 @@ Features:
             # CBM Portal SCSS
             'clinic_staff_portal/static/src/scss/portal_dashboard.scss',
             'clinic_staff_portal/static/src/scss/cbm_kiosk.scss',
+            'clinic_staff_portal/static/src/scss/cbm_dashboard.scss',
             'clinic_staff_portal/static/src/scss/cbm_cashier.scss',
             'clinic_staff_portal/static/src/scss/cbm_timeoff.scss',
             'clinic_staff_portal/static/src/scss/folder_selector.scss',

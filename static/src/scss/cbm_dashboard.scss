@@ -1,0 +1,562 @@
+// =============================================================================
+// CBM Dashboard Design System — "Precision Curator"
+// Tokens from: dashboard/stitch_inventory_counting_dashboard/DESIGN.md
+// =============================================================================
+
+// --- Google Fonts ---
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+// --- Color Tokens ---
+$cbm-surface:              #f7fafc;
+$cbm-surface-low:          #eff4f7;
+$cbm-surface-lowest:       #ffffff;
+$cbm-surface-container:    #e7eff3;
+$cbm-surface-high:         #dfeaef;
+$cbm-surface-highest:      #d7e5eb;
+
+$cbm-primary:              #455f88;
+$cbm-primary-dim:          #39537c;
+$cbm-primary-container:    #d6e3ff;
+$cbm-on-primary:           #f6f7ff;
+
+$cbm-secondary:            #546073;
+$cbm-secondary-container:  #d8e3fa;
+$cbm-on-secondary:         #f8f8ff;
+
+$cbm-tertiary:             #5d5c78;
+$cbm-tertiary-container:   #d9d7f8;
+$cbm-on-tertiary:          #fbf7ff;
+
+$cbm-on-surface:           #283439;
+$cbm-on-surface-variant:   #546166;
+$cbm-outline-variant:      #a7b4ba;
+
+$cbm-error:                #9f403d;
+$cbm-error-container:      #fe8983;
+$cbm-amber:                #c08a20;
+
+// --- Border Radius ---
+$cbm-radius-lg:            0.5rem;
+$cbm-radius-xl:            0.75rem;
+$cbm-radius-full:          9999px;
+
+// --- Shadow (no pure black) ---
+$cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.04);
+
+// --- Typography ---
+// Applied within .cbm_kiosk scope to avoid bleeding into Odoo backend
+.cbm_kiosk {
+    h1, h2, h3, h4,
+    .cbm_portal_title,
+    .cbm_card_title,
+    .cbm_section_title,
+    .cbm_sidebar_heading {
+        font-family: 'Manrope', sans-serif;
+    }
+
+    font-family: 'Inter', sans-serif;
+}
+
+// =============================================================================
+// LAYOUT
+// =============================================================================
+
+.cbm_home_layout_v2 {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: flex-start;
+    padding: 2rem 2.5rem;
+
+    @media (max-width: 992px) {
+        flex-direction: column;
+        padding: 1rem;
+    }
+}
+
+.cbm_home_main {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.cbm_sidebar_v2 {
+    width: 340px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    @media (max-width: 992px) {
+        width: 100%;
+    }
+}
+
+// =============================================================================
+// HEADER (v2 — simplified)
+// =============================================================================
+
+.cbm_kiosk_header_v2 {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: $cbm-surface-low;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 2.5rem;
+    // No border — tonal separation only
+
+    .cbm_portal_title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: $cbm-primary;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    .cbm_header_actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .cbm_header_location {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.8125rem;
+        color: $cbm-on-surface-variant;
+        background: $cbm-surface-container;
+        padding: 0.25rem 0.75rem;
+        border-radius: $cbm-radius-full;
+    }
+
+    .cbm_theme_toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: $cbm-radius-full;
+        color: $cbm-primary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background: $cbm-surface-container;
+        }
+    }
+
+    .cbm_logout_btn {
+        font-size: 0.8125rem;
+        padding: 0.375rem 0.875rem;
+        border-radius: $cbm-radius-full;
+        border: 1px solid rgba($cbm-outline-variant, 0.5);
+        color: $cbm-on-surface-variant;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        transition: background 0.15s;
+
+        &:hover {
+            background: $cbm-surface-container;
+        }
+    }
+
+    .cbm_financial_header {
+        cursor: pointer;
+        font-size: 0.8125rem;
+        color: $cbm-on-surface-variant;
+
+        &:hover {
+            color: $cbm-on-surface;
+        }
+    }
+}
+
+// =============================================================================
+// WELCOME SECTION
+// =============================================================================
+
+.cbm_welcome_section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: $cbm-primary;
+        letter-spacing: -0.03em;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    p {
+        font-size: 0.9375rem;
+        color: $cbm-on-surface-variant;
+        margin: 0;
+    }
+}
+
+// =============================================================================
+// PRIMARY CARDS (Demande, Dispensation, Prescription)
+// =============================================================================
+
+.cbm_cards_primary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cbm_card_primary {
+    background: $cbm-surface-lowest;
+    border-radius: $cbm-radius-xl;
+    border: 1px solid transparent;
+    box-shadow: $cbm-shadow-sm;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+
+    &:hover {
+        border-color: rgba($cbm-primary, 0.2);
+
+        .cbm_card_icon_wrap {
+            background: var(--cbm-card-color-solid);
+            color: var(--cbm-card-icon-on-solid);
+        }
+    }
+
+    // Blocked state
+    &.cbm_card_primary--blocked {
+        border-color: rgba($cbm-error, 0.2);
+
+        .cbm_card_icon_wrap {
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: $cbm-radius-lg;
+                background: rgba($cbm-error, 0.15);
+            }
+        }
+    }
+}
+
+.cbm_card_top_row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.cbm_card_icon_wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: $cbm-radius-lg;
+    background: var(--cbm-card-color-container);
+    color: var(--cbm-card-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+    position: relative;
+
+    svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+    }
+}
+
+.cbm_card_status_chip {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: $cbm-on-surface-variant;
+    background: $cbm-surface-low;
+    padding: 0.2rem 0.625rem;
+    border-radius: $cbm-radius-full;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &.cbm_chip_blocked {
+        color: $cbm-error;
+        background: rgba($cbm-error, 0.08);
+    }
+}
+
+.cbm_card_title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: $cbm-on-surface;
+    margin: 0;
+}
+
+.cbm_card_hint {
+    font-size: 0.875rem;
+    color: $cbm-on-surface-variant;
+    line-height: 1.5;
+    margin: 0;
+}
+
+// =============================================================================
+// SECONDARY MODULES GRID
+// =============================================================================
+
+.cbm_section_header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.875rem;
+
+    .cbm_section_accent {
+        width: 3px;
+        height: 24px;
+        background: $cbm-primary;
+        border-radius: $cbm-radius-full;
+        flex-shrink: 0;
+    }
+
+    .cbm_section_title {
+        font-size: 1.0625rem;
+        font-weight: 700;
+        color: $cbm-on-surface;
+        margin: 0;
+    }
+}
+
+.cbm_cards_modules_grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
+
+    @media (min-width: 576px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.cbm_card_module {
+    background: $cbm-surface-low;
+    border-radius: $cbm-radius-xl;
+    border: 1px solid transparent;
+    padding: 1.125rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+
+    svg {
+        width: 24px;
+        height: 24px;
+        fill: $cbm-primary;
+        transition: transform 0.15s ease;
+    }
+
+    span.cbm_module_label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: $cbm-on-surface;
+    }
+
+    &:hover {
+        background: $cbm-surface-lowest;
+        border-color: rgba($cbm-outline-variant, 0.15);
+
+        svg {
+            transform: scale(1.1);
+        }
+    }
+}
+
+// =============================================================================
+// SIDEBAR
+// =============================================================================
+
+.cbm_sidebar_v2 {
+    // Suivi tile
+    .cbm_suivi_tile {
+        background: $cbm-surface-lowest;
+        border-radius: $cbm-radius-xl;
+        border: 1px solid transparent;
+        box-shadow: $cbm-shadow-sm;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: border-color 0.15s ease;
+
+        svg {
+            width: 22px;
+            height: 22px;
+            fill: $cbm-primary;
+            flex-shrink: 0;
+        }
+
+        .cbm_suivi_text {
+            flex: 1;
+
+            .cbm_suivi_label {
+                font-size: 0.9375rem;
+                font-weight: 700;
+                color: $cbm-on-surface;
+                display: block;
+            }
+
+            .cbm_suivi_hint {
+                font-size: 0.75rem;
+                color: $cbm-on-surface-variant;
+            }
+        }
+
+        .cbm_suivi_chevron {
+            color: $cbm-on-surface-variant;
+            font-size: 1rem;
+        }
+
+        &:hover {
+            border-color: rgba($cbm-primary, 0.2);
+        }
+    }
+
+    // Progress section
+    .cbm_sidebar_card {
+        background: $cbm-surface-lowest;
+        border-radius: $cbm-radius-xl;
+        box-shadow: $cbm-shadow-sm;
+        padding: 1.5rem;
+    }
+
+    .cbm_sidebar_heading {
+        font-size: 1rem;
+        font-weight: 700;
+        color: $cbm-on-surface;
+        margin: 0 0 1.25rem 0;
+    }
+
+    .cbm_progress_list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .cbm_progress_item {
+        cursor: pointer;
+
+        &:hover .cbm_progress_bar_fill {
+            filter: brightness(1.1);
+        }
+    }
+
+    .cbm_progress_item_header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 0.5rem;
+    }
+
+    .cbm_progress_label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: $cbm-on-surface-variant;
+    }
+
+    .cbm_progress_value {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: $cbm-on-surface;
+
+        &.cbm_progress_value--error {
+            color: $cbm-error;
+        }
+    }
+
+    .cbm_progress_bar_track {
+        height: 6px;
+        background: $cbm-surface-high;
+        border-radius: $cbm-radius-full;
+        overflow: hidden;
+    }
+
+    .cbm_progress_bar_fill {
+        height: 100%;
+        border-radius: $cbm-radius-full;
+        background: $cbm-primary;
+        transition: width 0.4s ease;
+
+        &.cbm_bar_error    { background: $cbm-error; }
+        &.cbm_bar_secondary { background: $cbm-secondary; }
+        &.cbm_bar_tertiary  { background: $cbm-tertiary; }
+        &.cbm_bar_amber     { background: $cbm-amber; }
+    }
+
+    // Recent updates section
+    .cbm_recent_heading {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: $cbm-on-surface-variant;
+        margin: 0 0 1rem 0;
+    }
+
+    .cbm_recent_list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .cbm_recent_item {
+        display: flex;
+        gap: 0.875rem;
+        align-items: flex-start;
+    }
+
+    .cbm_recent_dot {
+        width: 8px;
+        height: 8px;
+        border-radius: $cbm-radius-full;
+        flex-shrink: 0;
+        margin-top: 0.3rem;
+
+        &.dot_done     { background: $cbm-primary; }
+        &.dot_pending  { background: $cbm-amber; }
+        &.dot_cancel   { background: $cbm-error; }
+        &.dot_draft    { background: $cbm-outline-variant; }
+    }
+
+    .cbm_recent_name {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: $cbm-on-surface;
+        margin: 0 0 0.125rem 0;
+    }
+
+    .cbm_recent_meta {
+        font-size: 0.75rem;
+        color: $cbm-on-surface-variant;
+        margin: 0;
+    }
+
+    .cbm_recent_empty {
+        font-size: 0.8125rem;
+        color: $cbm-on-surface-variant;
+        text-align: center;
+        padding: 0.5rem 0;
+    }
+}
