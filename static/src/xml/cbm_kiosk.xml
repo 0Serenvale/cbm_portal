@@ -274,170 +274,159 @@
 
                         </div><!-- end cbm_home_main -->
                     
-                    <!-- Sidebar - Pending Work -->
-                    <div t-if="state.pendingApprovals.show_sidebar" class="cbm_approvals_sidebar">
-                        <h4 class="cbm_sidebar_title">
-                            <span class="cbm_icon_check_circle me-2"/>En Attente
-                        </h4>
-                        
-                        <!-- Mes Demandes (My Requests) - Clickable to go to history -->
-                        <div t-att-class="'cbm_approval_chip' + (state.pendingApprovals.my_requests_count > 0 ? ' cbm_chip_warning' : '')"
-                             t-on-click="goToHistory"
-                             title="Voir toutes vos demandes">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_beaker"/>
-                                <span t-if="state.pendingApprovals.my_requests_count > 0" 
-                                      class="cbm_chip_badge" 
-                                      t-esc="state.pendingApprovals.my_requests_count"/>
-                            </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">Mes Demandes</span>
-                                <span t-if="state.pendingApprovals.my_requests_count > 0" class="cbm_chip_count">
-                                    <t t-esc="state.pendingApprovals.my_requests_count"/> en attente
-                                </span>
-                                <span t-else="" class="cbm_chip_count">Aucune</span>
-                            </div>
-                        </div>
-                        
-                        <!-- À Valider (To Approve) - Only show if user has approvals or is admin -->
-                        <div t-if="state.pendingApprovals.has_transfer_approvals"
-                             t-att-class="'cbm_approval_chip' + (state.pendingApprovals.to_approve_count > 0 ? ' cbm_chip_warning' : '')"
-                             t-on-click="openToApprove"
-                             title="Transferts nécessitant votre approbation">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_check_circle"/>
-                                <span t-if="state.pendingApprovals.to_approve_count" 
-                                      class="cbm_chip_badge" 
-                                      t-esc="state.pendingApprovals.to_approve_count"/>
-                            </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">À Valider</span>
-                                <span class="cbm_chip_count" t-if="state.pendingApprovals.to_approve_count">
-                                    <t t-esc="state.pendingApprovals.to_approve_count"/> en attente
-                                </span>
-                                <span class="cbm_chip_count" t-else="">À jour</span>
-                            </div>
-                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
-                        </div>
-                        
-                        <!-- Réceptions (My Receptions) - Only show if user has incoming operation types -->
-                        <div t-if="state.pendingApprovals.has_reception_access"
-                             t-att-class="'cbm_approval_chip' + (state.pendingApprovals.my_receptions_count > 0 ? ' cbm_chip_warning' : '')"
-                             t-on-click="goToReceptions"
-                             title="Livraisons en attente de réception">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_truck"/>
-                                <span t-if="state.pendingApprovals.my_receptions_count" 
-                                      class="cbm_chip_badge" 
-                                      t-esc="state.pendingApprovals.my_receptions_count"/>
-                            </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">Réceptions</span>
-                                <span class="cbm_chip_count" t-if="state.pendingApprovals.my_receptions_count">
-                                    <t t-esc="state.pendingApprovals.my_receptions_count"/> à recevoir
-                                </span>
-                                <span class="cbm_chip_count" t-else="">Tout reçu</span>
-                            </div>
-                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
-                        </div>
-                        
-                        <!-- Bons de commande (PO) - Only for PO approvers -->
-                        <div t-if="state.pendingApprovals.pending_po_count > 0 || state.pendingApprovals.is_po_approver" 
-                             t-att-class="'cbm_approval_chip' + (state.pendingApprovals.pending_po_count > 0 ? ' cbm_chip_warning' : '')"
-                             t-on-click="openPendingPO"
-                             title="Bons de commande en attente de validation">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_cart"/>
-                                <span t-if="state.pendingApprovals.pending_po_count" 
-                                      class="cbm_chip_badge" 
-                                      t-esc="state.pendingApprovals.pending_po_count"/>
-                            </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">Bons de commande</span>
-                                <span class="cbm_chip_count" t-if="state.pendingApprovals.pending_po_count">
-                                    <t t-esc="state.pendingApprovals.pending_po_count"/> en attente
-                                </span>
-                                <span class="cbm_chip_count" t-else="">À jour</span>
-                            </div>
-                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
-                        </div>
-                        
-                        <!-- Stock Discrepancy Alerts (visibility controlled by settings) -->
-                        <div t-if="(state.userContext.stock_alert_visibility === 'all' || (state.userContext.stock_alert_visibility === 'admin_only' &amp;&amp; state.userContext.is_admin)) &amp;&amp; state.pendingApprovals.pending_discrepancy_count > 0" 
-                             class="cbm_approval_chip cbm_chip_danger" t-on-click="openStockDiscrepancies"
-                             title="Alertes de divergence de stock à investiguer">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_warning"/>
-                                <span t-if="state.pendingApprovals.pending_discrepancy_count" 
-                                      class="cbm_chip_badge cbm_badge_danger" 
-                                      t-esc="state.pendingApprovals.pending_discrepancy_count"/>
-                            </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">Divergences Stock</span>
-                                <span class="cbm_chip_count cbm_chip_count_danger">
-                                    <t t-esc="state.pendingApprovals.pending_discrepancy_count"/> à investiguer
-                                </span>
-                            </div>
-                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
-                        </div>
-                        
-                        <!-- Maintenance Requests - For maintenance team members only -->
-                        <div t-if="state.pendingApprovals.is_maintenance_responsible &amp;&amp; state.pendingApprovals.my_maintenance_count > 0" 
-                             t-att-class="'cbm_approval_chip cbm_chip_warning'"
-                             t-on-click="openMaintenanceList"
-                             title="Nouvelles demandes de maintenance">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_wrench"/>
-                                <span class="cbm_chip_badge" 
-                                      t-esc="state.pendingApprovals.my_maintenance_count"/>
-                            </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">Maintenance</span>
-                                <span class="cbm_chip_count">
-                                    <t t-esc="state.pendingApprovals.my_maintenance_count"/> nouvelle(s)
-                                </span>
-                            </div>
-                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
-                        </div>
-                        
-                        <!-- Brain Suggestions - Only show if user has suggestions -->
-                        <div t-if="state.brainStatus.has_suggestions"
-                             t-att-class="'cbm_approval_chip cbm_chip_brain' + (state.brainStatus.critical_count > 0 ? ' cbm_chip_danger' : ' cbm_chip_warning')"
-                             t-on-click="openBrainSuggestions"
-                             title="Suggestions de réapprovisionnement intelligent">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_brain"/>
-                                <span t-if="state.brainStatus.suggestion_count" 
-                                      class="cbm_chip_badge" 
-                                      t-esc="state.brainStatus.suggestion_count"/>
-                            </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">Suggestions</span>
-                                <span class="cbm_chip_count" t-if="state.brainStatus.critical_count > 0">
-                                    <t t-esc="state.brainStatus.critical_count"/> critique(s)
-                                </span>
-                                <span class="cbm_chip_count" t-elif="state.brainStatus.suggestion_count > 0">
-                                    <t t-esc="state.brainStatus.suggestion_count"/> produit(s)
-                                </span>
-                            </div>
-                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
-                        </div>
+                        <!-- RIGHT: Sidebar -->
+                        <aside class="cbm_sidebar_v2">
 
-                        <!-- Timeoff Requests - For responsables (location responsable / DRH / admin) -->
-                        <div t-if="state.pendingApprovals.is_timeoff_responsable"
-                             class="cbm_approval_chip cbm_chip_info"
-                             t-on-click="goToTimeoffRequests"
-                             title="Gérer les demandes de congé">
-                            <div class="cbm_chip_icon">
-                                <span class="cbm_icon_calendar"/>
+                            <!-- Suivi tile -->
+                            <div class="cbm_suivi_tile" t-on-click="goToHistory">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m14.181.207a1 1 0 0 0 -1.181.983v2.879a8.053 8.053 0 1 0 6.931 6.931h2.886a1 1 0 0 0 .983-1.181 12.047 12.047 0 0 0 -9.619-9.612zm1.819 12.793h-2.277a1.994 1.994 0 1 1 -2.723-2.723v-3.277a1 1 0 0 1 2 0v3.277a2 2 0 0 1 .723.723h2.277a1 1 0 0 1 0 2z"/></svg>
+                                <div class="cbm_suivi_text">
+                                    <span class="cbm_suivi_label">Suivi</span>
+                                    <span class="cbm_suivi_hint">Historique des opérations</span>
+                                </div>
+                                <span class="cbm_icon_chevron_right cbm_suivi_chevron"/>
                             </div>
-                            <div class="cbm_chip_text">
-                                <span class="cbm_chip_label">Demandes de Congé</span>
+
+                            <!-- Progress bars card -->
+                            <div class="cbm_sidebar_card">
+                                <h3 class="cbm_sidebar_heading">En Attente</h3>
+                                <div class="cbm_progress_list">
+
+                                    <!-- Mes Demandes -->
+                                    <div class="cbm_progress_item" t-on-click="goToHistory" title="Voir toutes vos demandes">
+                                        <div class="cbm_progress_item_header">
+                                            <span class="cbm_progress_label">Mes Demandes</span>
+                                            <span class="cbm_progress_value">
+                                                <t t-if="state.pendingApprovals.my_requests_count > 0"><t t-esc="state.pendingApprovals.my_requests_count"/> en attente</t>
+                                                <t t-else="">Aucune</t>
+                                            </span>
+                                        </div>
+                                        <div class="cbm_progress_bar_track">
+                                            <div class="cbm_progress_bar_fill"
+                                                 t-attf-style="width: #{Math.min(100, (state.pendingApprovals.my_requests_count / 20) * 100)}%"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- À Valider -->
+                                    <div t-if="state.pendingApprovals.has_transfer_approvals"
+                                         class="cbm_progress_item" t-on-click="openToApprove" title="Transferts à approuver">
+                                        <div class="cbm_progress_item_header">
+                                            <span class="cbm_progress_label">À Valider</span>
+                                            <span class="cbm_progress_value">
+                                                <t t-if="state.pendingApprovals.to_approve_count"><t t-esc="state.pendingApprovals.to_approve_count"/> en attente</t>
+                                                <t t-else="">À jour</t>
+                                            </span>
+                                        </div>
+                                        <div class="cbm_progress_bar_track">
+                                            <div class="cbm_progress_bar_fill cbm_bar_amber"
+                                                 t-attf-style="width: #{Math.min(100, (state.pendingApprovals.to_approve_count / 20) * 100)}%"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Réceptions -->
+                                    <div t-if="state.pendingApprovals.has_reception_access"
+                                         class="cbm_progress_item" t-on-click="goToReceptions" title="Livraisons à recevoir">
+                                        <div class="cbm_progress_item_header">
+                                            <span class="cbm_progress_label">Réceptions</span>
+                                            <span class="cbm_progress_value">
+                                                <t t-if="state.pendingApprovals.my_receptions_count"><t t-esc="state.pendingApprovals.my_receptions_count"/> à recevoir</t>
+                                                <t t-else="">Tout reçu</t>
+                                            </span>
+                                        </div>
+                                        <div class="cbm_progress_bar_track">
+                                            <div class="cbm_progress_bar_fill"
+                                                 t-attf-style="width: #{Math.min(100, (state.pendingApprovals.my_receptions_count / 30) * 100)}%"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bons de commande -->
+                                    <div t-if="state.pendingApprovals.pending_po_count > 0 || state.pendingApprovals.is_po_approver"
+                                         class="cbm_progress_item" t-on-click="openPendingPO" title="Bons de commande en attente">
+                                        <div class="cbm_progress_item_header">
+                                            <span class="cbm_progress_label">Bons de commande</span>
+                                            <span class="cbm_progress_value">
+                                                <t t-if="state.pendingApprovals.pending_po_count"><t t-esc="state.pendingApprovals.pending_po_count"/> en attente</t>
+                                                <t t-else="">À jour</t>
+                                            </span>
+                                        </div>
+                                        <div class="cbm_progress_bar_track">
+                                            <div class="cbm_progress_bar_fill cbm_bar_secondary"
+                                                 t-attf-style="width: #{Math.min(100, (state.pendingApprovals.pending_po_count / 20) * 100)}%"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Divergences Stock -->
+                                    <div t-if="(state.userContext.stock_alert_visibility === 'all' || (state.userContext.stock_alert_visibility === 'admin_only' and state.userContext.is_admin)) and state.pendingApprovals.pending_discrepancy_count > 0"
+                                         class="cbm_progress_item" t-on-click="openStockDiscrepancies" title="Divergences de stock">
+                                        <div class="cbm_progress_item_header">
+                                            <span class="cbm_progress_label">Divergences Stock</span>
+                                            <span class="cbm_progress_value cbm_progress_value--error">
+                                                <t t-esc="state.pendingApprovals.pending_discrepancy_count"/> à investiguer
+                                            </span>
+                                        </div>
+                                        <div class="cbm_progress_bar_track">
+                                            <div class="cbm_progress_bar_fill cbm_bar_error"
+                                                 t-attf-style="width: #{Math.min(100, (state.pendingApprovals.pending_discrepancy_count / 10) * 100)}%"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Maintenance -->
+                                    <div t-if="state.pendingApprovals.is_maintenance_responsible and state.pendingApprovals.my_maintenance_count > 0"
+                                         class="cbm_progress_item" t-on-click="openMaintenanceList" title="Demandes de maintenance">
+                                        <div class="cbm_progress_item_header">
+                                            <span class="cbm_progress_label">Maintenance</span>
+                                            <span class="cbm_progress_value">
+                                                <t t-esc="state.pendingApprovals.my_maintenance_count"/> nouvelle(s)
+                                            </span>
+                                        </div>
+                                        <div class="cbm_progress_bar_track">
+                                            <div class="cbm_progress_bar_fill cbm_bar_secondary"
+                                                 t-attf-style="width: #{Math.min(100, (state.pendingApprovals.my_maintenance_count / 10) * 100)}%"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Brain Suggestions -->
+                                    <div t-if="state.brainStatus.has_suggestions"
+                                         class="cbm_progress_item" t-on-click="openBrainSuggestions" title="Suggestions de réapprovisionnement">
+                                        <div class="cbm_progress_item_header">
+                                            <span class="cbm_progress_label">Suggestions</span>
+                                            <span class="cbm_progress_value">
+                                                <t t-if="state.brainStatus.critical_count > 0"><t t-esc="state.brainStatus.critical_count"/> critique(s)</t>
+                                                <t t-else=""><t t-esc="state.brainStatus.suggestion_count"/> produit(s)</t>
+                                            </span>
+                                        </div>
+                                        <div class="cbm_progress_bar_track">
+                                            <div t-att-class="'cbm_progress_bar_fill ' + (state.brainStatus.critical_count > 0 ? 'cbm_bar_error' : 'cbm_bar_tertiary')"
+                                                 t-attf-style="width: #{Math.min(100, (state.brainStatus.suggestion_count / 20) * 100)}%"/>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                            <span class="cbm_icon_chevron_right cbm_icon_chevron_right_sm"/>
-                        </div>
-                    </div>
-                </div>
+
+                            <!-- Recent Activity card -->
+                            <div class="cbm_sidebar_card">
+                                <h4 class="cbm_recent_heading">Mises à jour récentes</h4>
+                                <div t-if="state.recentActivity.length > 0" class="cbm_recent_list">
+                                    <t t-foreach="state.recentActivity" t-as="item" t-key="item.name">
+                                        <div class="cbm_recent_item">
+                                            <div t-att-class="'cbm_recent_dot ' + _recentDotClass(item.state)"/>
+                                            <div>
+                                                <p class="cbm_recent_name" t-esc="item.name"/>
+                                                <p class="cbm_recent_meta">
+                                                    <t t-esc="_formatRelativeTime(item.create_date)"/>
+                                                    <t t-if="item.portal_behavior"> · <t t-esc="item.portal_behavior"/></t>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                                <p t-else="" class="cbm_recent_empty">Aucune activité récente</p>
+                            </div>
+
+                        </aside>
+
+                    </div><!-- end cbm_home_layout_v2 -->
 
                 <!-- Workstation info (bottom-left) -->
                 <div class="cbm_workstation_info" t-if="state.workstationIp">
