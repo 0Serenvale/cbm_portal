@@ -310,6 +310,9 @@ class CBMKiosk extends Component {
             activityStatus: 'active',  // 'active' | 'idle'
             dualSessionWarning: '',
 
+            // Dashboard recent activity feed
+            recentActivity: [],
+
             // Inventory Session (for inventory counting)
             inventorySession: null,  // Populated on goToInventory()
         });
@@ -323,6 +326,8 @@ class CBMKiosk extends Component {
             await this.checkCashierAccess();
             // Log kiosk access (IP, screen resolution) - fire and forget
             this.logKioskAccess();
+            // Load recent activity for dashboard sidebar - fire and forget
+            this.loadRecentActivity();
         });
         
         // Keyboard navigation for cashier table
@@ -352,6 +357,42 @@ class CBMKiosk extends Component {
             }
             if (this._activityCheckInterval) clearInterval(this._activityCheckInterval);
         });
+    }
+
+    async loadRecentActivity() {
+        try {
+            const items = await this.rpc('/cbm/get_history', { limit: 5 });
+            this.state.recentActivity = (items || []).map(p => ({
+                name: p.name,
+                state: p.state,
+                portal_behavior: p.portal_behavior,
+                create_date: p.create_date,
+                partner_name: p.partner_name || false,
+            }));
+        } catch (e) {
+            // Non-blocking — dashboard still works without recent activity
+            this.state.recentActivity = [];
+        }
+    }
+
+    _formatRelativeTime(isoString) {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        const diffMs = Date.now() - date.getTime();
+        const diffMin = Math.floor(diffMs / 60000);
+        if (diffMin < 1) return 'À l\'instant';
+        if (diffMin < 60) return `Il y a ${diffMin} min`;
+        const diffH = Math.floor(diffMin / 60);
+        if (diffH < 24) return `Il y a ${diffH}h`;
+        if (diffH < 48) return 'Hier';
+        return `Il y a ${Math.floor(diffH / 24)}j`;
+    }
+
+    _recentDotClass(state) {
+        if (state === 'done') return 'dot_done';
+        if (['assigned', 'confirmed', 'waiting'].includes(state)) return 'dot_pending';
+        if (state === 'cancel') return 'dot_cancel';
+        return 'dot_draft';
     }
 
     // Custom toast notification system
