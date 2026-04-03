@@ -215,125 +215,64 @@
 
                             </section>
 
-                        <!-- Secondary Tiles - Permission-based modules (Caisse, Achats) -->
-                        <div t-if="state.hasCashierAccess || state.brainStatus.user_location_type === 'reception'" class="cbm_tiles_secondary">
-                            <!-- Cashier Tile -->
-                            <div t-if="state.hasCashierAccess" class="cbm_tooltip_trigger">
-                                <div class="cbm_tile cbm_tile_secondary cbm_tile_cashier" t-on-click="goToCashier">
-                                    <div class="cbm_tile_icon">
-                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12,21c4.971,0,9-4.029,9-9v-.018c-.002-.704-.103-1.383-.258-2.041-.147.023-.292.06-.442.06-.77,0-1.542-.292-2.129-.88-1.132-1.132-1.158-2.945-.099-4.121h2.876l-1.363,1.293c-.39.391-.39,1.024,0,1.414.391.391,1.024.391,1.414,0l2.451-2.381c.729-.729.729-1.922,0-2.651l-2.451-2.381c-.391-.391-1.024-.391-1.414,0s-.391,1.024,0,1.414l1.363,1.293h-8.948C7.03,3,3,7.029,3,12v.018c.001.704.103,1.383.258,2.041.147-.023.292-.06.442-.06.77,0,1.542.292,2.129.88,1.132,1.132,1.158,2.945.099,4.121h-2.876l1.363-1.293c.39-.391.39-1.024,0-1.414-.391-.391-1.024-.391-1.414,0l-2.451,2.381c-.729.729-.729,1.922,0,2.651l2.451,2.381c.391.391,1.024.391,1.414,0s.391-1.024,0-1.414l-1.363-1.293h8.949Zm1.08-5.2h-.28s0,.4,0,.4c0,.442-.358.8-.8.8h0c-.442,0-.8-.358-.8-.8v-.4h-.2c-.712,0-1.348-.324-1.77-.833-.418-.504-.063-1.266.592-1.266h.076c.227,0,.434.107.588.274.128.139.312.226.515.226h2.103c.278,0,.532-.187.586-.46.063-.318-.146-.615-.451-.677l-2.791-.559c-1.112-.223-1.888-1.281-1.725-2.439.152-1.08,1.108-1.866,2.199-1.866h.28s0-.4,0-.4c0-.442.358-.8.8-.8h0c.442,0,.8.358.8.8v.4h.2c.712,0,1.348.324,1.77.833.418.504.063,1.266-.592,1.266h-.076c-.227,0-.434-.107-.588.274-.128.139-.312.226-.515.226h-2.101c-.278,0-.532.186-.587.458-.064.318.146.617.449.678l2.792.559c1.112.222,1.889,1.282,1.725,2.439-.152,1.08-1.108,1.865-2.199,1.865Z"/></svg>
-                                    </div>
-                                    <div class="cbm_tile_content">
-                                        <span class="cbm_tile_label">Caisse</span>
-                                        <span class="cbm_tile_hint">Facturation</span>
-                                    </div>
-                                    <span class="cbm_icon_chevron_right cbm_tile_chevron"/>
+                            <!-- Secondary Modules -->
+                            <section class="cbm_cards_modules">
+                                <div class="cbm_section_header">
+                                    <div class="cbm_section_accent"/>
+                                    <h2 class="cbm_section_title">Modules</h2>
                                 </div>
-                                <!-- Premium Tooltip -->
-                                <div class="cbm_tooltip cbm_tooltip_bottom">
-                                    <div class="cbm_tooltip_card">
-                                        <div class="cbm_tooltip_header">
-                                            <div class="cbm_tooltip_icon">
-                                                <span class="cbm_icon_banknotes"/>
-                                            </div>
-                                            <h3 class="cbm_tooltip_title">Caisse</h3>
-                                        </div>
-                                        <div class="cbm_tooltip_content">
-                                            <p class="cbm_tooltip_text">Facturation et encaissement des paiements patients.</p>
-                                        </div>
-                                        <div class="cbm_tooltip_arrow"></div>
-                                    </div>
-                                </div>
-                            </div>
+                                <div class="cbm_cards_modules_grid">
 
-                            <!-- Purchase Dashboard Tile -->
-                            <div t-if="state.brainStatus.user_location_type === 'reception'" class="cbm_tooltip_trigger">
-                                <div class="cbm_tile cbm_tile_secondary cbm_tile_po_create" t-on-click="() => this.goToPOList()">
-                                    <div class="cbm_tile_icon">
-                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18,12a5.993,5.993,0,0,1-5.191-9H4.242L4.2,2.648A3,3,0,0,0,1.222,0H1A1,1,0,0,0,1,2h.222a1,1,0,0,1,.993.883l1.376,11.7A5,5,0,0,0,8.557,19H19a1,1,0,0,0,0-2H8.557a3,3,0,0,1-2.821-2H17.657a5,5,0,0,0,4.921-4.113l.238-1.319A5.984,5.984,0,0,1,18,12Z"/><circle cx="7" cy="22" r="2"/><circle cx="17" cy="22" r="2"/><path d="M15,7h2V9a1,1,0,0,0,2,0V7h2a1,1,0,0,0,0-2H19V3a1,1,0,0,0-2,0V5H15a1,1,0,0,0,0,2Z"/></svg>
-                                    </div>
-                                    <div class="cbm_tile_content">
-                                        <span class="cbm_tile_label">Achats</span>
-                                        <span class="cbm_tile_hint">Commandes</span>
-                                    </div>
-                                    <span class="cbm_icon_chevron_right cbm_tile_chevron"/>
-                                </div>
-                                <!-- Premium Tooltip -->
-                                <div class="cbm_tooltip cbm_tooltip_bottom">
-                                    <div class="cbm_tooltip_card">
-                                        <div class="cbm_tooltip_header">
-                                            <div class="cbm_tooltip_icon">
-                                                <span class="cbm_icon_cart"/>
-                                            </div>
-                                            <h3 class="cbm_tooltip_title">Tableau de Bord Achats</h3>
+                                    <!-- Cashier -->
+                                    <div t-if="state.hasCashierAccess" class="cbm_tooltip_trigger">
+                                        <div class="cbm_card_module" t-on-click="goToCashier">
+                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12,21c4.971,0,9-4.029,9-9v-.018c-.002-.704-.103-1.383-.258-2.041-.147.023-.292.06-.442.06-.77,0-1.542-.292-2.129-.88-1.132-1.132-1.158-2.945-.099-4.121h2.876l-1.363,1.293c-.39.391-.39,1.024,0,1.414.391.391,1.024.391,1.414,0l2.451-2.381c.729-.729.729-1.922,0-2.651l-2.451-2.381c-.391-.391-1.024-.391-1.414,0s-.391,1.024,0,1.414l1.363,1.293h-8.948C7.03,3,3,7.029,3,12v.018c.001.704.103,1.383.258,2.041.147-.023.292-.06.442-.06.77,0,1.542.292,2.129.88,1.132,1.132,1.158,2.945.099,4.121h-2.876l1.363-1.293c.39-.391.39-1.024,0-1.414-.391-.391-1.024-.391-1.414,0l-2.451,2.381c-.729.729-.729,1.922,0,2.651l2.451,2.381c.391.391,1.024.391,1.414,0s.391-1.024,0-1.414l-1.363-1.293h8.949Z"/></svg>
+                                            <span class="cbm_module_label">Caisse</span>
                                         </div>
-                                        <div class="cbm_tooltip_content">
-                                            <p class="cbm_tooltip_text">Accéder au tableau de bord des commandes fournisseurs.</p>
-                                        </div>
-                                        <div class="cbm_tooltip_arrow"></div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Documents Tile - Always visible -->
-                        <div class="cbm_tiles_tertiary">
-                            <div class="cbm_tooltip_trigger">
-                                <div class="cbm_tile cbm_tile_secondary cbm_tile_documents" t-on-click="goToDocuments">
-                                    <div class="cbm_tile_icon">
-                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.5,0H6.5C5.122,0,4,1.122,4,2.5V4H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v1.5c0,1.378,1.122,2.5,2.5,2.5h13c1.378,0,2.5-1.122,2.5-2.5V2.5c0-1.378-1.122-2.5-2.5-2.5Zm-3.5,17h-6c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h6c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Zm2-4h-8c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h8c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Zm0-4h-8c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h8c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Z"/></svg>
-                                    </div>
-                                    <div class="cbm_tile_content">
-                                        <span class="cbm_tile_label">Documents</span>
-                                        <span class="cbm_tile_hint">Procédures</span>
-                                    </div>
-                                    <span class="cbm_icon_chevron_right cbm_tile_chevron"/>
-                                </div>
-                                <div class="cbm_tooltip cbm_tooltip_bottom">
-                                    <div class="cbm_tooltip_card">
-                                        <div class="cbm_tooltip_header">
-                                            <div class="cbm_tooltip_icon">
-                                                <span class="cbm_icon_document"/>
-                                            </div>
-                                            <h3 class="cbm_tooltip_title">Documents &amp; Procédures</h3>
+                                    <!-- Achats -->
+                                    <div t-if="state.brainStatus.user_location_type === 'reception'" class="cbm_tooltip_trigger">
+                                        <div class="cbm_card_module" t-on-click="() => this.goToPOList()">
+                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18,12a5.993,5.993,0,0,1-5.191-9H4.242L4.2,2.648A3,3,0,0,0,1.222,0H1A1,1,0,0,0,1,2h.222a1,1,0,0,1,.993.883l1.376,11.7A5,5,0,0,0,8.557,19H19a1,1,0,0,0,0-2H8.557a3,3,0,0,1-2.821-2H17.657a5,5,0,0,0,4.921-4.113l.238-1.319A5.984,5.984,0,0,1,18,12Z"/><circle cx="7" cy="22" r="2"/><circle cx="17" cy="22" r="2"/><path d="M15,7h2V9a1,1,0,0,0,2,0V7h2a1,1,0,0,0,0-2H19V3a1,1,0,0,0-2,0V5H15a1,1,0,0,0,0,2Z"/></svg>
+                                            <span class="cbm_module_label">Achats</span>
                                         </div>
-                                        <div class="cbm_tooltip_content">
-                                            <p class="cbm_tooltip_text">Accéder aux guides, procédures et formations de votre service.</p>
-                                        </div>
-                                        <div class="cbm_tooltip_arrow"></div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Custom Tiles (from Tile Manager) - Compact grid -->
-                        <div t-if="state.customTiles.length" class="cbm_tiles_custom">
-                            <t t-foreach="state.customTiles" t-as="tile" t-key="tile.id">
-                                <div class="cbm_tooltip_trigger">
-                                    <div class="cbm_tile cbm_tile_compact" t-on-click="() => this.openCustomTile(tile)">
-                                        <div class="cbm_tile_icon">
-                                            <!-- Dynamic icon using CSS class based on tile.icon -->
-                                            <span t-att-class="'cbm_tile_icon_svg cbm_icon_' + getIconClass(tile.icon)"/>
-                                            <span t-if="tile.pending_count > 0" class="cbm_tile_badge" t-esc="tile.pending_count"/>
-                                        </div>
-                                        <span class="cbm_tile_label" t-esc="tile.name"/>
-                                    </div>
-                                    <!-- Tooltip -->
-                                    <div class="cbm_tooltip cbm_tooltip_bottom" t-if="tile.description">
-                                        <div class="cbm_tooltip_card">
-                                            <div class="cbm_tooltip_header">
-                                                <h3 class="cbm_tooltip_title" t-esc="tile.name"/>
-                                            </div>
-                                            <div class="cbm_tooltip_content">
-                                                <p class="cbm_tooltip_text" t-esc="tile.description"/>
-                                            </div>
-                                            <div class="cbm_tooltip_arrow"></div>
+                                    <!-- Documents -->
+                                    <div class="cbm_tooltip_trigger">
+                                        <div class="cbm_card_module" t-on-click="goToDocuments">
+                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.5,0H6.5C5.122,0,4,1.122,4,2.5V4H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v1.5c0,1.378,1.122,2.5,2.5,2.5h13c1.378,0,2.5-1.122,2.5-2.5V2.5c0-1.378-1.122-2.5-2.5-2.5Zm-3.5,17h-6c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h6c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Zm2-4h-8c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h8c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Zm0-4h-8c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h8c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Z"/></svg>
+                                            <span class="cbm_module_label">Documents</span>
                                         </div>
                                     </div>
+
+                                    <!-- Custom Tiles from Tile Manager -->
+                                    <t t-foreach="state.customTiles" t-as="tile" t-key="tile.id">
+                                        <div class="cbm_tooltip_trigger">
+                                            <div class="cbm_card_module" t-on-click="() => this.openCustomTile(tile)">
+                                                <span t-att-class="'cbm_tile_icon_svg cbm_icon_' + getIconClass(tile.icon)"/>
+                                                <span class="cbm_module_label" t-esc="tile.name"/>
+                                                <span t-if="tile.pending_count > 0" class="cbm_tile_badge" t-esc="tile.pending_count"/>
+                                            </div>
+                                            <div class="cbm_tooltip cbm_tooltip_bottom" t-if="tile.description">
+                                                <div class="cbm_tooltip_card">
+                                                    <div class="cbm_tooltip_header">
+                                                        <h3 class="cbm_tooltip_title" t-esc="tile.name"/>
+                                                    </div>
+                                                    <div class="cbm_tooltip_content">
+                                                        <p class="cbm_tooltip_text" t-esc="tile.description"/>
+                                                    </div>
+                                                    <div class="cbm_tooltip_arrow"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+
                                 </div>
-                            </t>
-                        </div>
-                    </div>
+                            </section>
+
+                        </div><!-- end cbm_home_main -->
                     
                     <!-- Sidebar - Pending Work -->
                     <div t-if="state.pendingApprovals.show_sidebar" class="cbm_approvals_sidebar">
