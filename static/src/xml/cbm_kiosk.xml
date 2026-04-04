@@ -57,9 +57,6 @@
             <!-- Home Screen -->
             <div t-elif="state.currentState === 'home'" class="cbm_kiosk_home">
 
-                <!-- Announcement / Inventory Warning Banner -->
-                <InventoryBanner/>
-
                 <!-- Header (v2 — simplified, no search/nav) -->
                 <header class="cbm_kiosk_header_v2">
                     <h1 class="cbm_portal_title">Portail CBM</h1>
@@ -93,12 +90,21 @@
                             </t>
                         </button>
 
-                        <!-- Logout -->
-                        <a href="/web/session/logout" class="cbm_logout_btn" title="Déconnexion">
+                        <!-- Logout (desktop only) -->
+                        <a href="/web/session/logout" class="cbm_logout_btn cbm_hide_mobile" title="Déconnexion">
                             <span class="cbm_icon_logout cbm_icon_logout_sm me-1"/>Déconnexion
                         </a>
+
+                        <!-- Hamburger (mobile only) -->
+                        <button class="cbm_hamburger" t-on-click="toggleMobileMenu" title="Menu">
+                            <span/><span/><span/>
+                        </button>
                     </div>
                 </header>
+
+                <!-- Announcement / Inventory Warning Banner -->
+                <InventoryBanner/>
+
 
                 <!-- Two-column layout -->
                 <div class="cbm_home_layout_v2">
@@ -228,6 +234,10 @@
                                         <div class="cbm_card_module" t-on-click="goToCashier">
                                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12,21c4.971,0,9-4.029,9-9v-.018c-.002-.704-.103-1.383-.258-2.041-.147.023-.292.06-.442.06-.77,0-1.542-.292-2.129-.88-1.132-1.132-1.158-2.945-.099-4.121h2.876l-1.363,1.293c-.39.391-.39,1.024,0,1.414.391.391,1.024.391,1.414,0l2.451-2.381c.729-.729.729-1.922,0-2.651l-2.451-2.381c-.391-.391-1.024-.391-1.414,0s-.391,1.024,0,1.414l1.363,1.293h-8.948C7.03,3,3,7.029,3,12v.018c.001.704.103,1.383.258,2.041.147-.023.292-.06.442-.06.77,0,1.542.292,2.129.88,1.132,1.132,1.158,2.945.099,4.121h-2.876l1.363-1.293c.39-.391.39-1.024,0-1.414-.391-.391-1.024-.391-1.414,0l-2.451,2.381c-.729.729-.729,1.922,0,2.651l2.451,2.381c.391.391,1.024.391,1.414,0s.391-1.024,0-1.414l-1.363-1.293h8.949Z"/></svg>
                                             <span class="cbm_module_label">Caisse</span>
+                                            <span t-if="state.pendingApprovals.caisse_today_count > 0" class="cbm_tile_chip cbm_tile_chip--info">
+                                                <t t-esc="state.pendingApprovals.caisse_today_count"/> aujourd'hui
+                                            </span>
+                                            <span t-else="" class="cbm_tile_chip cbm_tile_chip--empty">_</span>
                                         </div>
                                     </div>
 
@@ -236,6 +246,10 @@
                                         <div class="cbm_card_module" t-on-click="() => this.goToPOList()">
                                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18,12a5.993,5.993,0,0,1-5.191-9H4.242L4.2,2.648A3,3,0,0,0,1.222,0H1A1,1,0,0,0,1,2h.222a1,1,0,0,1,.993.883l1.376,11.7A5,5,0,0,0,8.557,19H19a1,1,0,0,0,0-2H8.557a3,3,0,0,1-2.821-2H17.657a5,5,0,0,0,4.921-4.113l.238-1.319A5.984,5.984,0,0,1,18,12Z"/><circle cx="7" cy="22" r="2"/><circle cx="17" cy="22" r="2"/><path d="M15,7h2V9a1,1,0,0,0,2,0V7h2a1,1,0,0,0,0-2H19V3a1,1,0,0,0-2,0V5H15a1,1,0,0,0,0,2Z"/></svg>
                                             <span class="cbm_module_label">Achats</span>
+                                            <span t-if="state.pendingApprovals.pending_po_count > 0" class="cbm_tile_chip cbm_tile_chip--warning">
+                                                <t t-esc="state.pendingApprovals.pending_po_count"/> en attente
+                                            </span>
+                                            <span t-else="" class="cbm_tile_chip cbm_tile_chip--empty">_</span>
                                         </div>
                                     </div>
 
@@ -244,6 +258,10 @@
                                         <div class="cbm_card_module" t-on-click="goToDocuments">
                                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.5,0H6.5C5.122,0,4,1.122,4,2.5V4H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v2H2.5c-.276,0-.5,.224-.5,.5s.224,.5,.5,.5h1.5v1.5c0,1.378,1.122,2.5,2.5,2.5h13c1.378,0,2.5-1.122,2.5-2.5V2.5c0-1.378-1.122-2.5-2.5-2.5Zm-3.5,17h-6c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h6c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Zm2-4h-8c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h8c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Zm0-4h-8c-.276,0-.5-.224-.5-.5s.224-.5,.5-.5h8c.276,0,.5,.224,.5,.5s-.224,.5-.5,.5Z"/></svg>
                                             <span class="cbm_module_label">Documents</span>
+                                            <span t-if="state.pendingApprovals.my_documents_count > 0" class="cbm_tile_chip cbm_tile_chip--neutral">
+                                                <t t-esc="state.pendingApprovals.my_documents_count"/> fichiers
+                                            </span>
+                                            <span t-else="" class="cbm_tile_chip cbm_tile_chip--empty">_</span>
                                         </div>
                                     </div>
 
@@ -253,7 +271,15 @@
                                             <div class="cbm_card_module" t-on-click="() => this.openCustomTile(tile)">
                                                 <span t-att-class="'cbm_tile_icon_svg cbm_icon_' + getIconClass(tile.icon)"/>
                                                 <span class="cbm_module_label" t-esc="tile.name"/>
-                                                <span t-if="tile.pending_count > 0" class="cbm_tile_badge" t-esc="tile.pending_count"/>
+                                                <span t-if="tile.pending_count > 0"
+                                                      t-att-class="'cbm_tile_chip ' + (tile.icon === 'wrench-screwdriver' ? 'cbm_tile_chip--warning' : tile.icon === 'calendar-days' ? 'cbm_tile_chip--warning' : tile.icon === 'chat-bubble-left-right' ? 'cbm_tile_chip--info' : 'cbm_tile_chip--neutral')">
+                                                    <t t-esc="tile.pending_count"/>
+                                                    <t t-if="tile.icon === 'chat-bubble-left-right'"> non lus</t>
+                                                    <t t-elif="tile.icon === 'wrench-screwdriver'"> nouvelles</t>
+                                                    <t t-elif="tile.icon === 'calendar-days'"> en attente</t>
+                                                    <t t-else=""> actifs</t>
+                                                </span>
+                                                <span t-else="" class="cbm_tile_chip cbm_tile_chip--empty">_</span>
                                             </div>
                                             <div class="cbm_tooltip cbm_tooltip_bottom" t-if="tile.description">
                                                 <div class="cbm_tooltip_card">
@@ -275,7 +301,25 @@
                         </div><!-- end cbm_home_main -->
                     
                         <!-- RIGHT: Sidebar -->
-                        <aside class="cbm_sidebar_v2">
+                        <aside t-attf-class="cbm_sidebar_v2{{ state.mobileMenuOpen ? ' cbm_sidebar_mobile_open' : '' }}">
+
+                            <!-- Mobile-only top bar (Retour + user name) -->
+                            <div class="cbm_sidebar_mobile_header">
+                                <button class="cbm_mobile_menu_back" t-on-click="closeMobileMenu">
+                                    <span class="cbm_icon_arrow_left"/>
+                                    Retour
+                                </button>
+                                <span class="cbm_mobile_menu_title" t-esc="state.userContext?.user_name"/>
+                            </div>
+
+                            <!-- Financial chip — mobile only (hidden in header on small screens) -->
+                            <div t-if="state.financials.is_executive"
+                                 class="cbm_sidebar_financial"
+                                 t-on-click="goToFinancialDashboard"
+                                 title="Accountability Dashboard">
+                                <span class="cbm_icon_warning cbm_icon_warning_sm"/>
+                                <span><t t-esc="state.financials.pending_count || 0"/> transferts · <t t-esc="(state.financials.total_at_risk || 0).toLocaleString()"/><t t-esc="state.financials.currency_symbol || 'DA'"/></span>
+                            </div>
 
                             <!-- Suivi tile -->
                             <div class="cbm_suivi_tile" t-on-click="goToHistory">
@@ -283,6 +327,17 @@
                                 <div class="cbm_suivi_text">
                                     <span class="cbm_suivi_label">Suivi</span>
                                     <span class="cbm_suivi_hint">Historique des opérations</span>
+                                </div>
+                                <span class="cbm_icon_chevron_right cbm_suivi_chevron"/>
+                            </div>
+
+                            <!-- Timeoff management tile (responsables / DRH / admin only) -->
+                            <div t-if="state.pendingApprovals.is_timeoff_responsable"
+                                 class="cbm_suivi_tile" t-on-click="goToTimeoffRequests">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19,2h-1V1a1,1,0,0,0-2,0V2H8V1A1,1,0,0,0,6,1V2H5A5.006,5.006,0,0,0,0,7V19a5.006,5.006,0,0,0,5,5H19a5.006,5.006,0,0,0,5-5V7A5.006,5.006,0,0,0,19,2Zm3,17a3,3,0,0,1-3,3H5a3,3,0,0,1-3-3V11H22ZM22,9H2V7A3,3,0,0,1,5,4H6V5A1,1,0,0,0,8,5V4h8V5a1,1,0,0,0,2,0V4h1a3,3,0,0,1,3,3ZM7,14a1,1,0,1,1,1,1A1,1,0,0,1,7,14Zm5,0a1,1,0,1,1,1,1A1,1,0,0,1,12,14Zm5,0a1,1,0,1,1,1,1A1,1,0,0,1,17,14Zm-10,4a1,1,0,1,1,1,1A1,1,0,0,1,7,18Zm5,0a1,1,0,1,1,1,1A1,1,0,0,1,12,18Zm5,0a1,1,0,1,1,1,1A1,1,0,0,1,17,18Z"/></svg>
+                                <div class="cbm_suivi_text">
+                                    <span class="cbm_suivi_label">Demandes de Congé</span>
+                                    <span class="cbm_suivi_hint">Valider et imprimer les congés</span>
                                 </div>
                                 <span class="cbm_icon_chevron_right cbm_suivi_chevron"/>
                             </div>
@@ -404,25 +459,29 @@
                                 </div>
                             </div>
 
-                            <!-- Recent Activity card -->
+                            <!-- Inbox / Recent Activity card -->
                             <div class="cbm_sidebar_card">
-                                <h4 class="cbm_recent_heading">Mises à jour récentes</h4>
+                                <h4 class="cbm_recent_heading">Boîte de réception</h4>
                                 <div t-if="state.recentActivity.length > 0" class="cbm_recent_list">
-                                    <t t-foreach="state.recentActivity" t-as="item" t-key="item.name">
-                                        <div class="cbm_recent_item">
-                                            <div t-att-class="'cbm_recent_dot ' + _recentDotClass(item.state)"/>
-                                            <div>
+                                    <t t-foreach="state.recentActivity" t-as="item" t-key="item_index">
+                                        <div t-att-class="'cbm_recent_item' + (item.is_read ? '' : ' cbm_recent_item--unread')">
+                                            <div t-att-class="'cbm_recent_dot ' + (item.is_read ? 'cbm_dot_done' : 'cbm_dot_pending')"/>
+                                            <div class="cbm_recent_item_body">
                                                 <p class="cbm_recent_name" t-esc="item.name"/>
-                                                <p class="cbm_recent_meta">
-                                                    <t t-esc="_formatRelativeTime(item.create_date)"/>
-                                                    <t t-if="item.portal_behavior"> · <t t-esc="item.portal_behavior"/></t>
-                                                </p>
+                                                <p class="cbm_recent_preview" t-esc="item.preview"/>
+                                                <p class="cbm_recent_meta" t-esc="_formatRelativeTime(item.create_date)"/>
                                             </div>
                                         </div>
                                     </t>
                                 </div>
-                                <p t-else="" class="cbm_recent_empty">Aucune activité récente</p>
+                                <p t-else="" class="cbm_recent_empty">Aucun message dans la boîte de réception</p>
                             </div>
+
+                            <!-- Mobile-only logout -->
+                            <a href="/web/session/logout" class="cbm_sidebar_mobile_logout">
+                                <span class="cbm_icon_logout cbm_icon_logout_sm"/>
+                                Déconnexion
+                            </a>
 
                         </aside>
 
@@ -436,28 +495,28 @@
             </div>
 
             <!-- Consumption Menu (Op Type Icons) -->
-            <div t-elif="state.currentState === 'consumption_menu'" class="cbm_kiosk_submenu">
-                <div class="cbm_kiosk_header">
+            <div t-elif="state.currentState === 'consumption_menu'" class="cbm_page">
+                <div class="cbm_page_header">
                     <button class="cbm_back_btn" t-on-click="goHome" title="Retour à l'accueil">
                         <span class="cbm_icon_arrow_left me-2"/>Retour
                     </button>
-                    <h2>Select Operation Type</h2>
+                    <div class="cbm_page_title">
+                        <h2>Sélectionner le type</h2>
+                    </div>
+                    <button class="cbm_close_btn" t-on-click="goHome">
+                        <span class="cbm_icon_x"/>
+                    </button>
                 </div>
-                
-                <div class="cbm_kiosk_tiles">
+
+                <div class="cbm_optype_grid">
                     <t t-foreach="consumptionOpTypes" t-as="opType" t-key="opType.id">
-                        <div class="cbm_tile cbm_tile_optype" t-on-click="() => this.selectConsumptionOpType(opType)" t-att-title="opType.name">
-                            <div class="cbm_tile_icon">
-                                <!-- Dynamic icon using CSS class based on opType.portal_icon -->
+                        <div class="cbm_card_optype" t-on-click="() => this.selectConsumptionOpType(opType)">
+                            <div class="cbm_card_icon_wrap cbm_optype_icon_wrap">
                                 <span t-att-class="'cbm_tile_icon_svg cbm_icon_' + getIconClass(opType.portal_icon)"/>
                             </div>
-                            <div class="cbm_tile_content">
-                                <div class="cbm_tile_label" t-esc="opType.name"/>
-                                <div t-if="opType.portal_requires_patient" class="cbm_tile_hint">
-                                    <span class="badge rounded-pill bg-secondary">Patient Required</span>
-                                </div>
-                            </div>
-                            <span class="cbm_icon_chevron_right cbm_tile_arrow"/>
+                            <span class="cbm_card_title" t-esc="opType.name"/>
+                            <span t-if="opType.portal_requires_patient" class="cbm_tile_chip cbm_tile_chip--info">Patient requis</span>
+                            <span t-else="" class="cbm_tile_chip cbm_tile_chip--empty">_</span>
                         </div>
                     </t>
                 </div>

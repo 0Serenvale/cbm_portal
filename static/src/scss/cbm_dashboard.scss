@@ -58,15 +58,40 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 }
 
 // =============================================================================
+// ROOT CONTAINER
+// =============================================================================
+
+// Prevent anything from blowing out horizontal scroll
+.cbm_kiosk_home {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+// Workstation IP — bottom-left, out of flow, never pushes layout
+.cbm_workstation_info {
+    position: fixed;
+    bottom: 0.5rem;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: $cbm-outline-variant;
+    pointer-events: none;
+    z-index: 10;
+
+    @media (max-width: 600px) {
+        display: none;
+    }
+}
+
+// =============================================================================
 // LAYOUT
 // =============================================================================
 
 .cbm_home_layout_v2 {
     display: flex;
     flex-direction: row;
-    gap: 2rem;
+    gap: 2.5rem;      // gap-10 = 40px
     align-items: flex-start;
-    padding: 2rem 2.5rem;
+    padding: 3rem 1.5rem; // py-12 px-6
 
     @media (max-width: 992px) {
         flex-direction: column;
@@ -79,15 +104,15 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 3rem;  // space-y-12 = 48px
 }
 
 .cbm_sidebar_v2 {
-    width: 340px;
+    width: 288px;   // w-72 = 288px
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;    // gap-6 = 24px
 
     @media (max-width: 992px) {
         width: 100%;
@@ -106,32 +131,35 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.625rem 2.5rem;
+    padding: 1.25rem 1.5rem;
     // No border — tonal separation only
 
     .cbm_portal_title {
-        font-size: 1.25rem;
-        font-weight: 800;
+        font-size: 1.5rem;
+        font-weight: 700;
         color: $cbm-primary;
         letter-spacing: -0.02em;
         margin: 0;
+        white-space: nowrap;    // never wrap
     }
 
     .cbm_header_actions {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
+        flex-shrink: 0;
     }
 
     .cbm_header_location {
         display: flex;
         align-items: center;
         gap: 0.25rem;
-        font-size: 0.8125rem;
+        font-size: 0.9375rem;
         color: $cbm-on-surface-variant;
         background: $cbm-surface-container;
-        padding: 0.25rem 0.75rem;
+        padding: 0.375rem 0.875rem;
         border-radius: $cbm-radius-full;
+        white-space: nowrap;
     }
 
     .cbm_theme_toggle {
@@ -144,6 +172,7 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
 
         &:hover {
             background: $cbm-surface-container;
@@ -151,29 +180,73 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     }
 
     .cbm_logout_btn {
-        font-size: 0.8125rem;
-        padding: 0.375rem 0.875rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        padding: 0.5rem 1.125rem;
         border-radius: $cbm-radius-full;
-        border: 1px solid rgba($cbm-outline-variant, 0.5);
-        color: $cbm-on-surface-variant;
+        border: 1.5px solid rgba(#dc2626, 0.35);
+        color: #dc2626;
+        background: rgba(#dc2626, 0.05);
         text-decoration: none;
         display: flex;
         align-items: center;
-        gap: 0.25rem;
-        transition: background 0.15s;
+        gap: 0.375rem;
+        transition: background 0.15s, border-color 0.15s;
+        white-space: nowrap;
+
+        span { opacity: 0.8; }
 
         &:hover {
-            background: $cbm-surface-container;
+            background: rgba(#dc2626, 0.1);
+            border-color: rgba(#dc2626, 0.6);
         }
     }
 
     .cbm_financial_header {
         cursor: pointer;
-        font-size: 0.8125rem;
+        font-size: 0.9375rem;
         color: $cbm-on-surface-variant;
+        white-space: nowrap;
 
         &:hover {
             color: $cbm-on-surface;
+        }
+    }
+
+    // Mobile
+    @media (max-width: 600px) {
+        padding: 0.625rem 0.875rem;
+        flex-wrap: nowrap;          // single row, never wrap
+
+        .cbm_portal_title {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .cbm_header_actions {
+            gap: 0.375rem;
+            overflow: hidden;       // clip anything that doesn't fit
+        }
+
+        // Hide ward chip
+        .cbm_header_location {
+            display: none;
+        }
+
+        // Collapse logout to icon only
+        .cbm_logout_btn {
+            padding: 0.375rem;
+            border: none;
+            background: none;
+
+            span:not(.cbm_icon_logout_sm) {
+                display: none;      // hide "Déconnexion" text
+            }
+        }
+
+        // Hide financial chip from header on mobile — shown in sidebar instead
+        .cbm_financial_header {
+            display: none;
         }
     }
 }
@@ -185,19 +258,20 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 .cbm_welcome_section {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 1rem;      // space-y-4 = 16px
+    text-align: center;
 
     h1 {
-        font-size: 2rem;
-        font-weight: 800;
-        color: $cbm-primary;
-        letter-spacing: -0.03em;
+        font-size: 2.25rem;     // text-4xl = 36px
+        font-weight: 800;       // font-extrabold
+        color: $cbm-on-surface;
+        letter-spacing: -0.025em; // tracking-tight
         margin: 0;
         line-height: 1.2;
     }
 
     p {
-        font-size: 0.9375rem;
+        font-size: 1.125rem;    // text-lg = 18px
         color: $cbm-on-surface-variant;
         margin: 0;
     }
@@ -222,12 +296,12 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     border-radius: $cbm-radius-xl;
     border: 1px solid transparent;
     box-shadow: $cbm-shadow-sm;
-    padding: 1.5rem;
+    padding: 2rem;      // p-8 = 32px
     cursor: pointer;
     transition: border-color 0.2s ease;
     display: flex;
     flex-direction: column;
-    gap: 0.875rem;
+    gap: 1rem;          // gap-4 = 16px
 
     &:hover {
         border-color: rgba($cbm-primary, 0.2);
@@ -284,7 +358,7 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 }
 
 .cbm_card_status_chip {
-    font-size: 0.6875rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: $cbm-on-surface-variant;
     background: $cbm-surface-low;
@@ -300,14 +374,14 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 }
 
 .cbm_card_title {
-    font-size: 1.125rem;
+    font-size: 1.5rem;          // text-2xl = 24px
     font-weight: 700;
     color: $cbm-on-surface;
     margin: 0;
 }
 
 .cbm_card_hint {
-    font-size: 0.875rem;
+    font-size: 1.0625rem;       // ~17px — visible body text
     color: $cbm-on-surface-variant;
     line-height: 1.5;
     margin: 0;
@@ -342,42 +416,185 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 .cbm_cards_modules_grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.875rem;
+    gap: 1rem;          // gap-4 = 16px
 
-    @media (min-width: 576px) {
+    @media (min-width: 768px) {
         grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: 992px) {
+        grid-template-columns: repeat(4, 1fr);  // grid-cols-4 at lg
     }
 }
 
-.cbm_card_module {
-    background: $cbm-surface-low;
+// =============================================================================
+// OP TYPE SELECTION PAGE
+// =============================================================================
+
+.cbm_optype_grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    padding: 2rem 1.5rem;
+    justify-content: center;
+    align-content: flex-start;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.cbm_card_optype {
+    background: $cbm-surface-lowest;
     border-radius: $cbm-radius-xl;
     border: 1px solid transparent;
-    padding: 1.125rem;
+    box-shadow: $cbm-shadow-sm;
+    padding: 1.75rem 1.5rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 180px;
+    min-height: 10rem;
+
+    @media (max-width: 600px) {
+        width: 150px;
+        padding: 1.5rem 1rem;
+    }
+
+    .cbm_optype_icon_wrap {
+        --cbm-card-color: #{$cbm-primary};
+        --cbm-card-color-container: #{$cbm-primary-container};
+        --cbm-card-color-solid: #{$cbm-primary};
+        --cbm-card-icon-on-solid: #{$cbm-on-primary};
+
+        .cbm_tile_icon_svg {
+            width: 28px;
+            height: 28px;
+            background-color: $cbm-primary;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease;
+        }
+    }
+
+    .cbm_card_title {
+        text-align: center;
+        line-height: 1.3;
+        font-size: 1.0625rem;
+    }
+
+    &:hover {
+        border-color: rgba($cbm-primary, 0.2);
+        box-shadow: 0 4px 16px rgba($cbm-primary, 0.08);
+
+        .cbm_optype_icon_wrap {
+            background: $cbm-primary;
+            color: $cbm-on-primary;
+
+            .cbm_tile_icon_svg {
+                background-color: $cbm-on-primary;
+            }
+        }
+    }
+}
+
+// Dark mode
+.cbm_kiosk.cbm-dark-mode {
+    .cbm_card_optype {
+        background: var(--cbm-card-bg);
+        border-color: var(--cbm-border-subtle);
+        box-shadow: none;
+
+        .cbm_tile_icon_svg { background-color: var(--cbm-icon-color); }
+        .cbm_card_title    { color: var(--cbm-color-text); }
+
+        &:hover {
+            background: var(--cbm-hover-bg);
+            border-color: var(--cbm-border-color);
+        }
+    }
+}
+
+// =============================================================================
+
+.cbm_card_module {
+    background: $cbm-surface-lowest;
+    border-radius: $cbm-radius-xl;
+    border: 1px solid rgba($cbm-outline-variant, 0.15);
+    box-shadow: $cbm-shadow-sm;
+    padding: 1.5rem;
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 8rem;
 
+    // Inline SVG icons (Caisse, Achats, Documents)
     svg {
-        width: 24px;
-        height: 24px;
+        width: 30px;
+        height: 30px;
         fill: $cbm-primary;
+        flex-shrink: 0;
+        transition: transform 0.15s ease;
+    }
+
+    // CSS mask-image icons (custom tiles: Congé, Inventaire, Messages, etc.)
+    .cbm_tile_icon_svg {
+        width: 30px;
+        height: 30px;
+        background-color: $cbm-primary;
+        flex-shrink: 0;
         transition: transform 0.15s ease;
     }
 
     span.cbm_module_label {
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: $cbm-on-surface;
+        text-align: center;
+    }
+
+    // Inline count chip
+    .cbm_tile_chip {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        padding: 0.25rem 0.625rem;
+        border-radius: $cbm-radius-full;
+        white-space: nowrap;
+        line-height: 1.4;
+
+        &.cbm_tile_chip--info {
+            background: rgba($cbm-primary, 0.1);
+            color: $cbm-primary;
+        }
+
+        &.cbm_tile_chip--warning {
+            background: rgba($cbm-amber, 0.15);
+            color: darken($cbm-amber, 15%);
+        }
+
+        &.cbm_tile_chip--neutral {
+            background: $cbm-surface-container;
+            color: $cbm-on-surface-variant;
+        }
+
+        // Invisible spacer — keeps chipless cards the same height
+        &.cbm_tile_chip--empty {
+            background: transparent;
+            color: transparent;
+            pointer-events: none;
+            user-select: none;
+        }
     }
 
     &:hover {
-        background: $cbm-surface-lowest;
-        border-color: rgba($cbm-outline-variant, 0.15);
+        background: $cbm-surface-low;
 
-        svg {
+        svg,
+        .cbm_tile_icon_svg {
             transform: scale(1.1);
         }
     }
@@ -386,6 +603,37 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 // =============================================================================
 // SIDEBAR
 // =============================================================================
+
+.cbm_sidebar_financial {
+    display: none;  // hidden on desktop — already in header
+
+    @media (max-width: 600px) {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: $cbm-surface-lowest;
+        border: 1px solid rgba($cbm-outline-variant, 0.15);
+        border-radius: $cbm-radius-xl;
+        padding: 0.875rem 1.125rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: $cbm-on-surface-variant;
+        box-shadow: $cbm-shadow-sm;
+
+        &:hover {
+            border-color: rgba($cbm-primary, 0.2);
+        }
+    }
+}
+
+.cbm_kiosk.cbm-dark-mode .cbm_sidebar_financial {
+    @media (max-width: 600px) {
+        background: var(--cbm-card-bg);
+        border-color: var(--cbm-border-subtle);
+        color: var(--cbm-color-text-muted);
+    }
+}
 
 .cbm_sidebar_v2 {
     // Suivi tile
@@ -419,7 +667,7 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
             }
 
             .cbm_suivi_hint {
-                font-size: 0.75rem;
+                font-size: 0.9rem;
                 color: $cbm-on-surface-variant;
             }
         }
@@ -443,7 +691,7 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     }
 
     .cbm_sidebar_heading {
-        font-size: 1rem;
+        font-size: 1.25rem;     // text-xl = 20px
         font-weight: 700;
         color: $cbm-on-surface;
         margin: 0 0 1.25rem 0;
@@ -471,13 +719,13 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     }
 
     .cbm_progress_label {
-        font-size: 0.8125rem;
+        font-size: 0.9375rem;   // ~text-sm font-medium but bumped — Stitch uses text-sm=14px, we go 15px
         font-weight: 500;
         color: $cbm-on-surface-variant;
     }
 
     .cbm_progress_value {
-        font-size: 0.8125rem;
+        font-size: 0.9375rem;
         font-weight: 700;
         color: $cbm-on-surface;
 
@@ -507,7 +755,7 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 
     // Recent updates section
     .cbm_recent_heading {
-        font-size: 0.6875rem;
+        font-size: 0.9rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -534,29 +782,420 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
         flex-shrink: 0;
         margin-top: 0.3rem;
 
-        &.dot_done     { background: $cbm-primary; }
-        &.dot_pending  { background: $cbm-amber; }
-        &.dot_cancel   { background: $cbm-error; }
-        &.dot_draft    { background: $cbm-outline-variant; }
+        &.cbm_dot_done     { background: $cbm-primary; }
+        &.cbm_dot_pending  { background: $cbm-amber; }
+        &.dot_done         { background: $cbm-primary; }
+        &.dot_pending      { background: $cbm-amber; }
+        &.dot_cancel       { background: $cbm-error; }
+        &.dot_draft        { background: $cbm-outline-variant; }
     }
 
+    .cbm_recent_item--unread {
+        .cbm_recent_name { color: $cbm-primary; }
+    }
+
+    .cbm_recent_item_body { min-width: 0; }
+
     .cbm_recent_name {
-        font-size: 0.8125rem;
+        font-size: 0.9375rem;
         font-weight: 700;
         color: $cbm-on-surface;
         margin: 0 0 0.125rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cbm_recent_preview {
+        font-size: 0.875rem;
+        color: $cbm-on-surface-variant;
+        margin: 0 0 0.125rem 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     .cbm_recent_meta {
-        font-size: 0.75rem;
-        color: $cbm-on-surface-variant;
+        font-size: 0.8125rem;
+        color: $cbm-outline-variant;
         margin: 0;
     }
 
     .cbm_recent_empty {
-        font-size: 0.8125rem;
+        font-size: 0.9rem;
         color: $cbm-on-surface-variant;
         text-align: center;
         padding: 0.5rem 0;
+    }
+}
+
+
+// =============================================================================
+// DARK MODE — uses existing .cbm-dark-mode tokens from cbm_kiosk.scss
+// =============================================================================
+
+.cbm_kiosk.cbm-dark-mode {
+
+    // Layout
+    .cbm_home_layout_v2 {
+        background: var(--cbm-color-bg);
+    }
+
+    // Header
+    .cbm_kiosk_header_v2 {
+        background: var(--cbm-color-header);
+
+        .cbm_portal_title {
+            color: var(--cbm-color-text);
+        }
+
+        .cbm_header_location {
+            background: var(--cbm-chip-bg);
+            color: var(--cbm-color-text-muted);
+        }
+
+        .cbm_theme_toggle {
+            color: var(--cbm-color-text-muted);
+
+            &:hover {
+                background: var(--cbm-hover-bg);
+            }
+        }
+
+        .cbm_logout_btn {
+            border-color: rgba(#dc2626, 0.45);
+            color: #f87171;
+            background: rgba(#dc2626, 0.08);
+
+            &:hover {
+                background: rgba(#dc2626, 0.15);
+                border-color: rgba(#dc2626, 0.7);
+            }
+        }
+
+        .cbm_financial_header {
+            color: var(--cbm-color-text-muted);
+
+            &:hover {
+                color: var(--cbm-color-text);
+            }
+        }
+    }
+
+    // Welcome
+    .cbm_welcome_section {
+        h1 {
+            color: var(--cbm-color-text);
+        }
+
+        p {
+            color: var(--cbm-color-text-muted);
+        }
+    }
+
+    // Primary cards
+    .cbm_card_primary {
+        background: var(--cbm-card-bg);
+        border-color: var(--cbm-border-subtle);
+        box-shadow: none;
+
+        &:hover {
+            border-color: var(--cbm-border-color);
+        }
+
+        &.cbm_card_primary--blocked {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+    }
+
+    .cbm_card_status_chip {
+        background: var(--cbm-chip-bg);
+        color: var(--cbm-color-text-muted);
+
+        &.cbm_chip_blocked {
+            background: var(--cbm-accent-red-bg);
+        }
+    }
+
+    .cbm_card_title {
+        color: var(--cbm-color-text);
+    }
+
+    .cbm_card_hint {
+        color: var(--cbm-color-text-muted);
+    }
+
+    // Section header
+    .cbm_section_title {
+        color: var(--cbm-color-text);
+    }
+
+    // Module tiles
+    .cbm_card_module {
+        background: var(--cbm-card-bg);
+        border-color: var(--cbm-border-subtle);
+        box-shadow: none;
+
+        svg {
+            fill: var(--cbm-icon-color);
+        }
+
+        .cbm_tile_icon_svg {
+            background-color: var(--cbm-icon-color);
+        }
+
+        span.cbm_module_label {
+            color: var(--cbm-color-text);
+        }
+
+        .cbm_tile_chip--info    { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+        .cbm_tile_chip--warning { background: rgba(251, 191, 36, 0.15); color: #fcd34d; }
+        .cbm_tile_chip--neutral { background: var(--cbm-border-subtle); color: var(--cbm-color-text-muted); }
+
+        &:hover {
+            background: var(--cbm-hover-bg);
+            border-color: var(--cbm-border-color);
+        }
+    }
+
+    // Sidebar
+    .cbm_suivi_tile {
+        background: var(--cbm-card-bg);
+        border-color: var(--cbm-border-subtle);
+        box-shadow: none;
+
+        svg {
+            fill: var(--cbm-icon-color);
+        }
+
+        .cbm_suivi_label {
+            color: var(--cbm-color-text);
+        }
+
+        .cbm_suivi_hint {
+            color: var(--cbm-color-text-muted);
+        }
+
+        .cbm_suivi_chevron {
+            color: var(--cbm-color-text-hint);
+        }
+
+        &:hover {
+            border-color: var(--cbm-border-color);
+        }
+    }
+
+    .cbm_sidebar_card {
+        background: var(--cbm-card-bg);
+        box-shadow: none;
+    }
+
+    .cbm_sidebar_heading {
+        color: var(--cbm-color-text);
+    }
+
+    .cbm_progress_label {
+        color: var(--cbm-color-text-muted);
+    }
+
+    .cbm_progress_value {
+        color: var(--cbm-color-text);
+
+        &.cbm_progress_value--error {
+            color: #f87171;  // brighter red for dark mode visibility
+        }
+    }
+
+    .cbm_progress_bar_track {
+        background: var(--cbm-card-elevated);
+    }
+
+    .cbm_recent_heading {
+        color: var(--cbm-color-text-hint);
+    }
+
+    .cbm_recent_name {
+        color: var(--cbm-color-text);
+    }
+
+    .cbm_recent_meta {
+        color: var(--cbm-color-text-muted);
+    }
+
+    .cbm_recent_empty {
+        color: var(--cbm-color-text-hint);
+    }
+}
+
+// =============================================================================
+// HAMBURGER BUTTON (mobile only)
+// =============================================================================
+
+.cbm_hamburger {
+    display: none;
+
+    @media (max-width: 600px) {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.375rem;
+        flex-shrink: 0;
+
+        span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: $cbm-on-surface;
+            border-radius: 2px;
+        }
+    }
+}
+
+.cbm_hide_mobile {
+    @media (max-width: 600px) {
+        display: none !important;
+    }
+}
+
+// =============================================================================
+// MOBILE SIDEBAR OVERLAY
+// =============================================================================
+
+// Hide the sidebar on mobile by default; show as full-screen overlay when open
+@media (max-width: 600px) {
+    .cbm_sidebar_v2 {
+        display: none;
+    }
+
+    .cbm_sidebar_v2.cbm_sidebar_mobile_open {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: $cbm-surface;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0;
+        padding: 0 0 1.5rem 0;
+        gap: 0;
+
+        // Cards inside get horizontal margin
+        > .cbm_sidebar_card,
+        > .cbm_suivi_tile,
+        > .cbm_sidebar_financial,
+        > .cbm_sidebar_mobile_logout {
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+        > .cbm_suivi_tile { margin-top: 1rem; }
+        > .cbm_sidebar_card { margin-top: 0.75rem; }
+        > .cbm_sidebar_financial { margin-top: 1rem; }
+    }
+}
+
+// Mobile-only header bar inside sidebar (hidden on desktop)
+.cbm_sidebar_mobile_header {
+    display: none;
+
+    @media (max-width: 600px) {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: $cbm-surface-low;
+        border-bottom: 1px solid $cbm-surface-high;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        flex-shrink: 0;
+    }
+}
+
+.cbm_mobile_menu_back {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $cbm-primary;
+    padding: 0;
+}
+
+.cbm_mobile_menu_title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: $cbm-on-surface;
+}
+
+// Mobile-only logout at bottom of sidebar
+.cbm_sidebar_mobile_logout {
+    display: none;
+
+    @media (max-width: 600px) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 1.25rem 1rem 1.5rem;
+        padding: 0.875rem 1rem;
+        border: 1.5px solid rgba(#dc2626, 0.35);
+        border-radius: $cbm-radius-xl;
+        background: rgba(#dc2626, 0.05);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #dc2626;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+
+        span { opacity: 0.8; }
+
+        &:hover {
+            background: rgba(#dc2626, 0.1);
+            border-color: rgba(#dc2626, 0.6);
+        }
+    }
+}
+
+// Dark mode
+.cbm_kiosk.cbm-dark-mode {
+    .cbm_sidebar_v2.cbm_sidebar_mobile_open {
+        background: var(--cbm-color-bg);
+    }
+
+    .cbm_sidebar_mobile_header {
+        background: var(--cbm-color-header);
+        border-color: var(--cbm-border-subtle);
+    }
+
+    .cbm_mobile_menu_back { color: var(--cbm-color-text); }
+    .cbm_mobile_menu_title { color: var(--cbm-color-text); }
+
+    .cbm_sidebar_mobile_logout {
+        border-color: rgba(#dc2626, 0.45);
+        color: #f87171;
+        background: rgba(#dc2626, 0.08);
+
+        &:hover {
+            background: rgba(#dc2626, 0.15);
+            border-color: rgba(#dc2626, 0.7);
+        }
+    }
+
+    .cbm_hamburger span {
+        background: var(--cbm-color-text);
     }
 }
