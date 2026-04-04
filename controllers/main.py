@@ -2259,7 +2259,7 @@ class CBMKioskController(http.Controller):
             notifications = Notif.search([
                 ('res_partner_id', '=', user.partner_id.id),
                 ('notification_type', '=', 'inbox'),
-            ], limit=limit, order='mail_message_id desc')
+            ], limit=limit, order='id desc')
 
             for notif in notifications:
                 msg = notif.mail_message_id
