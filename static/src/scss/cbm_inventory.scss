@@ -1361,7 +1361,7 @@ body.o_dark .cbm_lot_picker_search_wrap {
 // stitch: hidden lg:block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mr-4
 .cbm_inv_footer_hint {
     display: none;
-    font-size: 0.625rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -1395,6 +1395,37 @@ body.o_dark .cbm_lot_picker_search_wrap {
         font-size: 1rem;
     }
 
-    &:hover { filter: brightness(1.08); }
-    &:active { transform: scale(0.95); }
+    &:hover:not(:disabled) { filter: brightness(1.08); }
+    &:active:not(:disabled) { transform: scale(0.95); }
+
+    &:disabled {
+        background: var(--cbm-border-color);
+        color: var(--cbm-color-text-muted);
+        box-shadow: none;
+        cursor: not-allowed;
+        opacity: 1;
+    }
+}
+
+.cbm_inv_footer_hint_action {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cbm-color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--cbm-color-text-muted);
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 767px) { display: none; }
 }

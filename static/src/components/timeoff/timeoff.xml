@@ -175,19 +175,21 @@
 
         <!-- Footer Actions -->
         <div t-if="!state.timeoffLoading &amp;&amp; !state.timeoffSuccess" class="cbm_page_footer">
-            <button class="cbm_btn_secondary btn-lg" t-on-click="goHome">Annuler</button>
-            <button class="cbm_btn_primary btn-lg"
-                    t-on-click="submitTimeOff"
-                    t-att-disabled="state.timeoffSubmitting || !isTimeOffFormValid()">
-                <t t-if="state.timeoffSubmitting">
-                    <span class="spinner-border spinner-border-sm me-2"/>
-                    Envoi en cours...
-                </t>
-                <t t-else="">
-                    <span class="cbm_icon_send me-2"/>
-                    Envoyer la demande
-                </t>
-            </button>
+            <div class="cbm_inv_footer_inner">
+                <button class="cbm_inv_footer_cancel" t-on-click="goHome">Annuler</button>
+                <button class="cbm_inv_footer_submit"
+                        t-on-click="submitTimeOff"
+                        t-att-disabled="state.timeoffSubmitting || !isTimeOffFormValid()">
+                    <t t-if="state.timeoffSubmitting">
+                        <span class="spinner-border spinner-border-sm me-2"/>
+                        Envoi en cours...
+                    </t>
+                    <t t-else="">
+                        <span class="cbm_icon_send me-2"/>
+                        Envoyer la demande
+                    </t>
+                </button>
+            </div>
         </div>
     </t>
 

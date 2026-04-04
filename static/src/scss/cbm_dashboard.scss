@@ -496,6 +496,21 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
             }
         }
     }
+
+    &.cbm_card_optype--selected {
+        border-color: rgba($cbm-primary, 0.4);
+        box-shadow: 0 4px 16px rgba($cbm-primary, 0.12);
+        background: $cbm-primary-container;
+
+        .cbm_optype_icon_wrap {
+            background: $cbm-primary;
+            color: $cbm-on-primary;
+
+            .cbm_tile_icon_svg {
+                background-color: $cbm-on-primary;
+            }
+        }
+    }
 }
 
 // Dark mode
@@ -511,6 +526,17 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
         &:hover {
             background: var(--cbm-hover-bg);
             border-color: var(--cbm-border-color);
+        }
+
+        &.cbm_card_optype--selected {
+            background: var(--cbm-hover-bg);
+            border-color: var(--cbm-btn-primary-bg);
+
+            .cbm_optype_icon_wrap {
+                background: var(--cbm-btn-primary-bg);
+                color: var(--cbm-btn-primary-text);
+                .cbm_tile_icon_svg { background-color: var(--cbm-btn-primary-text); }
+            }
         }
     }
 }
@@ -640,7 +666,7 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     .cbm_suivi_tile {
         background: $cbm-surface-lowest;
         border-radius: $cbm-radius-xl;
-        border: 1px solid transparent;
+        border: 1px solid rgba($cbm-outline-variant, 0.2);
         box-shadow: $cbm-shadow-sm;
         padding: 1rem 1.25rem;
         cursor: pointer;
@@ -686,6 +712,7 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     .cbm_sidebar_card {
         background: $cbm-surface-lowest;
         border-radius: $cbm-radius-xl;
+        border: 1px solid rgba($cbm-outline-variant, 0.2);
         box-shadow: $cbm-shadow-sm;
         padding: 1.5rem;
     }
@@ -963,8 +990,8 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
     // Sidebar
     .cbm_suivi_tile {
         background: var(--cbm-card-bg);
-        border-color: var(--cbm-border-subtle);
-        box-shadow: none;
+        border-color: var(--cbm-border-color);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 
         svg {
             fill: var(--cbm-icon-color);
@@ -989,7 +1016,8 @@ $cbm-shadow-sm: 0 1px 3px rgba(40, 52, 57, 0.06), 0 1px 2px rgba(40, 52, 57, 0.0
 
     .cbm_sidebar_card {
         background: var(--cbm-card-bg);
-        box-shadow: none;
+        border-color: var(--cbm-border-color);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
     }
 
     .cbm_sidebar_heading {
