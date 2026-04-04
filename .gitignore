@@ -2,3 +2,8 @@
 __pycache__/
 .vscode/
 *.swp
+inventory_tempalte/
+migrations/
+dashboard/
+.claude/
+INVENTORY_IMPLEMENTATION_CHECKPOINT.md

@@ -113,6 +113,35 @@ class CBMKioskController(http.Controller):
         except Exception as e:
             _logger.debug(f"[CBM] Could not get unread count: {e}")
 
+        # Live count: pending (not validated) timeoff for current user
+        timeoff_pending_count = 0
+        try:
+            timeoff_pending_count = request.env['hr.leave'].sudo().search_count([
+                ('user_id', '=', user.id),
+                ('state', 'in', ['draft', 'confirm', 'validate1']),
+            ])
+        except Exception as e:
+            _logger.debug(f"[CBM] Could not get timeoff count: {e}")
+
+        # Live count: new maintenance requests (for maintenance team members)
+        maintenance_count = 0
+        try:
+            MaintenanceTeam = request.env['maintenance.team']
+            user_teams = MaintenanceTeam.search([('member_ids', 'in', user.id)])
+            ICP_m = request.env['ir.config_parameter'].sudo()
+            admin_ids_m = [int(i) for i in ICP_m.get_param('clinic_staff_portal.admin_user_ids', '').split(',') if i.strip().isdigit()]
+            is_admin_m = user.id in admin_ids_m
+            if user_teams or is_admin_m:
+                Stage = request.env['maintenance.stage']
+                new_stage = Stage.search([('sequence', '=', 0)], limit=1)
+                if new_stage:
+                    maintenance_count = request.env['maintenance.request'].sudo().search_count([
+                        ('archive', '=', False),
+                        ('stage_id', '=', new_stage.id),
+                    ])
+        except Exception as e:
+            _logger.debug(f"[CBM] Could not get maintenance count: {e}")
+
         result = []
         for tile in tiles:
             # Check user-specific visibility (assigned_user_ids takes precedence)
@@ -128,10 +157,14 @@ class CBMKioskController(http.Controller):
                 if not set(user_groups) & set(tile_groups):
                     continue  # User not in required groups, skip this tile
 
-            # For Messages tile, use unread count instead of pending_count
+            # Inject live counts for known tile types
             pending = tile.pending_count
             if tile.client_action_tag == 'mail.action_discuss':
                 pending = unread_count
+            elif tile.icon == 'calendar-days' or (tile.name or '').lower() in ('demande congé', 'congé', 'conge', 'time off', 'timeoff', 'congés'):
+                pending = timeoff_pending_count
+            elif tile.icon == 'wrench-screwdriver' or (tile.name or '').lower() in ('maintenance', 'new maintenance', 'demande de maintenance'):
+                pending = maintenance_count
 
             result.append({
                 'id': tile.id,
@@ -384,6 +417,46 @@ class CBMKioskController(http.Controller):
         drh_id_str = ICP.get_param('clinic_staff_portal.drh_user_id', '')
         is_drh = bool(drh_id_str) and str(user.id) == drh_id_str.strip()
 
+        # --- Count: Caisse quotations created today ---
+        caisse_today_count = 0
+        try:
+            from datetime import date
+            today_str = date.today().strftime('%Y-%m-%d')
+            SaleOrder = request.env['sale.order'].sudo()
+            caisse_today_count = SaleOrder.search_count([
+                ('state', '=', 'draft'),
+                ('create_date', '>=', today_str),
+            ])
+        except Exception as e:
+            _logger.warning(f"[CBM] Failed to count caisse quotations: {e}")
+
+        # --- Count: Documents accessible to the user ---
+        my_documents_count = 0
+        try:
+            Doc = request.env['clinic.document'].sudo()
+            user_location_ids = responsible_locations.ids if responsible_locations else []
+            domain = [('active', '=', True)]
+            if not is_admin:
+                domain += ['|', '|',
+                    ('location_ids', '=', False),
+                    ('location_ids', 'in', user_location_ids),
+                    ('target_user_ids', 'in', user.id),
+                ]
+            my_documents_count = Doc.search_count(domain)
+        except Exception as e:
+            _logger.warning(f"[CBM] Failed to count documents: {e}")
+
+        # --- Count: User's pending (not yet validated) time-off requests ---
+        my_timeoff_pending_count = 0
+        try:
+            Leave = request.env['hr.leave'].sudo()
+            my_timeoff_pending_count = Leave.search_count([
+                ('user_id', '=', user.id),
+                ('state', 'in', ['draft', 'confirm', 'validate1']),
+            ])
+        except Exception as e:
+            _logger.warning(f"[CBM] Failed to count timeoff requests: {e}")
+
         # Always show sidebar (all users can have pending work)
         return {
             'show_sidebar': True,
@@ -403,6 +476,9 @@ class CBMKioskController(http.Controller):
             'pending_po_count': pending_po_count,
             'pending_discrepancy_count': pending_discrepancy_count,
             'my_maintenance_count': my_maintenance_count,
+            'caisse_today_count': caisse_today_count,
+            'my_documents_count': my_documents_count,
+            'my_timeoff_pending_count': my_timeoff_pending_count,
             'responsible_location_ids': responsible_locations.ids,
             # Operation type IDs for filtering (used by JS click handlers)
             'user_incoming_op_type_ids': user_incoming_op_types.ids if user_incoming_op_types else [],
@@ -2140,11 +2216,11 @@ class CBMKioskController(http.Controller):
         """Get current user's portal request history"""
         user = request.env.user
         Picking = request.env['stock.picking']
-        
+
         # Filter: Last 30 days only
         from datetime import datetime, timedelta
         thirty_days_ago = datetime.now() - timedelta(days=30)
-        
+
         pickings = Picking.search([
             ('is_portal_request', '=', True),  # Only portal pickings
             ('create_date', '>=', thirty_days_ago.strftime('%Y-%m-%d')),
@@ -2152,7 +2228,7 @@ class CBMKioskController(http.Controller):
             ('portal_requester_id', '=', user.id),
             ('create_uid', '=', user.id),
         ], limit=limit, order='create_date desc')
-        
+
         result = []
         for picking in pickings:
             result.append({
@@ -2171,6 +2247,41 @@ class CBMKioskController(http.Controller):
                 'is_partial_consumption': picking.is_partial_consumption,
             })
 
+        return result
+
+    @http.route('/cbm/get_inbox_activity', type='json', auth='user')
+    def get_inbox_activity(self, limit=8):
+        """Return recent inbox messages (mail.notification) for the current user."""
+        user = request.env.user
+        result = []
+        try:
+            Notif = request.env['mail.notification'].sudo()
+            notifications = Notif.search([
+                ('res_partner_id', '=', user.partner_id.id),
+                ('notification_type', '=', 'inbox'),
+            ], limit=limit, order='mail_message_id desc')
+
+            for notif in notifications:
+                msg = notif.mail_message_id
+                if not msg:
+                    continue
+                author = msg.author_id.name if msg.author_id else 'Système'
+                body = msg.body or ''
+                # Strip HTML tags for plain preview
+                import re
+                plain = re.sub(r'<[^>]+>', ' ', body).strip()
+                plain = re.sub(r'\s+', ' ', plain)[:120]
+                result.append({
+                    'id': msg.id,
+                    'author': author,
+                    'preview': plain,
+                    'date': msg.date.isoformat() if msg.date else False,
+                    'is_read': notif.is_read,
+                    'model': msg.model or '',
+                    'res_id': msg.res_id or 0,
+                })
+        except Exception as e:
+            _logger.warning(f"[CBM] Failed to load inbox activity: {e}")
         return result
 
     @http.route('/cbm/get_picking_detail', type='json', auth='user')

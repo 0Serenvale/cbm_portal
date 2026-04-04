@@ -361,16 +361,16 @@ class CBMKiosk extends Component {
 
     async loadRecentActivity() {
         try {
-            const items = await this.rpc('/cbm/get_history', { limit: 5 });
-            this.state.recentActivity = (items || []).map(p => ({
-                name: p.name,
-                state: p.state,
-                portal_behavior: p.portal_behavior,
-                create_date: p.create_date,
-                partner_name: p.partner_name || false,
+            const items = await this.rpc('/cbm/get_inbox_activity', { limit: 5 });
+            this.state.recentActivity = (items || []).map(m => ({
+                name: m.author,
+                preview: m.preview,
+                create_date: m.date,
+                is_read: m.is_read,
+                model: m.model,
+                res_id: m.res_id,
             }));
         } catch (e) {
-            // Non-blocking — dashboard still works without recent activity
             this.state.recentActivity = [];
         }
     }
@@ -1873,6 +1873,14 @@ class CBMKiosk extends Component {
     }
 
     // ==================== NAVIGATION ====================
+
+    toggleMobileMenu() {
+        this.state.mobileMenuOpen = !this.state.mobileMenuOpen;
+    }
+
+    closeMobileMenu() {
+        this.state.mobileMenuOpen = false;
+    }
 
     goHome() {
         this.state.currentState = "home";

@@ -1,53 +1,48 @@
 /**
- * Inventory Warning Banner Styles
- *
- * Displays a prominent banner above the CBM Portal dashboard
- * when inventory is scheduled to start within 7 days.
+ * Inventory Warning Banner
+ * Sits flush below the sticky header. Flat, typographic, no gradients.
  */
 
 .inventory-banner-container {
-    margin-bottom: 1.5rem;
-    border-radius: 0.5rem;
+    margin: 0;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-    animation: slideDown 0.3s ease-out;
+    box-shadow: none;
+    animation: bannerSlideDown 0.25s ease-out;
 
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    @keyframes bannerSlideDown {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 }
 
 .inventory-warning-banner {
     &.urgency-critical {
         background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-        border-left: 4px solid #7f1d1d;
+        color: #fff;
 
-        .inventory-banner-icon {
+        .inventory-banner-label {
+            background: rgba(255, 255, 255, 0.15);
             color: #fff;
         }
     }
 
     &.urgency-high {
         background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-        border-left: 4px solid #92400e;
+        color: #fff;
 
-        .inventory-banner-icon {
+        .inventory-banner-label {
+            background: rgba(255, 255, 255, 0.15);
             color: #fff;
         }
     }
 
     &.urgency-normal {
         background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-        border-left: 4px solid #713f12;
+        color: #fff;
 
-        .inventory-banner-icon {
+        .inventory-banner-label {
+            background: rgba(255, 255, 255, 0.15);
             color: #fff;
         }
     }
@@ -56,25 +51,37 @@
 .inventory-banner-content {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    color: #fff;
+    gap: 0.875rem;
+    padding: 0.625rem 1.5rem;
+    color: inherit;
 }
 
 .inventory-banner-icon {
     flex-shrink: 0;
-    width: 24px;
-    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0.85;
 
     .icon-warning {
-        width: 24px;
-        height: 24px;
+        width: 16px;
+        height: 16px;
         stroke-linecap: round;
         stroke-linejoin: round;
     }
+}
+
+// Pill label — e.g. "[EN COURS]"
+.inventory-banner-label {
+    flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
 }
 
 .inventory-banner-message {
@@ -84,68 +91,54 @@
 
 .inventory-banner-text {
     margin: 0;
-    font-size: 0.95rem;
-    line-height: 1.4;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
     font-weight: 500;
-    word-break: break-word;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.95;
 }
 
 .inventory-banner-close {
     flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.2);
+    width: 24px;
+    height: 24px;
+    background: none;
     border: none;
-    border-radius: 0.25rem;
-    color: #fff;
+    border-radius: 0;
+    color: inherit;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
     padding: 0;
 
     svg {
-        width: 16px;
-        height: 16px;
-        stroke-width: 2.5;
+        width: 14px;
+        height: 14px;
+        stroke-width: 2;
     }
 
     &:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(1.05);
-    }
-
-    &:active {
-        transform: scale(0.95);
+        opacity: 1;
     }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .inventory-banner-container {
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-    }
-}
-
-/* Mobile responsive */
 @media (max-width: 640px) {
     .inventory-banner-content {
-        gap: 0.75rem;
-        padding: 0.875rem 1rem;
+        padding: 0.5rem 1rem;
     }
 
     .inventory-banner-text {
-        font-size: 0.9rem;
+        white-space: normal;
     }
 
-    .inventory-banner-close {
-        width: 24px;
-        height: 24px;
-
-        svg {
-            width: 14px;
-            height: 14px;
-        }
+    .inventory-banner-label {
+        display: none;
     }
 }

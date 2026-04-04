@@ -89,25 +89,23 @@ export class InventoryBanner extends Component {
         return Math.ceil((target - now) / (1000 * 60 * 60 * 24));
     }
 
+    getUrgencyLabel() {
+        if (this.state.daysUntilStart === null) return "";
+        if (this.state.daysUntilStart < 0)  return _t("EN COURS");
+        if (this.state.daysUntilStart === 0) return _t("AUJOURD'HUI");
+        if (this.state.daysUntilStart === 1) return _t("DEMAIN");
+        return _t("Dans %s jours", this.state.daysUntilStart);
+    }
+
+    getAnnouncementText() {
+        return this.state.announcement || "";
+    }
+
+    // Keep for backwards compatibility
     getAnnouncementWithCountdown() {
-        let text = this.state.announcement || "";
-
-        if (this.state.daysUntilStart !== null) {
-            let prefix;
-            if (this.state.daysUntilStart < 0) {
-                // Inventory is in progress
-                prefix = _t("EN COURS");
-            } else if (this.state.daysUntilStart === 0) {
-                prefix = _t("AUJOURD'HUI");
-            } else if (this.state.daysUntilStart === 1) {
-                prefix = _t("DEMAIN");
-            } else {
-                prefix = _t("Dans %s jours", this.state.daysUntilStart);
-            }
-            text = `[${prefix}] ${text}`;
-        }
-
-        return text;
+        const label = this.getUrgencyLabel();
+        const text = this.getAnnouncementText();
+        return label ? `[${label}] ${text}` : text;
     }
 
     onDismissBanner() {
